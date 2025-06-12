@@ -3,34 +3,33 @@ package marcel.csv;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriterBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import marcel.lang.compile.BooleanDefaultValue;
 import marcel.lang.compile.NullDefaultValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-// TODO handle serialization, don't forget to complete mdbook doc
 public class DynamicCsv {
 
-  // useful to handle csv without having to instantiate a mapper
-  private static DynamicCsv _instance = new DynamicCsv();
-
-  public static DynamicCsv getInstance() {
-    if (_instance == null) {
-      _instance = new DynamicCsv();
-    }
-    return _instance;
+  private DynamicCsv() {
+    throw new IllegalStateException("You can't touch this");
   }
 
-  public CsvReader reader(String text,
+  public static CsvReader reader(String text,
                           @NullDefaultValue Character separator,
                           @NullDefaultValue Character quoteChar,
                           @NullDefaultValue Character escapeChar,
@@ -39,7 +38,7 @@ public class DynamicCsv {
     return reader(new StringReader(text), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public CsvReader reader(byte[] bytes,
+  public static CsvReader reader(byte[] bytes,
                           @NullDefaultValue Character separator,
                           @NullDefaultValue Character quoteChar,
                           @NullDefaultValue Character escapeChar,
@@ -48,7 +47,7 @@ public class DynamicCsv {
     return reader(new ByteArrayInputStream(bytes), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public CsvReader reader(InputStream inputStream,
+  public static CsvReader reader(InputStream inputStream,
                           @NullDefaultValue Character separator,
                           @NullDefaultValue Character quoteChar,
                           @NullDefaultValue Character escapeChar,
@@ -57,7 +56,7 @@ public class DynamicCsv {
     return reader(new InputStreamReader(inputStream, StandardCharsets.UTF_8), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public CsvReader reader(File file,
+  public static CsvReader reader(File file,
                           @NullDefaultValue Character separator,
                           @NullDefaultValue Character quoteChar,
                           @NullDefaultValue Character escapeChar,
@@ -66,7 +65,7 @@ public class DynamicCsv {
     return reader(new FileReader(file), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public CsvReader fileReader(String path,
+  public static CsvReader fileReader(String path,
                               @NullDefaultValue Character separator,
                               @NullDefaultValue Character quoteChar,
                               @NullDefaultValue Character escapeChar,
@@ -75,7 +74,7 @@ public class DynamicCsv {
     return reader(new File(path), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public CsvReader reader(Reader reader,
+  public static CsvReader reader(Reader reader,
                           @NullDefaultValue Character separator,
                           @NullDefaultValue Character quoteChar,
                           @NullDefaultValue Character escapeChar,
@@ -100,5 +99,47 @@ public class DynamicCsv {
       headers = List.of(csvReader.readNext());
     }
     return new CsvReader(csvReader, headers);
+  }
+
+  public static CsvWriter writer(OutputStream outputStream,
+                                 @NullDefaultValue Character separator,
+                                 @NullDefaultValue Character quoteChar,
+                                 @NullDefaultValue Character escapeChar,
+                                 @BooleanDefaultValue boolean applyQuotesToAll) {
+    return writer(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), separator, quoteChar, escapeChar, applyQuotesToAll);
+  }
+
+  public static CsvWriter writer(File file,
+                                 @NullDefaultValue Character separator,
+                                 @NullDefaultValue Character quoteChar,
+                                 @NullDefaultValue Character escapeChar,
+                                 @BooleanDefaultValue boolean applyQuotesToAll) throws IOException {
+    return writer(new FileWriter(file), separator, quoteChar, escapeChar, applyQuotesToAll);
+  }
+
+  public static CsvWriter fileWriter(String path,
+                                     @NullDefaultValue Character separator,
+                                     @NullDefaultValue Character quoteChar,
+                                     @NullDefaultValue Character escapeChar,
+                                     @BooleanDefaultValue boolean applyQuotesToAll) throws IOException {
+    return writer(new FileWriter(path), separator, quoteChar, escapeChar, applyQuotesToAll);
+  }
+
+  public static CsvWriter writer(Writer writer,
+                                 @NullDefaultValue Character separator,
+                                 @NullDefaultValue Character quoteChar,
+                                 @NullDefaultValue Character escapeChar,
+                                 @BooleanDefaultValue boolean applyQuotesToAll) {
+    CSVWriterBuilder writerBuilder = new CSVWriterBuilder(writer);
+    if (separator != null) {
+      writerBuilder.withSeparator(separator);
+    }
+    if (quoteChar != null) {
+      writerBuilder.withQuoteChar(quoteChar);
+    }
+    if (escapeChar != null) {
+      writerBuilder.withEscapeChar(escapeChar);
+    }
+    return new CsvWriter(writerBuilder.build(), applyQuotesToAll);
   }
 }
