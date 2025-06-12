@@ -65,7 +65,7 @@
   - [Command Line Options/Arguments](./guides/command-line-arguments.md)
   - [Regular Expressions](./guides/regular-expressions.md)
   - [Standard Library Extensions](./guides/stdlib-extensions.md)
-  - [Parsing CSV](./guides/csv.md)
+  - [Parsing and producing CSV](./guides/csv.md)
   - [Parsing and producing JSON](./guides/json.md)
   - [Parsing and producing YAML](./guides/yaml.md)
 - [Tools](./tools/index.md)
