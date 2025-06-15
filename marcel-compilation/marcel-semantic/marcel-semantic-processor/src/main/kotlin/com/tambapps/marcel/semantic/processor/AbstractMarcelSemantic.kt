@@ -66,7 +66,7 @@ import marcel.util.primitives.iterators.IntIterator
 import marcel.util.primitives.iterators.LongIterator
 import java.util.*
 
-abstract class MarcelSemanticGenerator(
+abstract class AbstractMarcelSemantic(
   val scopeQueue: LinkedList<Scope> = LinkedList<Scope>()
 ) {
 

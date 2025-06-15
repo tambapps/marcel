@@ -1,7 +1,8 @@
 package com.tambapps.marcel.lexer
 
 /**
- * Marcel lexer
+ * Marcel lexer.
+ * Thread-safe
  *
  * @constructor Create Marcel lexer instance
  */

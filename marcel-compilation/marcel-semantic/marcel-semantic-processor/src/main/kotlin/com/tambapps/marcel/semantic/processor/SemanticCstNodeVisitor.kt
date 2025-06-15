@@ -194,7 +194,7 @@ abstract class SemanticCstNodeVisitor constructor(
   final override val symbolResolver: MarcelSymbolResolver,
   packageName: String?,
   val fileName: String
-) : MarcelSemanticGenerator(),
+) : AbstractMarcelSemantic(),
   CstSymbolSemantic,
   ExpressionCstNodeVisitor<ExpressionNode, JavaType>,
   StatementCstNodeVisitor<StatementNode> {

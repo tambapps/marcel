@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.transform.compose
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.processor.MarcelSemanticGenerator
+import com.tambapps.marcel.semantic.processor.AbstractMarcelSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
@@ -37,7 +37,7 @@ abstract class AstNodeComposer(
   val tokenStart: LexToken,
   val tokenEnd: LexToken,
   scopeQueue: LinkedList<Scope> = LinkedList<Scope>(),
-) : MarcelSemanticGenerator(scopeQueue) {
+) : AbstractMarcelSemantic(scopeQueue) {
   protected fun parameter(type: JavaType, name: String) = MethodParameter(type, name)
 
   protected fun signature(

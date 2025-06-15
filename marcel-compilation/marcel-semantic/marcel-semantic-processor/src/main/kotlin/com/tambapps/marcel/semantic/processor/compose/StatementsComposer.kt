@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.processor.compose
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.processor.MarcelSemanticGenerator
+import com.tambapps.marcel.semantic.processor.AbstractMarcelSemantic
 import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
@@ -51,7 +51,7 @@ class StatementsComposer(
   val statements: MutableList<StatementNode>,
   val tokenStart: LexToken,
   val tokenEnd: LexToken,
-): MarcelSemanticGenerator(scopeQueue) {
+): AbstractMarcelSemantic(scopeQueue) {
 
   fun addAllStmt(statements: List<StatementNode>) = this.statements.addAll(statements)
   fun addStmt(statement: StatementNode) = this.statements.add(statement)
