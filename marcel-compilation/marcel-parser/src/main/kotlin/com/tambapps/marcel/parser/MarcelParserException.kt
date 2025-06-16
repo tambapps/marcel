@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import java.util.stream.Collectors
 
-class MarcelParserException(private val errors: List<Error>) : RuntimeException(
+class MarcelParserException(val errors: List<Error>) : RuntimeException(
   generateErrorMessage(
     errors
   )

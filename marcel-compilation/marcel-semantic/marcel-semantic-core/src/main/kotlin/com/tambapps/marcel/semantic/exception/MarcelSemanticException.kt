@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import java.util.stream.Collectors
 
-open class MarcelSemanticException(errors: List<Error>) : RuntimeException(
+open class MarcelSemanticException(val errors: List<Error>) : RuntimeException(
   generateErrorMessage(
     errors
   )
