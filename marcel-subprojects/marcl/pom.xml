@@ -19,11 +19,12 @@
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-compiler</artifactId>
     </dependency>
-    <!-- Needed in order to load default extensions -->
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-clargs</artifactId>
     </dependency>
+    <!-- TODO créer un nouveau module marcel-libraries contenant toutes les marcel-libs, et l'importer plutot que la liste ci-dessous -->
+    <!-- Needed in order to load default extensions -->
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-extensions</artifactId>
@@ -39,10 +40,6 @@
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-csv</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>dumbbell-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
