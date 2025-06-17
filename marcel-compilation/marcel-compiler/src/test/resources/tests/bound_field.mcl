@@ -1,0 +1,11 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertNotEquals
+a = 1
+
+b = 5
+
+assertNotEquals(a, b)
+
+b = 1
+
+assertEquals(a, b)

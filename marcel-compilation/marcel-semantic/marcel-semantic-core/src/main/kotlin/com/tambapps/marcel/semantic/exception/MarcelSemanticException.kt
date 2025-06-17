@@ -2,25 +2,26 @@ package com.tambapps.marcel.semantic.exception
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.semantic.ast.ModuleNode
 import java.util.stream.Collectors
 
-open class MarcelSemanticException(val errors: List<Error>) : RuntimeException(
+open class MarcelSemanticException constructor(val errors: List<Error>, val ast: ModuleNode? = null) : RuntimeException(
   generateErrorMessage(
     errors
   )
 ) {
-  class Error(val message: String, val eof: Boolean, val token: LexToken)
+  class Error(val message: String, val token: LexToken)
 
   constructor(node: CstNode, message: String) : this(node.token, message)
 
   @JvmOverloads
-  constructor(token: LexToken, message: String, eof: Boolean = false) : this(Error(message, eof, token))
+  constructor(token: LexToken, message: String) : this(Error(message, token))
 
   private constructor(error: Error) : this(listOf<Error>(error))
 
   companion object {
-    fun error(message: String, eof: Boolean, token: LexToken): Error {
-      return Error(message, eof, token)
+    fun error(message: String, token: LexToken): Error {
+      return Error(message, token)
     }
 
     private fun generateErrorMessage(errors: List<Error>): String {
@@ -28,7 +29,7 @@ open class MarcelSemanticException(val errors: List<Error>) : RuntimeException(
       return "Multiple semantic errors were found:" + errors.stream()
         .map { e: Error ->
           """
-  -${generateErrorMessage(e)}"""
+  -${e.message}"""
         }
         .collect(Collectors.joining())
     }
@@ -40,8 +41,8 @@ open class MarcelSemanticException(val errors: List<Error>) : RuntimeException(
       )
     }
 
-    fun malformedNumber(e: NumberFormatException, token: LexToken, eof: Boolean): Error {
-      return Error("Malformed number (" + e.message + ")", eof, token)
+    fun malformedNumber(e: NumberFormatException, token: LexToken): Error {
+      return Error("Malformed number (" + e.message + ")", token)
     }
   }
 }

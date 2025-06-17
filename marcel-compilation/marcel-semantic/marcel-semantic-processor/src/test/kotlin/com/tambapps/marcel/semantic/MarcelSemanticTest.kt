@@ -49,6 +49,7 @@ class MarcelSemanticTest {
     semantic.scopeQueue.push(MethodScope(CLASS_SCOPE, METHOD))
     assertThrows<MarcelSemanticException> {
       semantic.visit(node)
+      semantic.throwIfHasErrors()
     }
   }
 

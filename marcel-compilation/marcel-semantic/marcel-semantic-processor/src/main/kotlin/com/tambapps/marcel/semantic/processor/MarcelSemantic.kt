@@ -78,16 +78,21 @@ open class MarcelSemantic(
   }
 
   fun apply(): ModuleNode {
-    val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
-
-    loadExtensions()
-
     try {
-      doApply(moduleNode)
+      val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
+
+      loadExtensions()
+
+      try {
+        doApply(moduleNode)
+      } finally {
+        unloadExtensions()
+      }
+      throwIfHasErrors(moduleNode=moduleNode)
+      return moduleNode
     } finally {
-      unloadExtensions()
+      errors.clear()
     }
-    return moduleNode
   }
 
   private fun doApply(moduleNode: ModuleNode) {
@@ -105,7 +110,7 @@ open class MarcelSemantic(
 
     if (scriptCstNode != null) {
       if (scriptCstNode.constructors.isNotEmpty()) {
-        throw MarcelSemanticException(
+        error(
           scriptCstNode.constructors.first().token,
           "Cannot define constructors for scripts"
         )
@@ -159,7 +164,7 @@ open class MarcelSemantic(
         val extendedType = extendedCstType?.let(this::resolve)
         classCstNode.methods.forEach { m ->
           if (extendedType != null && m.parameters.firstOrNull()?.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME) {
-            throw MarcelSemanticException(m.tokenEnd, "First parameter of a method extension cannot be named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
+            error(m.tokenEnd, "First parameter of a method extension cannot be named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
           }
           val extensionMethod = if (m.accessNode.isStatic) {
             if (extendedType == null) {
@@ -214,11 +219,11 @@ open class MarcelSemantic(
       // extension types check
       if (classNode.forExtensionType != null) {
         if (node.constructors.isNotEmpty()) {
-          throw MarcelSemanticException(node, "Extension classes cannot have constructors")
+          error(node, "Extension classes cannot have constructors")
         }
         node.fields.forEach { f ->
           if (!f.access.isStatic) {
-            throw MarcelSemanticException(f, "Cannot have non static members in extension class")
+            error(f, "Cannot have non static members in extension class")
           }
         }
         classNode.annotations.add(AnnotationNode(ExtensionClass::class.javaAnnotationType,
@@ -292,7 +297,7 @@ open class MarcelSemantic(
           cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd, identifierToken = cstFieldNode.identifierToken
         )
         if (classNode.fields.any { it.name == fieldNode.name }) {
-          throw MarcelSemanticException(cstFieldNode, "Field ${cstFieldNode.name} already exists")
+          error(cstFieldNode, "Field ${cstFieldNode.name} already exists")
         }
         classNode.fields.add(fieldNode)
 
@@ -584,9 +589,9 @@ open class MarcelSemantic(
     )
     val superMethod = symbolResolver.findSuperMethod(methodNode)
     if (superMethod != null && methodCst.isOverride == false) {
-      throw MarcelSemanticException(methodCst.token, "override keyword should be used for overridden methods")
+      error(methodCst, "override keyword should be used for overridden methods")
     } else if (superMethod == null && methodCst.isOverride == true) {
-      throw MarcelSemanticException(methodCst.token, "method $methodNode doesn't override anything")
+      error(methodCst, "method $methodNode doesn't override anything")
     }
     fillMethodNode(
       classScope, methodNode, methodCst.statements, methodCst.annotations,
@@ -767,8 +772,8 @@ open class MarcelSemantic(
       } else if (scriptRunMethod) {
         statements.add(ReturnStatementNode(NullValueNode(methodeNode.token)))
       } else {
-        throw MarcelSemanticException(
-          methodeNode.token,
+        error(
+          methodeNode,
           "Not all paths return a value in method ${methodeNode.ownerClass}.${methodeNode.name}()"
         )
       }

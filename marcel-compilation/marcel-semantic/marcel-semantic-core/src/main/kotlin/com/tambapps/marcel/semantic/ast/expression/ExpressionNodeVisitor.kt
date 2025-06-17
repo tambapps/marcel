@@ -90,5 +90,6 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: ArrayNode): T
   fun visit(node: NewArrayNode): T
   fun visit(node: MapNode): T
+  fun visit(node: ExprErrorNode): T
 
 }

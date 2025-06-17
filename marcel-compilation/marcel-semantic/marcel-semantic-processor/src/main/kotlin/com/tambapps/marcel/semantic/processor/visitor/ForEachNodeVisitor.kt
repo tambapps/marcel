@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.DupNode
+import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
@@ -320,6 +321,10 @@ class ForEachNodeVisitor(
     node.tryStatementNode.accept(this)
     node.catchNodes.forEach { it.statement.accept(this) }
     node.finallyNode?.statement?.accept(this)
+  }
+
+  override fun visit(node: ExprErrorNode) {
+    // don't do anything, this node is not supposed to exist for users
   }
 
   private fun binaryOperator(node: BinaryOperatorNode) {

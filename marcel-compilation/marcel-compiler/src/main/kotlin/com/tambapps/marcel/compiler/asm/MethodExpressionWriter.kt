@@ -1,9 +1,11 @@
 package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.typeCode
+import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.PopNode
@@ -177,6 +179,10 @@ sealed class MethodExpressionWriter(
 
   override fun visit(node: SuperConstructorCallNode) {
     visitOwnConstructorCall(node.classType, node.javaMethod, node.arguments)
+  }
+
+  override fun visit(node: ExprErrorNode) {
+    throw MarcelCompilerException("Unexpected node of type ExprErrorNode. Your tree is not valid and cannot be compiled")
   }
 
   private fun visitOwnConstructorCall(type: JavaType, method: MarcelMethod, arguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>) {

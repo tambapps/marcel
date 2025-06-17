@@ -66,14 +66,17 @@ import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
+import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.DupNode
+import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.GetAtFunctionCallNode
@@ -144,6 +147,8 @@ import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.processor.exception.VariableAccessException
+import com.tambapps.marcel.semantic.processor.exception.VariableRelatedException
 import com.tambapps.marcel.semantic.processor.scope.AsyncScope
 import com.tambapps.marcel.semantic.processor.scope.CatchBlockScope
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
@@ -163,6 +168,7 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import marcel.lang.Delegable
+import marcel.lang.IntRange
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.compile.BooleanDefaultValue
@@ -181,14 +187,12 @@ import marcel.util.concurrent.Threadmill
 import java.io.Closeable
 import java.lang.annotation.ElementType
 import java.util.*
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 /**
- * Class implementing all visitors of CST nodes
- *
- * @property symbolResolver the symbol resolver
- *
- * @param packageName the package name to use to apply the semantic
+ * Class implementing all visitors of CST nodes.
+ * NOT thread-safe
  */
 abstract class SemanticCstNodeVisitor constructor(
   final override val symbolResolver: MarcelSymbolResolver,
@@ -210,6 +214,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
   final override val caster = AstNodeCaster(symbolResolver)
   val imports = ImportResolver.DEFAULT_IMPORTS.toImports()
+  protected val errors = mutableListOf<MarcelSemanticException.Error>()
 
   protected val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
   protected val lambdaMap = mutableMapOf<LambdaCstNode, LambdaClassNode>()
@@ -259,9 +264,9 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun visit(node: ThisReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
     return if (currentClassNode?.isExtensionClass == true)
-      ReferenceNode(variable = selfLocalVariable ?: throw MarcelSemanticException(node, "Cannot reference this in a static context"), token = node.token)
+      selfLocalVariable?.let { ReferenceNode(variable = it, token = node.token) } ?: exprError(node.token, "Cannot reference this in a static context")
     else if (!currentMethodScope.staticContext) ThisReferenceNode(currentScope.classType, node.token)
-    else throw MarcelSemanticException(node, "Cannot reference this in a static context")
+    else exprError(node, "Cannot reference this in a static context", smartCastType)
   }
 
   override fun visit(node: SuperReferenceCstNode, smartCastType: JavaType?) =
@@ -284,20 +289,26 @@ abstract class SemanticCstNodeVisitor constructor(
     if (resolve == null && currentScope.classType.isOuterTypeOf(type) && !currentMethodScope.staticContext) {
       val positionalArguments = positionalArguments.toMutableList()
       val namedArguments = namedArguments.toMutableList()
-      val (outerLevel, _) = outerLevel(node.token, type, currentScope.classType)
-        ?: throw MarcelSemanticException(node.token, "Lambda cannot be generated in this context")
-
+      val outerLevelAndType = outerLevel(node.token, type, currentScope.classType)
+      if (outerLevelAndType == null) {
+        return exprError(node, "Lambda cannot be generated in this context", smartCastType)
+      }
+      val (outerLevel, _) = outerLevelAndType
       if (namedArguments.isNotEmpty()) {
         for (i in 0..outerLevel) {
           val argument = getInnerOuterReference(node.token, outerLevel)
-            ?: throw MarcelSemanticException(node.token, "Lambda cannot be generated in this context")
+          if (argument == null) {
+            return exprError(node, "Lambda cannot be generated in this context", smartCastType)
+          }
           namedArguments.add(Pair("this$$i", argument))
         }
       } else {
         // going in reverse order to add arguments in right order
         for (i in outerLevel downTo 0) {
           val argument = getInnerOuterReference(node.token, outerLevel)
-            ?: throw MarcelSemanticException(node.token, "Lambda cannot be generated in this context")
+          if (argument == null) {
+            return exprError(node, "Lambda cannot be generated in this context", smartCastType)
+          }
           positionalArguments.add(0, argument)
         }
       }
@@ -316,11 +327,12 @@ abstract class SemanticCstNodeVisitor constructor(
       }
 
       val displayedName = "Constructor $type"
-      throw MarcelSemanticException(
-        node.token, allParametersString.joinToString(
+
+      return exprError(
+        node, allParametersString.joinToString(
           separator = ", ",
           prefix = "$displayedName(", postfix = ") is not defined"
-        )
+        ), smartCastType
       )
     }
   }
@@ -350,7 +362,7 @@ abstract class SemanticCstNodeVisitor constructor(
       JavaType.charCollection.isAssignableFrom(smartCastType) -> JavaType.charArray
       Collection::class.javaType.isAssignableFrom(smartCastType) -> JavaType.objectArray
       smartCastType == JavaType.DynamicObject -> JavaType.objectArray // will be casted yo dynamic array by the asNode visitor
-      else -> throw MarcelSemanticException(node, "Cannot cast array into $smartCastType")
+      else -> return exprError(node, "Cannot cast array into $smartCastType", smartCastType)
     }
     val elementsType = arrayType.elementsType
 
@@ -369,11 +381,11 @@ abstract class SemanticCstNodeVisitor constructor(
       if (expectedType.isArray) PrimitiveCollectionTypes.fromArrayType(expectedType.asArrayType) ?: List::class.javaType
       else if (expectedType.implements(Collection::class.javaType)) expectedType
       else if (expectedType.isAssignableFrom(List::class.javaType)) List::class.javaType
-      else if (expectedType == JavaType.void) throw MarcelSemanticException(
+      else if (expectedType == JavaType.void) return exprError(
         node,
-        "mapfilter cannot be used as a statement"
+        "mapfilter cannot be used as a statement", smartCastType
       )
-      else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
+      else return exprError(node, "Incompatible type. Expected Collection/array but got $expectedType", smartCastType)
 
     val bodyCstNodes = mutableListOf<ExpressionCstNode>()
     node.mapExpr?.let(bodyCstNodes::add)
@@ -619,14 +631,14 @@ abstract class SemanticCstNodeVisitor constructor(
     methodFiller: (MethodNode, MethodScope) -> Unit
   ): ExpressionNode {
     if (inExpr == null) {
-      throw MarcelSemanticException(node, "Invalid use of IN operation: missing IN value")
+      return exprError(node, "Invalid use of IN operation: missing IN value", methodReturnType)
     }
     val inNode = inExpr.accept(this)
     if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(
         CharSequence::class.javaType
       )
     ) {
-      throw MarcelSemanticException(inExpr, "Can only perform IN operation on an Iterable, CharSequence or array")
+      return exprError(inExpr, "Can only perform IN operation on an Iterable, CharSequence or array", methodReturnType)
     }
     val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
     /*
@@ -673,10 +685,13 @@ abstract class SemanticCstNodeVisitor constructor(
   )
 
   override fun visit(node: IncrCstNode, smartCastType: JavaType?): ExpressionNode {
-    val (variable, owner) = findVariableAndOwner(node.value, node)
-    checkVariableAccess(variable, node, checkGet = true, checkSet = true)
-
-    return incr(node, variable, owner, smartCastType)
+    try {
+      val (variable, owner) = findVariableAndOwner(node.value, node)
+      checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+      return incr(node, variable, owner, smartCastType)
+    } catch (e: VariableRelatedException) {
+      return exprError(node, e.message)
+    }
   }
 
   private fun incr(
@@ -689,9 +704,13 @@ abstract class SemanticCstNodeVisitor constructor(
     if (varType != JavaType.int && varType != JavaType.long && varType != JavaType.float && varType != JavaType.double
       && varType != JavaType.short && varType != JavaType.byte
     ) {
-      throw MarcelSemanticException(node, "Can only increment primitive number variables")
+      return exprError(node, "Can only increment primitive number variables", smartCastType)
     }
-    checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+    try {
+      checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+    } catch (e: VariableAccessException) {
+      return exprError(node, e.message, varType.type)
+    }
 
     // a local variable is needed when the expression needs to be pushed and owner is not null and value is returned before assignment
     val lv =
@@ -715,7 +734,7 @@ abstract class SemanticCstNodeVisitor constructor(
   private fun indexAccess(owner: ExpressionNode, node: IndexAccessCstNode): ExpressionNode {
     val arguments = node.indexNodes.map { it.accept(this) }
     return if (owner.type.isArray && !node.isSafeAccess) { // because array safe access is an extension method
-      if (node.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
+      if (node.indexNodes.size != 1) return exprError(node, "Arrays need one index", owner.type.asArrayType.elementsType)
       ArrayAccessNode(
         owner,
         caster.cast(JavaType.int, node.indexNodes.first().accept(this, JavaType.int)),
@@ -850,13 +869,13 @@ abstract class SemanticCstNodeVisitor constructor(
 
       TokenType.QUESTION_DOT -> {
         val left = leftOperand.accept(this)
-        if (left.type.primitive) throw MarcelSemanticException(
+        if (left.type.primitive) return exprError(
           node,
-          "Cannot use safe access operator on primitive type as it cannot be null"
+          "Cannot use safe access operator on primitive type as it cannot be null", smartCastType
         )
 
         currentMethodScope.useTempLocalVariable(left.type) { lv ->
-          var dotNode = dotOperator(node, ReferenceNode(variable = lv, token = node.token), rightOperand)
+          var dotNode = dotOperator(node, ReferenceNode(variable = lv, token = node.token), rightOperand, smartCastType = smartCastType)
           if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode =
             caster.cast(dotNode.type.objectType, dotNode) // needed as the result can be null
 
@@ -877,8 +896,12 @@ abstract class SemanticCstNodeVisitor constructor(
             null
           }
           if (p != null) {
-            checkVariableAccess(p.first, node, checkGet = true)
-            dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand)
+            try {
+              checkVariableAccess(p.first, node, checkGet = true)
+            } catch (e: VariableAccessException) {
+              error(leftOperand, e.message)
+            }
+            dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand, smartCastType = smartCastType)
           } else {
             // it may be a static method call
             val type = try {
@@ -893,13 +916,13 @@ abstract class SemanticCstNodeVisitor constructor(
                 )
               )
             } catch (e2: TypeNotFoundException) {
-              throw MarcelSemanticException(node.token, "Neither a variable nor a class ${leftOperand.value} was found")
+              return exprError(node.token, "Neither a variable nor a class ${leftOperand.value} was found", smartCastType)
             }
-            staticDotOperator(node, type, rightOperand)
+            staticDotOperator(node, type, rightOperand, smartCastType)
           }
         }
 
-        else -> dotOperator(node, node.leftOperand.accept(this), rightOperand)
+        else -> dotOperator(node, node.leftOperand.accept(this), rightOperand, smartCastType = smartCastType)
       }
 
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
@@ -982,22 +1005,22 @@ abstract class SemanticCstNodeVisitor constructor(
       TokenType.IS -> {
         val left = leftOperand.accept(this)
         val right = rightOperand.accept(this)
-        if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(
+        if (left.type.primitive || right.type.primitive) return exprError(
           leftOperand,
-          "=== operator is reserved for object comparison"
+          "=== operator is reserved for object comparison",
+          JavaType.boolean
         )
         IsEqualNode(left, right)
       }
-
       TokenType.FIND -> {
         val left = leftOperand.accept(this)
         val right = rightOperand.accept(this)
 
         if (!CharSequence::class.javaType.isAssignableFrom(left.type)) {
-          throw MarcelSemanticException(node, "FIND operator left operand must be a CharSequence")
+          return exprError(node, "FIND operator left operand must be a CharSequence", Matcher::class.javaType)
         }
         if (!Pattern::class.javaType.isAssignableFrom(right.type)) {
-          throw MarcelSemanticException(node, "FIND operator right operand must be a Pattern")
+          return exprError(node, "FIND operator right operand must be a Pattern", Matcher::class.javaType)
         }
         fCall(
           owner = right, ownerType = Pattern::class.javaType,
@@ -1008,39 +1031,46 @@ abstract class SemanticCstNodeVisitor constructor(
       TokenType.IS_NOT -> {
         val left = leftOperand.accept(this)
         val right = rightOperand.accept(this)
-        if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(
+        if (left.type.primitive || right.type.primitive) return exprError(
           leftOperand,
-          "=== operator is reserved for object comparison"
+          "=== operator is reserved for object comparison", JavaType.boolean
         )
         IsNotEqualNode(left, right)
       }
-
-      else -> throw MarcelSemanticException(node, "Doesn't handle operator $tokenType")
+      else -> return exprError(node, "Doesn't handle operator $tokenType", smartCastType)
     }
   }
 
   private fun assignmentOperator(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
     val scope = currentMethodScope
-    // passing smartCastType to indicate whether we need to check get access or not
-    val leftResult = runCatching { node.leftOperand.accept(this, smartCastType) }
-    if (leftResult.isSuccess) return assignment(node, leftResult.getOrThrow())
-    else if (leftResult.isFailure &&
-      (leftResult.exceptionOrNull() !is VariableNotFoundException
-          // conditions making bound field assignment not feasible
-          || scope.staticContext || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode)) leftResult.getOrThrow()
 
-    // if we went here this means the field was not defined
-    val right = node.rightOperand.accept(this)
+    if (scope.staticContext || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) {
+      // normal case
+      // passing smartCastType to indicate whether we need to check get access or not
+      return assignment(node, node.leftOperand.accept(this, smartCastType))
+    }
+    // handling script bound variables
+    val referenceCstNode = node.leftOperand as ReferenceCstNode
+    try {
+      return assignment(node, referenceOrThrow(referenceCstNode, smartCastType))
+    } catch (e: VariableRelatedException) {
+      if (e is VariableNotFoundException) {
+        // the field wasn't defined, but we're in a script => create a bound field
+        val right = node.rightOperand.accept(this)
 
-    // this is important. We always want bound field to be object type as values are obtained from getVariable which returns an Object
-    val boundField = BoundField(right.type.objectType, (node.leftOperand as ReferenceCstNode).value, scope.classType)
-    symbolResolver.defineField(boundField)
+        // This is important. We always want bound field to be object type as values are obtained from getVariable which returns an Object
+        val boundField = BoundField(right.type.objectType, (node.leftOperand as ReferenceCstNode).value, scope.classType)
+        symbolResolver.defineField(boundField)
 
-    return assignment(node, left = ReferenceNode(
-      owner = ThisReferenceNode(currentScope.classType, node.token),
-      variable = boundField,
-      token = node.token
-    ), right = caster.cast(boundField.type, right))
+        return assignment(node, left = ReferenceNode(
+          owner = ThisReferenceNode(currentScope.classType, node.token),
+          variable = boundField,
+          token = node.token
+        ), right = caster.cast(boundField.type, right))
+      } else {
+        return exprError(node, e.message, smartCastType)
+      }
+    }
   }
 
   private fun assignment(
@@ -1055,7 +1085,11 @@ abstract class SemanticCstNodeVisitor constructor(
     return when (left) {
       is ReferenceNode -> {
         val variable = left.variable
-        checkVariableAccess(variable, node, checkSet = true)
+        try {
+          checkVariableAccess(variable, node, checkSet = true)
+        } catch (e: VariableAccessException) {
+          error(left, e.message)
+        }
         VariableAssignmentNode(
           variable,
           caster.cast(variable.type, right), left.owner, node
@@ -1085,8 +1119,7 @@ abstract class SemanticCstNodeVisitor constructor(
           node
         )
       }
-
-      else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
+      else -> return exprError(node, "Invalid assignment operator use", left.type)
     }
   }
 
@@ -1095,74 +1128,91 @@ abstract class SemanticCstNodeVisitor constructor(
     // owner is actually the left operand
     owner: ExpressionNode, rightOperand: ExpressionCstNode,
     // useful for ternaryNode which duplicate value to avoid using local variable
-    discardOwnerInReturned: Boolean = false
-  ): ExpressionNode = when (rightOperand) {
-    is FunctionCallCstNode -> {
-      val positionalArguments = rightOperand.positionalArgumentNodes.map { it.accept(this) }
-      val namedArguments = rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
-      val (method, arguments) = methodResolver.resolveMethod(
-        node, owner.type, rightOperand.value,
-        positionalArguments,
-        namedArguments
-      )
-        ?: throw MarcelSemanticException(
-          node.token,
-          MethodResolver.methodResolveErrorMessage(positionalArguments, namedArguments, owner.type, rightOperand.value)
+    discardOwnerInReturned: Boolean = false,
+    smartCastType: JavaType? = null
+  ): ExpressionNode {
+    return when (rightOperand) {
+      is FunctionCallCstNode -> {
+        val positionalArguments = rightOperand.positionalArgumentNodes.map { it.accept(this) }
+        val namedArguments = rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
+        val (method, arguments) = methodResolver.resolveMethod(
+          node, owner.type, rightOperand.value,
+          positionalArguments,
+          namedArguments
         )
-      val castType = rightOperand.castType?.let { resolve(it) }
-      fCall(
-        method = method,
-        owner = if (discardOwnerInReturned || method.isMarcelStatic) null else owner,
-        castType = castType,
-        arguments = arguments,
-        // this is important for code highlight
-        tokenStart = rightOperand.tokenStart,
-        tokenEnd = rightOperand.tokenEnd
-      )
-    }
+          ?: return exprError(
+            node.token,
+            MethodResolver.methodResolveErrorMessage(positionalArguments, namedArguments, owner.type, rightOperand.value),
+            smartCastType
+          )
+        val castType = rightOperand.castType?.let { resolve(it) }
+        fCall(
+          method = method,
+          owner = if (discardOwnerInReturned || method.isMarcelStatic) null else owner,
+          castType = castType,
+          arguments = arguments,
+          // this is important for code highlight
+          tokenStart = rightOperand.tokenStart,
+          tokenEnd = rightOperand.tokenEnd
+        )
+      }
 
-    is ReferenceCstNode -> {
-      val variable = symbolResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
-      checkVariableAccess(variable, node)
-      ReferenceNode(
-        if (discardOwnerInReturned || variable.isMarcelStatic) null else owner,
-        variable,
-        rightOperand.token
-      )
-    }
+      is ReferenceCstNode -> {
+        val variable = symbolResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
+        try {
+          checkVariableAccess(variable, node)
+        } catch (e: VariableAccessException) {
+          error(rightOperand, e.message)
+        }
+        ReferenceNode(
+          if (discardOwnerInReturned || variable.isMarcelStatic) null else owner,
+          variable,
+          rightOperand.token
+        )
+      }
 
-    is DirectFieldReferenceCstNode -> {
-      val variable = symbolResolver.getClassField(owner.type, rightOperand.value, rightOperand.token)
-      checkVariableAccess(variable, node)
-      ReferenceNode(
-        if (discardOwnerInReturned || variable.isMarcelStatic) null else owner,
-        variable,
-        rightOperand.token
-      )
-    }
+      is DirectFieldReferenceCstNode -> {
+        val variable = symbolResolver.getClassField(owner.type, rightOperand.value, rightOperand.token)
+        try {
+          checkVariableAccess(variable, node)
+        } catch (e: VariableAccessException) {
+          error(rightOperand, e.message)
+        }
+        ReferenceNode(
+          if (discardOwnerInReturned || variable.isMarcelStatic) null else owner,
+          variable,
+          rightOperand.token
+        )
+      }
 
-    is IndexAccessCstNode -> {
-      val indexOwner = dotOperator(node, owner, rightOperand.ownerNode, false)
-      indexAccess(indexOwner, rightOperand)
-    }
+      is IndexAccessCstNode -> {
+        val indexOwner = dotOperator(node, owner, rightOperand.ownerNode, false, smartCastType)
+        indexAccess(indexOwner, rightOperand)
+      }
 
-    is IncrCstNode -> {
-      val variable = symbolResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
-      incr(rightOperand, variable, owner)
-    }
+      is IncrCstNode -> {
+        val variable = symbolResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
+        incr(rightOperand, variable, owner)
+      }
 
-    else -> throw MarcelSemanticException(node, "Invalid dot operator use" + rightOperand.javaClass)
+      else -> exprError(node, "Invalid dot operator use" + rightOperand.javaClass, smartCastType)
+    }
   }
 
-  private fun staticDotOperator(node: CstNode, ownerType: JavaType, rightOperand: ExpressionCstNode): ExpressionNode =
-    when (rightOperand) {
+  private fun staticDotOperator(
+    node: CstNode,
+    ownerType: JavaType,
+    rightOperand: ExpressionCstNode,
+    smartCastType: JavaType? = null
+  ): ExpressionNode {
+    return when (rightOperand) {
       is FunctionCallCstNode -> {
         val (method, arguments) = methodResolver.resolveMethod(node, ownerType, rightOperand.value,
           rightOperand.positionalArgumentNodes.map { it.accept(this) },
           rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
-          ?: throw MarcelSemanticException(node.token, "Method ${ownerType}.${rightOperand.value} couldn't be resolved")
+          ?: return exprError(node.token, "Method ${ownerType}.${rightOperand.value} couldn't be resolved", smartCastType)
         val castType = rightOperand.castType?.let { resolve(it) }
-        if (!method.isStatic) throw MarcelSemanticException(node, "Method $method is not static")
+        if (!method.isStatic) return exprError(node, "Method $method is not static", method.returnType)
         fCall(
           method = method, owner = null, castType = castType,
           arguments = arguments, node = node
@@ -1171,37 +1221,45 @@ abstract class SemanticCstNodeVisitor constructor(
 
       is ReferenceCstNode -> {
         val variable = symbolResolver.findFieldOrThrow(ownerType, rightOperand.value, rightOperand.token)
-        if (!variable.isStatic) throw MarcelSemanticException(node, "Variable $variable is not static")
-        checkVariableAccess(variable, node)
+        if (!variable.isStatic) return exprError(node, "Variable $variable is not static", variable.type)
+        try {
+          checkVariableAccess(variable, node)
+        } catch (e: VariableAccessException) {
+          error(rightOperand, e.message)
+        }
         ReferenceNode(null, variable, rightOperand.token)
       }
 
       is IncrCstNode -> {
         val variable = symbolResolver.findFieldOrThrow(ownerType, rightOperand.value, rightOperand.token)
-        if (!variable.isStatic) throw MarcelSemanticException(node, "Variable $variable is not static")
-        checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+        if (!variable.isStatic) return exprError(node, "Variable $variable is not static", variable.type)
+        try {
+          checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+        } catch (e: VariableAccessException) {
+          error(rightOperand, e.message)
+        }
         incr(rightOperand, variable, owner = null)
       }
-      else -> throw MarcelSemanticException(node, "Invalid dot operator use")
+      else -> return exprError(node, "Invalid dot operator use", smartCastType)
     }
 
+  }
   override fun visit(node: BinaryTypeOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
     val right = resolve(node.rightOperand)
     val left = node.leftOperand.accept(this, right)
 
-
     return when (val tokenType = node.tokenType) {
       TokenType.AS -> caster.cast(right, left)
       TokenType.INSTANCEOF, TokenType.NOT_INSTANCEOF -> {
-        if (left.type.primitive || right.primitive) throw MarcelSemanticException(
+        if (left.type.primitive || right.primitive) return exprError(
           left.token,
-          "Primitive aren't instance of anything"
+          "Primitive aren't instance of anything", JavaType.boolean
         )
         val instanceOfNode = InstanceOfNode(right, left, node)
         if (tokenType == TokenType.NOT_INSTANCEOF) NotNode(instanceOfNode, node) else instanceOfNode
       }
 
-      else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
+      else -> return exprError(node, "Doesn't handle operator ${node.tokenType}", smartCastType)
     }
   }
 
@@ -1227,7 +1285,7 @@ abstract class SemanticCstNodeVisitor constructor(
     if (!left.type.primitive || !right.type.primitive) {
       // compare left.compareTo(right) with 0
       if (!left.type.implements(Comparable::class.javaType)) {
-        throw MarcelSemanticException(leftOperand, "Cannot compare non comparable type")
+        return exprError(leftOperand, "Cannot compare non comparable type", JavaType.int)
       }
       left =
         fCall(owner = left, ownerType = left.type, name = "compareTo", arguments = listOf(right), node = leftOperand)
@@ -1252,7 +1310,7 @@ abstract class SemanticCstNodeVisitor constructor(
       nodeCreator.invoke(caster.cast(commonType, left), caster.cast(commonType, right))
     } else if (left.type.primitive && !right.type.primitive || !left.type.primitive && right.type.primitive) {
       if (!left.type.isPrimitiveObjectType || !left.type.isPrimitiveObjectType) {
-        throw MarcelSemanticException(leftOperand.token, "Cannot compare ${left.type} with ${right.type}")
+        return exprError(leftOperand.token, "Cannot compare ${left.type} with ${right.type}", JavaType.boolean)
       }
       // getting the object type (not primitive because as one is originally an object, it can be null)
       val leftType = left.type.asPrimitiveType.objectType
@@ -1278,7 +1336,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val right = rightOperand.accept(this)
 
     if (left.type == JavaType.boolean || right.type == JavaType.boolean) {
-      throw MarcelSemanticException(leftOperand, "Cannot compare non number primitives")
+      return exprError(leftOperand, "Cannot compare non number primitives", JavaType.int)
     }
     return comparisonOperatorNode(leftOperand, rightOperand, nodeCreator)
   }
@@ -1294,7 +1352,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val rangeElementType =
       if (left.type == JavaType.Long || left.type == JavaType.long || right.type == JavaType.Long || right.type == JavaType.long) JavaType.long
       else if (left.type == JavaType.Integer || left.type == JavaType.int || right.type == JavaType.Integer || right.type == JavaType.int) JavaType.int
-      else throw MarcelSemanticException(leftOperand, "Ranges can only be of int or long")
+      else return exprError(leftOperand, "Ranges can only be of int or long", IntRange::class.javaType)
 
     val rangeType = if (rangeElementType == JavaType.long) LongRanges::class.javaType else IntRanges::class.javaType
 
@@ -1316,7 +1374,7 @@ abstract class SemanticCstNodeVisitor constructor(
         right
       ).isPrimitiveOrObjectPrimitive && node.type.primitive && node.type != JavaType.long && node.type != JavaType.int
     ) {
-      throw MarcelSemanticException(node.token, "Can only shift ints or longs")
+      return exprError(node.token, "Can only shift ints or longs", JavaType.int)
     }
     return node
   }
@@ -1362,9 +1420,10 @@ abstract class SemanticCstNodeVisitor constructor(
     val commonType = JavaType.commonType(left, right)
     return if (commonType.isPrimitiveOrObjectPrimitive) {
       val commonPrimitiveType = commonType.asPrimitiveType
-      if (!commonPrimitiveType.isNumber) throw MarcelSemanticException(
+      if (!commonPrimitiveType.isNumber) return exprError(
         left.token,
-        "Cannot apply operator on non number types"
+        "Cannot apply operator on non number types",
+        commonType
       )
       nodeSupplier.invoke(caster.cast(commonPrimitiveType, left), caster.cast(commonPrimitiveType, right))
     } else if (left.type == JavaType.String) {
@@ -1384,6 +1443,15 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: ReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
+    try {
+      return referenceOrThrow(node, smartCastType)
+    } catch (e: VariableRelatedException) {
+      return exprError(node, e.message)
+    }
+  }
+
+  private fun referenceOrThrow(node: ReferenceCstNode, smartCastType: JavaType?): ReferenceNode {
+    // findVariableAndOwner and checkVariableAccess take care of the throwing
     val (variable, owner) = findVariableAndOwner(node.value, node)
     checkVariableAccess(
       variable, node,
@@ -1440,7 +1508,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val castType = node.castType?.let(this::resolve)
 
     return resolveMethodCall(node, positionalArguments, namedArguments, castType)
-      ?: throw MarcelSemanticException(node.token, "Method with name ${node.value} couldn't be resolved")
+      ?: exprError(node.token, "Method with name ${node.value} couldn't be resolved", smartCastType)
   }
 
   protected open fun resolveMethodCall(
@@ -1548,7 +1616,14 @@ abstract class SemanticCstNodeVisitor constructor(
       methodResolve = methodResolver.resolveMethod(node, extensionType, node.value, positionalArguments, namedArguments)
       if (methodResolve != null) {
         val owner = if (methodResolve.first.isMarcelStatic) null
-        else ReferenceNode(variable = selfLocalVariable ?: throw MarcelSemanticException(node, "Instance method ${methodResolve.first} cannot be referenced from a static context"), token = node.token)
+        else {
+          if (selfLocalVariable == null) {
+            return exprError(node, "Instance method ${methodResolve.first} cannot be referenced from a static context", castType)
+          }
+          ReferenceNode(
+            variable = selfLocalVariable, token = node.token
+          )
+        }
         return fCall(
           methodResolve = methodResolve, owner = owner, castType = castType,
           tokenStart = node.tokenStart,
@@ -1603,16 +1678,20 @@ abstract class SemanticCstNodeVisitor constructor(
     val expression = node.expressionNode?.accept(this, expectedReturnType)?.let { caster.cast(expectedReturnType, it) }
 
     if (expression != null && expression.type != JavaType.void && expectedReturnType == JavaType.void) {
-      throw MarcelSemanticException(node, "Cannot return expression in void function")
+      return stmtError(node, "Cannot return expression in void function")
     } else if (expression == null && expectedReturnType != JavaType.void) {
-      throw MarcelSemanticException(node, "Must return expression in non void function")
+      return ReturnStatementNode(exprError(node, "Must return expression in non void function", expectedReturnType))
     }
     return ReturnStatementNode(expression, node.tokenStart, node.tokenEnd)
   }
 
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
     val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, token = node.token)
-    checkVariableAccess(variable, node, checkSet = true)
+    try {
+      checkVariableAccess(variable, node, checkSet = true)
+    } catch (e: VariableAccessException) {
+      error(node, e.message)
+    }
     return ExpressionStatementNode(
       VariableAssignmentNode(variable,
         node.expressionNode?.accept(this, variable.type)?.let { caster.cast(variable.type, it) }
@@ -1622,7 +1701,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun visit(node: MultiVarDeclarationCstNode): StatementNode {
     if (node.declarations.isEmpty() || node.declarations.all { it == null }) {
-      throw MarcelSemanticException(node, "Need to declare at least one variable")
+      return stmtError(node, "Need to declare at least one variable")
     }
     // needed for switch/whens, which need a smartCastType to work
     val expression = node.expressionNode.accept(this, List::class.javaType)
@@ -1694,7 +1773,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
         expression.type.implements(Map.Entry::class.javaType) -> {
           if (node.declarations.size != 2) {
-            throw MarcelSemanticException(node, "multi var declaration of Map.Entry should declare 2 variables")
+            return stmtError(node, "multi var declaration of Map.Entry should declare 2 variables")
           }
           for (i in 0..1) {
             val variable = variableMap[i]!!
@@ -1718,7 +1797,7 @@ abstract class SemanticCstNodeVisitor constructor(
           }
         }
 
-        else -> throw MarcelSemanticException(node, "Multi variable declarations only works on List or arrays")
+        else -> return stmtError(node, "Multi variable declarations only works on List or arrays")
       }
     }
     return blockNode
@@ -2041,10 +2120,10 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun visit(node: AsyncBlockCstNode, smartCastType: JavaType?): ExpressionNode {
     if (currentMethodScope.isAsync) {
-      throw MarcelSemanticException(node, "Cannot start async context because current context is already async")
+      return exprError(node, "Cannot start async context because current context is already async", smartCastType)
     }
     if (node.block.statements.isEmpty()) {
-      throw MarcelSemanticException(node, "async block need to have at least one statements")
+      return exprError(node, "async block need to have at least one statements", smartCastType)
     }
 
     /*
@@ -2052,7 +2131,8 @@ abstract class SemanticCstNodeVisitor constructor(
      */
     val referencedLocalVariables = mutableListOf<LocalVariable>()
     node.block.forEach { cstNode ->
-      if (cstNode is ReturnCstNode) throw MarcelSemanticException(
+      // not returning because we can still continue semantic analysis
+      if (cstNode is ReturnCstNode) exprError(
         node,
         "Cannot have return statement in an async block"
       )
@@ -2096,15 +2176,15 @@ abstract class SemanticCstNodeVisitor constructor(
       val asyncStatementTryBlock = visit(node.block).apply {
         if (asyncReturnType != JavaType.void) {
           val lastStatement = statements.last()
-          lastStatement as? ExpressionStatementNode ?: throw MarcelSemanticException(
+          val expressionNode = (lastStatement as? ExpressionStatementNode)?.expressionNode ?: exprError(
             lastStatement.token,
-            "Expected an expression of type $asyncReturnType"
+            "Expected an expression of type $asyncReturnType", asyncReturnType
           )
           statements[statements.lastIndex] = ExpressionStatementNode(
             VariableAssignmentNode(
               localVariable = returnValueVar!!,
               // always return an object
-              expression = caster.cast(asyncReturnType.objectType, lastStatement.expressionNode),
+              expression = caster.cast(asyncReturnType.objectType, expressionNode),
               node = node
             )
           )
@@ -2165,12 +2245,12 @@ abstract class SemanticCstNodeVisitor constructor(
     val shouldReturnValue = smartCastType != null && smartCastType != JavaType.void
     val elseStatement = node.elseStatement
     if (shouldReturnValue && elseStatement == null) {
-      throw MarcelSemanticException(node, "When/switch expression should have an else branch")
+      return exprError(node, "When/switch expression should have an else branch", smartCastType)
     }
     if (node.branches.isEmpty()) {
-      if (elseStatement == null || shouldReturnValue) throw MarcelSemanticException(
+      if (elseStatement == null || shouldReturnValue) return exprError(
         node.token,
-        "Switch/When should have at least 1 non else branch"
+        "Switch/When should have at least 1 non else branch", smartCastType
       )
       node.branches.add(
         Pair(
@@ -2360,47 +2440,49 @@ abstract class SemanticCstNodeVisitor constructor(
     else forInIteratorNode(node, it, variable, inNode) { node.statementNode.accept(this) }
   }
 
-  override fun visit(node: ForInMultiVarCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val inNode = node.inNode.accept(this)
+  override fun visit(node: ForInMultiVarCstNode): StatementNode {
+    return useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
+      val inNode = node.inNode.accept(this)
 
-    val localVars = node.declarations.map { pair ->
-      it.addLocalVariable(resolve(pair.first), pair.second, token = node.token)
-    }
-
-    if (inNode.type.implements(JavaType.Map)) {
-      if (localVars.size != 2) {
-        throw MarcelSemanticException(node.token, "Needs 2 variables when iterating over maps")
+      val localVars = node.declarations.map { pair ->
+        it.addLocalVariable(resolve(pair.first), pair.second, token = node.token)
       }
-      val mapVar = it.addLocalVariable(Map::class.javaType)
-      val keyVar = localVars.first()
-      val valueVar = localVars.last()
 
-      compose(node, currentMethodScope) {
-        // need to init map variable before going in the loop
-        // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
-        varAssignStmt(variable = mapVar, expr = inNode)
-
-        forInIteratorNodeStmt(forVariable = keyVar, inNode = fCall(
-          node = node,
-          owner = ReferenceNode(variable = mapVar, token = node.token),
-          name = "keySet",
-          arguments = emptyList()
-        )) { forVar, scope ->
-          // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
-          varAssignStmt(variable = valueVar,
-            expr = fCall(
-              castType = valueVar.type, owner = ReferenceNode(variable = mapVar, token = node.token),
-              method = symbolResolver.findMethod(JavaType.Map, "get", listOf(JavaType.Object))!!,
-              arguments = listOf(ReferenceNode(variable = keyVar, token = node.token)), node = node
-            ))
-          stmt(node.statementNode.accept(this@SemanticCstNodeVisitor))
+      if (inNode.type.implements(JavaType.Map)) {
+        if (localVars.size != 2) {
+          return@useScope stmtError(node, "Needs 2 variables when iterating over maps")
         }
+        val mapVar = it.addLocalVariable(Map::class.javaType)
+        val keyVar = localVars.first()
+        val valueVar = localVars.last()
+
+        compose(node, currentMethodScope) {
+          // need to init map variable before going in the loop
+          // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
+          varAssignStmt(variable = mapVar, expr = inNode)
+
+          forInIteratorNodeStmt(forVariable = keyVar, inNode = fCall(
+            node = node,
+            owner = ReferenceNode(variable = mapVar, token = node.token),
+            name = "keySet",
+            arguments = emptyList()
+          )) { forVar, scope ->
+            // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
+            varAssignStmt(variable = valueVar,
+              expr = fCall(
+                castType = valueVar.type, owner = ReferenceNode(variable = mapVar, token = node.token),
+                method = symbolResolver.findMethod(JavaType.Map, "get", listOf(JavaType.Object))!!,
+                arguments = listOf(ReferenceNode(variable = keyVar, token = node.token)), node = node
+              ))
+            stmt(node.statementNode.accept(this@SemanticCstNodeVisitor))
+          }
+        }
+      } else {
+        return@useScope stmtError(
+          node,
+          "Cannot iterate multiple variables on an expression of type ${inNode.type}"
+        )
       }
-    } else {
-      throw MarcelSemanticException(
-        node.token,
-        "Cannot iterate multiple variables on an expression of type ${inNode.type}"
-      )
     }
   }
 
@@ -2457,14 +2539,14 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun visit(node: BreakCstNode): StatementNode {
     if (!currentInnerMethodScope.isInLoop) {
-      throw MarcelSemanticException(node, "Cannot break outside of a loop")
+      return stmtError(node, "Cannot break outside of a loop")
     }
     return BreakNode(node)
   }
 
   override fun visit(node: ContinueCstNode): StatementNode {
     if (!currentInnerMethodScope.isInLoop) {
-      throw MarcelSemanticException(node, "Cannot continue outside of a loop")
+      return stmtError(node, "Cannot continue outside of a loop")
     }
     return ContinueNode(node)
   }
@@ -2476,18 +2558,18 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun visit(node: TryCatchCstNode): StatementNode = useInnerScope { resourcesScope ->
     if (node.finallyNode == null && node.catchNodes.isEmpty() && node.resources.isEmpty()) {
-      throw MarcelSemanticException(node, "Try statement must have a finally, catch and/or resources")
+      return@useInnerScope stmtError(node, "Try statement must have a finally, catch and/or resources")
     }
 
     // handle resources first, as they need to be declared
     val resourceVarDecls = node.resources.map {
       val resourceType = resolve(it.type)
       if (!resourceType.implements(Closeable::class.javaType)) {
-        throw MarcelSemanticException(node, "Try resources need to implement Closeable")
+        return@useInnerScope stmtError(node, "Try resources need to implement Closeable")
       }
       val resourceVar = resourcesScope.addLocalVariable(resourceType, it.value, token = it.token)
 
-      if (it.expressionNode == null) throw MarcelSemanticException(it, "Resource declarations need to be initialised")
+      if (it.expressionNode == null) return@useInnerScope stmtError(it, "Resource declarations need to be initialised")
       VariableAssignmentNode(
         resourceVar,
         caster.cast(resourceType.type, it.expressionNode!!.accept(this, resourceType.type)),
@@ -2502,7 +2584,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val hasReturnStatements = node.any { it is ReturnCstNode }
     if (hasReturnStatements && node.finallyNode != null && node.any { it is ReturnCstNode && it.expressionNode == null }) {
       // yup. throw error in this case because I don't know how to properly handle 'finally' block otherwise.
-      throw MarcelSemanticException(node.token, "Cannot have void return statement in a try with a finally block")
+      return@useInnerScope stmtError(node, "Cannot have void return statement in a try with a finally block")
     }
     val returnValueVar = if (hasReturnStatements) resourcesScope.addLocalVariable(resourcesScope.method.returnType)
     else null
@@ -2514,9 +2596,9 @@ abstract class SemanticCstNodeVisitor constructor(
     val catchNodes = node.catchNodes.map { triple ->
       val throwableTypes = triple.first.map(this::resolve)
       if (throwableTypes.any { !Throwable::class.javaType.isAssignableFrom(it) }) {
-        throw MarcelSemanticException(node.token, "Can only catch throwable types")
+        return@useInnerScope stmtError(node, "Can only catch throwable types")
       } else if (throwableTypes.isEmpty()) {
-        throw MarcelSemanticException(node.token, "Need to catch at least one exception")
+        return@useInnerScope stmtError(node, "Need to catch at least one exception")
       }
 
       val (throwableVar, catchStatement) = useScope(CatchBlockScope(resourcesScope, resourceVarNames)) { catchScope ->
@@ -2560,13 +2642,13 @@ abstract class SemanticCstNodeVisitor constructor(
 
     val tryCatchNode = TryNode(node, tryBlock, catchNodes, finallyNode)
     if (tryBlock.isEmpty) {
-      throw MarcelSemanticException(tryCatchNode.token, "Try block must have at least one statement")
+      return@useInnerScope stmtError(tryCatchNode, "Try block must have at least one statement")
     }
 
     if (hasReturnStatements && node.finallyNode != null && !AllPathsReturnVisitor.test(tryCatchNode)) {
       // yup. throw error in this case because I don't know how to properly handle 'finally' block otherwise.
-      throw MarcelSemanticException(
-        tryBlock.token,
+      return@useInnerScope stmtError(
+        tryBlock,
         "All paths of the try/catch block need to return if there is at least one return in this statement block"
       )
     }
@@ -2593,9 +2675,12 @@ abstract class SemanticCstNodeVisitor constructor(
     val statements = mutableListOf<StatementNode>()
     for (i in cstStatements.indices) {
       val statement = cstStatements[i].accept(this)
-      if (statement is ReturnStatementNode && i < cstStatements.lastIndex)
-        throw MarcelSemanticException(statement.token, "Cannot have statements after a return statement")
-      statements.add(statement)
+      if (statement is ReturnStatementNode && i < cstStatements.lastIndex) {
+        // can still continue semantic analysis by ignoring this stmt
+        stmtError(statement, "Cannot have statements after a return statement")
+      } else {
+        statements.add(statement)
+      }
     }
     return statements
   }
@@ -2623,10 +2708,10 @@ abstract class SemanticCstNodeVisitor constructor(
       || checkGet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.GET)
       || checkSet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.SET)
     ) {
-      throw MarcelSemanticException(node, "Variable ${variable.name} is not visible from ${currentScope.classType}")
+      throw VariableAccessException(node.token, "Variable ${variable.name} is not visible from ${currentScope.classType}")
     }
     if (checkGet && !variable.isGettable) {
-      throw MarcelSemanticException(node, "Cannot get value of variable ${variable.name}")
+      throw VariableAccessException(node.token, "Cannot get value of variable ${variable.name}")
     }
     if (checkSet && !variable.isSettable) {
       val message = when {
@@ -2635,7 +2720,7 @@ abstract class SemanticCstNodeVisitor constructor(
         (currentScope as? MethodScope)?.method?.name?.contains(ASYNC_METHOD_PREFIX) == true -> "Cannot set value of local variables in async blocks"
         else -> "Cannot set value for variable ${variable.name}"
       }
-      throw MarcelSemanticException(node, message)
+      throw VariableAccessException(node.token, message)
     }
   }
 
@@ -2831,7 +2916,7 @@ abstract class SemanticCstNodeVisitor constructor(
     )
     val javaAnnotationType = JavaAnnotationType.of(annotationType)
     if (!javaAnnotationType.targets.contains(elementType)) {
-      throw MarcelSemanticException(
+      error(
         cstAnnotation,
         "Annotation $javaAnnotationType is not expected on elements of type $elementType"
       )
@@ -2848,7 +2933,7 @@ abstract class SemanticCstNodeVisitor constructor(
     // check attributes without default values that weren't specified
     for (attr in javaAnnotationType.attributes) {
       if (attr.defaultValue == null && annotation.attributes.none { it.name == attr.name }) {
-        throw MarcelSemanticException(
+        error(
           cstAnnotation,
           "Attribute ${attr.name} has no default value and was not specified for annotation $javaAnnotationType"
         )
@@ -2976,4 +3061,29 @@ abstract class SemanticCstNodeVisitor constructor(
     node,
     "Incompatible type for annotation member ${attribute.name} of annotation ${annotation}. Wanted ${attribute.type} but got ${attrValue.javaClass}"
   )
+
+  protected fun stmtError(node: AstNode, message: String) = ExpressionStatementNode(exprError(node.token, message, JavaType.void))
+  protected fun stmtError(node: CstNode, message: String) = ExpressionStatementNode(exprError(node.token, message, JavaType.void))
+
+  protected fun exprError(node: AstNode, message: String, smartCastType: JavaType? = null) = exprError(node.token, message, smartCastType)
+  protected fun exprError(node: CstNode, message: String, smartCastType: JavaType? = null) = exprError(node.token, message, smartCastType)
+
+  protected fun exprError(token: LexToken, message: String, smartCastType: JavaType? = null): ExpressionNode {
+    errors.add(MarcelSemanticException.Error(message, token))
+    return ExprErrorNode(token, smartCastType)
+  }
+
+  protected fun error(node: AstNode, message: String) = error(node.token, message)
+  protected fun error(node: CstNode, message: String) = error(node.token, message)
+
+  protected fun error(token: LexToken, message: String) {
+    errors.add(MarcelSemanticException.Error(message, token))
+  }
+
+  fun throwIfHasErrors(moduleNode: ModuleNode? = null) {
+    if (errors.isNotEmpty()) {
+      // need a copy because we will clear this list
+      throw MarcelSemanticException(errors.toList(), moduleNode)
+    }
+  }
 }
