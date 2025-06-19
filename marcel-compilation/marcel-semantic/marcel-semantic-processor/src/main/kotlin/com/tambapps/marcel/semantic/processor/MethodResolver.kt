@@ -1,7 +1,6 @@
 package com.tambapps.marcel.semantic.processor
 
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
@@ -11,6 +10,7 @@ import com.tambapps.marcel.semantic.processor.extensions.getDefaultValueExpressi
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.processor.cast.ExpressionCaster
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.JavaType
 
@@ -19,7 +19,7 @@ import com.tambapps.marcel.semantic.type.JavaType
  */
 class MethodResolver(
   private val symbolResolver: MarcelSymbolResolver,
-  private val nodeCaster: AstNodeCaster,
+  private val nodeCaster: ExpressionCaster,
 ) {
 
   fun resolveConstructorCallOrThrow(

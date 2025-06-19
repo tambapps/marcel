@@ -147,6 +147,7 @@ import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.processor.exception.TypeCastException
 import com.tambapps.marcel.semantic.processor.exception.VariableAccessException
 import com.tambapps.marcel.semantic.processor.exception.VariableRelatedException
 import com.tambapps.marcel.semantic.processor.scope.AsyncScope
@@ -162,6 +163,7 @@ import com.tambapps.marcel.semantic.processor.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.processor.visitor.ReturningWhenIfBranchTransformer
 import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
+import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.PrimitiveCollectionTypes
 import com.tambapps.marcel.semantic.variable.LocalVariable
@@ -212,15 +214,16 @@ abstract class SemanticCstNodeVisitor constructor(
     const val ASYNC_METHOD_PREFIX = "__async_"
   }
 
-  final override val caster = AstNodeCaster(symbolResolver)
   val imports = ImportResolver.DEFAULT_IMPORTS.toImports()
   protected val errors = mutableListOf<MarcelSemanticException.Error>()
 
   protected val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
   protected val lambdaMap = mutableMapOf<LambdaCstNode, LambdaClassNode>()
-  protected val methodResolver = MethodResolver(symbolResolver, caster)
+  protected val methodResolver = MethodResolver(symbolResolver, this)
   protected val currentClassNode: ClassNode? get() = currentScope.let { it as? MethodScope }?.let { classNodeMap[it.classType] }
 
+  // never use this field directly, otherwise you won't collect error, you will just throw the first error encountered
+  private val caster = AstNodeCaster(symbolResolver)
   // for extension classes
   private val selfLocalVariable: LocalVariable?
     get() = currentMethodScope.findLocalVariable(ExtensionMarcelMethod.THIS_PARAMETER_NAME)
@@ -348,7 +351,7 @@ abstract class SemanticCstNodeVisitor constructor(
       val elements = node.elements.map { it.accept(this) }
       val elementsType = if (elements.isEmpty()) JavaType.objectArray else JavaType.commonType(elements)
       return ArrayNode(
-        elements = elements.map { caster.cast(elementsType, it) }.toMutableList(),
+        elements = elements.map { cast(elementsType, it) }.toMutableList(),
         node = node,
         type = elementsType.arrayType
       )
@@ -367,11 +370,11 @@ abstract class SemanticCstNodeVisitor constructor(
     val elementsType = arrayType.elementsType
 
     val arrayNode = ArrayNode(
-      elements = node.elements.map { caster.cast(elementsType, it.accept(this, elementsType)) }.toMutableList(),
+      elements = node.elements.map { cast(elementsType, it.accept(this, elementsType)) }.toMutableList(),
       node = node,
       type = arrayType)
     // caster will take care of creating the collection if needed
-    return if (arrayType == smartCastType) arrayNode else caster.cast(smartCastType, arrayNode)
+    return if (arrayType == smartCastType) arrayNode else cast(smartCastType, arrayNode)
   }
 
   override fun visit(node: MapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -429,7 +432,7 @@ abstract class SemanticCstNodeVisitor constructor(
           ExpressionStatementNode(
             VariableAssignmentNode(
               collectionVar,
-              expression = caster.cast(
+              expression = cast(
                 collectionType,
                 NewArrayNode(
                   expectedElementType.arrayType,
@@ -445,13 +448,13 @@ abstract class SemanticCstNodeVisitor constructor(
           fCall(
             node = node,
             name = "add",
-            arguments = listOf(caster.cast(expectedElementType, addedExpression)),
+            arguments = listOf(cast(expectedElementType, addedExpression)),
             owner = collectionRef
           )
         )
         node.filterExpr?.let { filterExpr ->
           addStmt = IfStatementNode(
-            conditionNode = caster.truthyCast(filterExpr.accept(this)),
+            conditionNode = truthyCast(filterExpr.accept(this)),
             trueStatementNode = addStmt,
             falseStatementNode = null,
             node = node
@@ -478,7 +481,7 @@ abstract class SemanticCstNodeVisitor constructor(
         }
         mapFilterMethodNode.blockStatement.add(forStatement)
       }
-      mapFilterMethodNode.blockStatement.add(ReturnStatementNode(caster.cast(expectedType, collectionRef)))
+      mapFilterMethodNode.blockStatement.add(ReturnStatementNode(cast(expectedType, collectionRef)))
     }
   }
 
@@ -498,7 +501,7 @@ abstract class SemanticCstNodeVisitor constructor(
       varType = node.varType, varName = node.varName, finalReturnValue = true
     ) { filterExpr ->
       IfStatementNode(
-        conditionNode = caster.truthyCast(NotNode(filterExpr)),
+        conditionNode = truthyCast(NotNode(filterExpr)),
         trueStatementNode = ReturnStatementNode(BoolConstantNode(value = false, token = node.token)),
         falseStatementNode = null,
         node = node
@@ -522,7 +525,7 @@ abstract class SemanticCstNodeVisitor constructor(
       varType = node.varType, varName = node.varName, finalReturnValue = false
     ) { filterExpr ->
       IfStatementNode(
-        conditionNode = caster.truthyCast(filterExpr),
+        conditionNode = truthyCast(filterExpr),
         trueStatementNode = ReturnStatementNode(BoolConstantNode(value = true, token = node.token)),
         falseStatementNode = null,
         node = node
@@ -554,9 +557,9 @@ abstract class SemanticCstNodeVisitor constructor(
             forVariable = forVariable
           ) {
             IfStatementNode(
-              conditionNode = caster.truthyCast(node.filterExpr.accept(this)),
+              conditionNode = truthyCast(node.filterExpr.accept(this)),
               trueStatementNode = ReturnStatementNode(
-                caster.cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
+                cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
               ),
               falseStatementNode = null,
               node = node
@@ -565,9 +568,9 @@ abstract class SemanticCstNodeVisitor constructor(
         } else { // iterating over iterable
           forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
             IfStatementNode(
-              conditionNode = caster.truthyCast(node.filterExpr.accept(this)),
+              conditionNode = truthyCast(node.filterExpr.accept(this)),
               trueStatementNode = ReturnStatementNode(
-                caster.cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
+                cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
               ),
               falseStatementNode = null,
               node = node
@@ -677,8 +680,8 @@ abstract class SemanticCstNodeVisitor constructor(
     entries = node.entries.map {
       Pair(
         // need objects (not primitive) to call function Map.put(key, value)
-        caster.cast(JavaType.Object, it.first.accept(this)),
-        caster.cast(JavaType.Object, it.second.accept(this))
+        cast(JavaType.Object, it.first.accept(this)),
+        cast(JavaType.Object, it.second.accept(this))
       )
     },
     node = node
@@ -718,9 +721,10 @@ abstract class SemanticCstNodeVisitor constructor(
         varType
       )
       else null
+    val amount = castNumberConstantOrNull(node.amount, varType.asPrimitiveType)
+      ?: return exprError(node, "Cannot convert value ${node.amount} to ${varType.asPrimitiveType}", varType)
     val incrNode = IncrNode(
-      node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
-      varType.asPrimitiveType, node.returnValueBefore
+      node.token, variable, lv, owner, amount, varType.asPrimitiveType, node.returnValueBefore
     )
     if (lv != null) currentMethodScope.freeLocalVariable(lv.name)
     return incrNode
@@ -737,7 +741,7 @@ abstract class SemanticCstNodeVisitor constructor(
       if (node.indexNodes.size != 1) return exprError(node, "Arrays need one index", owner.type.asArrayType.elementsType)
       ArrayAccessNode(
         owner,
-        caster.cast(JavaType.int, node.indexNodes.first().accept(this, JavaType.int)),
+        cast(JavaType.int, node.indexNodes.first().accept(this, JavaType.int)),
         node
       )
     } else {
@@ -756,17 +760,17 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: TernaryCstNode, smartCastType: JavaType?): ExpressionNode {
-    val testExpr = caster.truthyCast(node.testExpressionNode.accept(this))
+    val testExpr = truthyCast(node.testExpressionNode.accept(this))
     val trueExpr = node.trueExpressionNode.accept(this)
     val falseExpr = node.falseExpressionNode.accept(this)
 
     // trueExpr and falseExpr need to be casted in case they return different types
     val commonType = JavaType.commonType(trueExpr, falseExpr)
-    return TernaryNode(testExpr, caster.cast(commonType, trueExpr), caster.cast(commonType, falseExpr), node)
+    return TernaryNode(testExpr, cast(commonType, trueExpr), cast(commonType, falseExpr), node)
   }
 
   override fun visit(node: NotCstNode, smartCastType: JavaType?) = NotNode(
-    caster.truthyCast(
+    truthyCast(
       node.expression.accept(
         this,
       )
@@ -805,7 +809,7 @@ abstract class SemanticCstNodeVisitor constructor(
         val right = rightOperand.accept(this)
         val type = JavaType.commonType(left.type, right.type)
         // using DupNode to help compiler write better code than we would with a temp local variable
-        ElvisNode(caster.truthyCast(DupNode(caster.cast(type, left))), caster.cast(type, right), type)
+        ElvisNode(truthyCast(DupNode(cast(type, left))), cast(type, right), type)
       }
 
       TokenType.MINUS -> arithmeticBinaryOperator(
@@ -877,7 +881,7 @@ abstract class SemanticCstNodeVisitor constructor(
         currentMethodScope.useTempLocalVariable(left.type) { lv ->
           var dotNode = dotOperator(node, ReferenceNode(variable = lv, token = node.token), rightOperand, smartCastType = smartCastType)
           if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode =
-            caster.cast(dotNode.type.objectType, dotNode) // needed as the result can be null
+            cast(dotNode.type.objectType, dotNode) // needed as the result can be null
 
           TernaryNode(
             testExpressionNode = IsNotEqualNode(VariableAssignmentNode(lv, left), NullValueNode(node.token, left.type)),
@@ -928,7 +932,7 @@ abstract class SemanticCstNodeVisitor constructor(
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
       TokenType.AND -> AndNode(
-        caster.truthyCast(leftOperand.accept(this)), caster.truthyCast(
+        truthyCast(leftOperand.accept(this)), truthyCast(
           rightOperand.accept(
             this,
           )
@@ -936,7 +940,7 @@ abstract class SemanticCstNodeVisitor constructor(
       )
 
       TokenType.OR -> OrNode(
-        caster.truthyCast(leftOperand.accept(this)), caster.truthyCast(
+        truthyCast(leftOperand.accept(this)), truthyCast(
           rightOperand.accept(
             this,
           )
@@ -1066,7 +1070,7 @@ abstract class SemanticCstNodeVisitor constructor(
           owner = ThisReferenceNode(currentScope.classType, node.token),
           variable = boundField,
           token = node.token
-        ), right = caster.cast(boundField.type, right))
+        ), right = cast(boundField.type, right))
       } else {
         return exprError(node, e.message, smartCastType)
       }
@@ -1092,7 +1096,7 @@ abstract class SemanticCstNodeVisitor constructor(
         }
         VariableAssignmentNode(
           variable,
-          caster.cast(variable.type, right), left.owner, node
+          cast(variable.type, right), left.owner, node
         )
       }
 
@@ -1114,8 +1118,8 @@ abstract class SemanticCstNodeVisitor constructor(
         val elementType = owner.type.asArrayType.elementsType
         ArrayIndexAssignmentNode(
           owner,
-          caster.cast(JavaType.int, left.indexNode),
-          caster.cast(elementType, right),
+          cast(JavaType.int, left.indexNode),
+          cast(elementType, right),
           node
         )
       }
@@ -1249,7 +1253,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val left = node.leftOperand.accept(this, right)
 
     return when (val tokenType = node.tokenType) {
-      TokenType.AS -> caster.cast(right, left)
+      TokenType.AS -> cast(right, left)
       TokenType.INSTANCEOF, TokenType.NOT_INSTANCEOF -> {
         if (left.type.primitive || right.primitive) return exprError(
           left.token,
@@ -1268,8 +1272,8 @@ abstract class SemanticCstNodeVisitor constructor(
     return fCall(
       node = node, ownerType = BytecodeHelper::class.javaType, name = "elvisThrow",
       arguments = listOf(
-        caster.cast(expr.type.objectType, expr),
-        caster.cast(Throwable::class.javaType, node.throwableException.accept(this))
+        cast(expr.type.objectType, expr),
+        cast(Throwable::class.javaType, node.throwableException.accept(this))
       )
     )
   }
@@ -1293,7 +1297,7 @@ abstract class SemanticCstNodeVisitor constructor(
     }
 
     val type = if (left.type != JavaType.int) right.type else left.type
-    return nodeCreator.invoke(caster.cast(type, left), caster.cast(type, right))
+    return nodeCreator.invoke(cast(type, left), cast(type, right))
   }
 
   private fun equalityComparisonOperatorNode(
@@ -1307,7 +1311,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
     return if (left.type.primitive && right.type.primitive) {
       val commonType = JavaType.commonType(left.type, right.type)
-      nodeCreator.invoke(caster.cast(commonType, left), caster.cast(commonType, right))
+      nodeCreator.invoke(cast(commonType, left), cast(commonType, right))
     } else if (left.type.primitive && !right.type.primitive || !left.type.primitive && right.type.primitive) {
       if (!left.type.isPrimitiveObjectType || !left.type.isPrimitiveObjectType) {
         return exprError(leftOperand.token, "Cannot compare ${left.type} with ${right.type}", JavaType.boolean)
@@ -1317,13 +1321,13 @@ abstract class SemanticCstNodeVisitor constructor(
       val rightType = right.type.asPrimitiveType.objectType
       val commonType = JavaType.commonType(leftType, rightType)
       nodeCreator.invoke(
-        caster.cast(commonType, caster.cast(leftType, left)),
-        caster.cast(commonType, caster.cast(rightType, right))
+        cast(commonType, cast(leftType, left)),
+        cast(commonType, cast(rightType, right))
       )
     } else if (left is NullValueNode || right is NullValueNode) {
       nodeCreator.invoke(left, right)
     } else {
-      objectComparisonNodeCreator.invoke(caster.cast(JavaType.Object, left), caster.cast(JavaType.Object, right))
+      objectComparisonNodeCreator.invoke(cast(JavaType.Object, left), cast(JavaType.Object, right))
     }
   }
 
@@ -1425,7 +1429,7 @@ abstract class SemanticCstNodeVisitor constructor(
         "Cannot apply operator on non number types",
         commonType
       )
-      nodeSupplier.invoke(caster.cast(commonPrimitiveType, left), caster.cast(commonPrimitiveType, right))
+      nodeSupplier.invoke(cast(commonPrimitiveType, left), cast(commonPrimitiveType, right))
     } else if (left.type == JavaType.String) {
       return StringNode(listOf(left, right))
     } else {
@@ -1675,7 +1679,7 @@ abstract class SemanticCstNodeVisitor constructor(
   override fun visit(node: ReturnCstNode): StatementNode {
     val scope = currentMethodScope
     val expectedReturnType = scope.method.let { if (it.isAsync) it.asyncReturnType!! else it.returnType }
-    val expression = node.expressionNode?.accept(this, expectedReturnType)?.let { caster.cast(expectedReturnType, it) }
+    val expression = node.expressionNode?.accept(this, expectedReturnType)?.let { cast(expectedReturnType, it) }
 
     if (expression != null && expression.type != JavaType.void && expectedReturnType == JavaType.void) {
       return stmtError(node, "Cannot return expression in void function")
@@ -1694,7 +1698,7 @@ abstract class SemanticCstNodeVisitor constructor(
     }
     return ExpressionStatementNode(
       VariableAssignmentNode(variable,
-        node.expressionNode?.accept(this, variable.type)?.let { caster.cast(variable.type, it) }
+        node.expressionNode?.accept(this, variable.type)?.let { cast(variable.type, it) }
           ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd, node.variableToken)
     )
   }
@@ -1756,7 +1760,7 @@ abstract class SemanticCstNodeVisitor constructor(
               ExpressionStatementNode(
                 VariableAssignmentNode(
                   localVariable = variable,
-                  expression = caster.cast(
+                  expression = cast(
                     variable.type,
                     ArrayAccessNode(
                       expressionRef,
@@ -1805,7 +1809,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun visit(node: IfStatementCstNode): IfStatementNode {
     val (condition, trueStatement) = useInnerScope {
-      Pair(caster.truthyCast(node.condition.accept(this)), node.trueStatementNode.accept(this))
+      Pair(truthyCast(node.condition.accept(this)), node.trueStatementNode.accept(this))
     }
     val falseStatement = useInnerScope { node.falseStatementNode?.accept(this) }
 
@@ -1815,7 +1819,7 @@ abstract class SemanticCstNodeVisitor constructor(
   fun visit(node: IfStatementCstNode, smartCastType: JavaType?): IfStatementNode {
     if (smartCastType == null) return visit(node)
     val (condition, trueStatement) = useInnerScope {
-      Pair(caster.truthyCast(node.condition.accept(this)), visitSmartCast(node.trueStatementNode, smartCastType))
+      Pair(truthyCast(node.condition.accept(this)), visitSmartCast(node.trueStatementNode, smartCastType))
     }
     val falseStatement = useInnerScope { node.falseStatementNode?.let { visitSmartCast(it, smartCastType) } }
     return IfStatementNode(condition, trueStatement, falseStatement, node)
@@ -1983,7 +1987,7 @@ abstract class SemanticCstNodeVisitor constructor(
         if (interfaceMethodNode.returnType != JavaType.void) {
           interfaceMethodBlockStatement =
             interfaceMethodBlockStatement.accept(ReturningBranchTransformer(lambdaNode.blockCstNode) {
-              caster.cast(
+              cast(
                 interfaceMethodNode.returnType,
                 it
               )
@@ -2017,7 +2021,7 @@ abstract class SemanticCstNodeVisitor constructor(
         val blockStatement = useScope(lambdaMethodScope) {
           lambdaNode.blockCstNode.accept(this).accept(
             // need to cast to objectType because lambdas always return objects
-            ReturningBranchTransformer(lambdaNode.blockCstNode) { caster.cast(JavaType.Object, it) }
+            ReturningBranchTransformer(lambdaNode.blockCstNode) { cast(JavaType.Object, it) }
           ) as BlockStatementNode
         }
         lambdaMethodNode.blockStatement.addAll(blockStatement.statements)
@@ -2184,7 +2188,7 @@ abstract class SemanticCstNodeVisitor constructor(
             VariableAssignmentNode(
               localVariable = returnValueVar!!,
               // always return an object
-              expression = caster.cast(asyncReturnType.objectType, expressionNode),
+              expression = cast(asyncReturnType.objectType, expressionNode),
               node = node
             )
           )
@@ -2307,7 +2311,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode, smartCastType) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
-      val branchTransformer = ReturningWhenIfBranchTransformer(node) { caster.cast(whenReturnType, it) }
+      val branchTransformer = ReturningWhenIfBranchTransformer(node) { cast(whenReturnType, it) }
       while (tmpIfNode != null) {
         tmpIfNode.trueStatementNode = tmpIfNode.trueStatementNode.accept(branchTransformer)
         if (tmpIfNode.falseStatementNode is IfStatementNode || tmpIfNode.falseStatementNode == null) {
@@ -2416,14 +2420,14 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: WhileCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val condition = caster.truthyCast(node.condition.accept(this))
+    val condition = truthyCast(node.condition.accept(this))
     val statement = node.statement.accept(this)
     WhileNode(node, condition, statement)
   }
 
 
   override fun visit(node: DoWhileStatementCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val condition = caster.truthyCast(node.condition.accept(this))
+    val condition = truthyCast(node.condition.accept(this))
     val statement = node.statement.accept(this)
     DoWhileNode(node, condition, statement)
   }
@@ -2516,7 +2520,7 @@ abstract class SemanticCstNodeVisitor constructor(
     }
     return VariableAssignmentNode(
       localVariable = variable,
-      expression = caster.cast(variable.type, expression),
+      expression = cast(variable.type, expression),
       node = node,
       identifierToken = node.identifierToken
     )
@@ -2525,7 +2529,7 @@ abstract class SemanticCstNodeVisitor constructor(
   override fun visit(node: ForVarCstNode): StatementNode =
     useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
       val initStatement = node.varDecl.accept(this)
-      val condition = caster.truthyCast(node.condition.accept(this))
+      val condition = truthyCast(node.condition.accept(this))
       val iteratorStatement = node.iteratorStatement.accept(this)
       val bodyStatement = node.bodyStatement.accept(this)
       ForStatementNode(
@@ -2552,7 +2556,7 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: ThrowCstNode): StatementNode {
-    val expression = caster.cast(Throwable::class.javaType, node.expression.accept(this, Throwable::class.javaType))
+    val expression = cast(Throwable::class.javaType, node.expression.accept(this, Throwable::class.javaType))
     return ThrowNode(node, expression)
   }
 
@@ -2572,7 +2576,7 @@ abstract class SemanticCstNodeVisitor constructor(
       if (it.expressionNode == null) return@useInnerScope stmtError(it, "Resource declarations need to be initialised")
       VariableAssignmentNode(
         resourceVar,
-        caster.cast(resourceType.type, it.expressionNode!!.accept(this, resourceType.type)),
+        cast(resourceType.type, it.expressionNode!!.accept(this, resourceType.type)),
         it.tokenStart, it.tokenEnd
       )
     }
@@ -2738,7 +2742,7 @@ abstract class SemanticCstNodeVisitor constructor(
       val defaultValueMethod =
         generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
       useScope(newMethodScope(ownerType, forExtensionType, defaultValueMethod)) {
-        caster.cast(
+        cast(
           parameterType,
           node.defaultValue!!.accept(this)
         )
@@ -2787,7 +2791,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val defaultValue =
       if (node.defaultValue != null) {
         useScope(newMethodScope(ownerType, classNode.forExtensionType, defaultValueMethod)) {
-          caster.cast(
+          cast(
             parameterType,
             node.defaultValue!!.accept(this)
           )
@@ -2883,7 +2887,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
         else -> {
           // defining method
-          defaultValueMethod.blockStatement.add(ReturnStatementNode(caster.cast(parameterType, defaultValue)))
+          defaultValueMethod.blockStatement.add(ReturnStatementNode(cast(parameterType, defaultValue)))
           classNode.methods.add(defaultValueMethod)
           symbolResolver.defineMethod(ownerType, defaultValueMethod)
 
@@ -3062,6 +3066,32 @@ abstract class SemanticCstNodeVisitor constructor(
     "Incompatible type for annotation member ${attribute.name} of annotation ${annotation}. Wanted ${attribute.type} but got ${attrValue.javaClass}"
   )
 
+  override fun cast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
+    return try {
+       caster.cast(expectedType, node)
+    } catch (e: TypeCastException) {
+      exprError(node, e.message, expectedType)
+    }
+  }
+
+  override fun castNumberConstantOrNull(value: Int, type: JavaPrimitiveType) = caster.castNumberConstantOrNull(value, type)
+
+  override fun javaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
+    return try {
+      caster.javaCast(expectedType, node)
+    } catch (e: TypeCastException) {
+      exprError(node, e.message, expectedType)
+    }
+  }
+
+  override fun truthyCast(node: ExpressionNode): ExpressionNode {
+    return try {
+      caster.truthyCast(node)
+    } catch (e: TypeCastException) {
+      exprError(node, e.message, JavaType.boolean)
+    }
+
+  }
   protected fun stmtError(node: AstNode, message: String) = ExpressionStatementNode(exprError(node.token, message, JavaType.void))
   protected fun stmtError(node: CstNode, message: String) = ExpressionStatementNode(exprError(node.token, message, JavaType.void))
 

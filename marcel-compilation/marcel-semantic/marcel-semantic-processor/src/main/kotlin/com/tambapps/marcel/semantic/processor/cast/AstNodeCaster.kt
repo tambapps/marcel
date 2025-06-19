@@ -6,28 +6,27 @@ import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewLambdaInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.processor.exception.TypeCastException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper
 
 /**
- * Class transforming nodes if necessary in order to cast them.
+ * Class transforming nodes if necessary to cast them.
  */
 class AstNodeCaster(
   private val symbolResolver: MarcelSymbolResolver
-) {
+): ExpressionCaster {
 
-  fun truthyCast(node: ExpressionNode): ExpressionNode {
+  override fun truthyCast(node: ExpressionNode): ExpressionNode {
     return when (node.type) {
       JavaType.boolean -> node
       JavaType.Boolean -> javaCast(JavaType.boolean, node)
       else -> {
-        if (node.type.primitive) throw MarcelSemanticException(node.token, "Cannot cast primitive into boolean")
+        if (node.type.primitive) throw TypeCastException(node.token, "Cannot cast primitive into boolean")
         functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
       }
     }
@@ -37,7 +36,7 @@ class AstNodeCaster(
    * Cast the provided node (if necessary) so that it fits the expected type.
    * Throws a MarcelSemanticException in case of casting failure
    */
-  fun cast(
+  override fun cast(
     expectedType: JavaType,
     node: ExpressionNode
   ): ExpressionNode {
@@ -90,7 +89,7 @@ class AstNodeCaster(
     }
   }
 
-  fun javaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
+  override fun javaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
     val actualType = node.type
     return when {
       actualType.primitive && expectedType.primitive -> primitiveToPrimitiveJavaCast(expectedType, node, actualType)
@@ -99,16 +98,6 @@ class AstNodeCaster(
       expectedType.isExtendedOrImplementedBy(actualType) -> node
       else -> JavaCastNode(expectedType, node, node.token)
     }
-  }
-
-  fun castNumberConstant(value: Int, type: JavaPrimitiveType, token: LexToken): Any = when (type) {
-    JavaType.byte -> value.toByte()
-    JavaType.int -> value
-    JavaType.long -> value.toLong()
-    JavaType.float -> value.toFloat()
-    JavaType.double -> value.toDouble()
-    JavaType.short -> value.toShort()
-    else -> throw MarcelSemanticException(token, "Cannot convert value $value to $type")
   }
 
   private fun primitiveToPrimitiveJavaCast(expectedType: JavaType, node: ExpressionNode, actualType: JavaType): ExpressionNode {
@@ -210,7 +199,7 @@ class AstNodeCaster(
     expectedType: JavaType,
     actualType: JavaType
   ): ExpressionNode {
-    throw MarcelSemanticException(node.token, "Expected expression of type $expectedType but got $actualType")
+    throw TypeCastException(node.token, "Expected expression of type $expectedType but got $actualType")
   }
 
   internal fun functionCall(

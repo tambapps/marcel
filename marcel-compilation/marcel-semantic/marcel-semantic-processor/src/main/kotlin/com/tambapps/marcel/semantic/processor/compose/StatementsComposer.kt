@@ -31,6 +31,7 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.processor.cast.ExpressionCaster
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
@@ -46,12 +47,13 @@ import java.util.*
  */
 class StatementsComposer(
   scopeQueue: LinkedList<Scope>,
-  override val caster: AstNodeCaster,
+  val caster: ExpressionCaster,
   override val symbolResolver: MarcelSymbolResolver,
   val statements: MutableList<StatementNode>,
   val tokenStart: LexToken,
   val tokenEnd: LexToken,
-): AbstractMarcelSemantic(scopeQueue) {
+): AbstractMarcelSemantic(scopeQueue), ExpressionCaster by caster {
+
 
   fun addAllStmt(statements: List<StatementNode>) = this.statements.addAll(statements)
   fun addStmt(statement: StatementNode) = this.statements.add(statement)
@@ -78,7 +80,7 @@ class StatementsComposer(
   fun cast(
     expr: ExpressionNode,
     type: JavaType
-  ): ExpressionNode = caster.cast(type, expr)
+  ): ExpressionNode = cast(type, expr)
 
   fun ref(methodParameter: MethodParameter) = ReferenceNode(
     owner = null,
@@ -180,7 +182,7 @@ class StatementsComposer(
   ): ExpressionNode {
     return VariableAssignmentNode(
       variable = variable,
-      expression = caster.cast(variable.type, expr),
+      expression = cast(variable.type, expr),
       owner = owner,
       tokenStart = tokenStart,
       tokenEnd = tokenEnd
@@ -192,7 +194,7 @@ class StatementsComposer(
     e2: ExpressionNode
   ): ExpressionNode {
     val commonType = JavaType.commonType(e1, e2)
-    return PlusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+    return PlusNode(cast(commonType, e1), cast(commonType, e2))
   }
 
   fun minus(
@@ -200,7 +202,7 @@ class StatementsComposer(
     e2: ExpressionNode
   ): ExpressionNode {
     val commonType = JavaType.commonType(e1, e2)
-    return MinusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+    return MinusNode(cast(commonType, e1), cast(commonType, e2))
   }
 
   fun mul(
@@ -208,7 +210,7 @@ class StatementsComposer(
     e2: ExpressionNode
   ): ExpressionNode {
     val commonType = JavaType.commonType(e1, e2)
-    return MulNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+    return MulNode(cast(commonType, e1), cast(commonType, e2))
   }
 
   fun stmt(statement: StatementNode) {
@@ -232,7 +234,7 @@ class StatementsComposer(
     expr: ExpressionNode? = null,
   ) {
     val statement =
-      if (expr != null) ReturnStatementNode(caster.cast(currentMethodScope.method.returnType, expr))
+      if (expr != null) ReturnStatementNode(cast(currentMethodScope.method.returnType, expr))
       else ReturnStatementNode(null, tokenStart, tokenEnd)
     statements.add(statement)
   }
@@ -243,7 +245,7 @@ class StatementsComposer(
     falseStmt: StatementNode? = null,
     add: Boolean = true
   ): IfStatementNode {
-    val statement = IfStatementNode(caster.truthyCast(condition), trueStmt, falseStmt, tokenStart, tokenEnd)
+    val statement = IfStatementNode(truthyCast(condition), trueStmt, falseStmt, tokenStart, tokenEnd)
     if (add) statements.add(statement)
     return statement
   }
@@ -257,7 +259,7 @@ class StatementsComposer(
       trueStatementsComposer.asBlockStatement()
     }
     val statement = IfStatementNode(
-      caster.truthyCast(condition),
+      truthyCast(condition),
       trueStatementBlock, null,
       tokenStart, tokenEnd
     )
@@ -283,7 +285,7 @@ class StatementsComposer(
       val iVar = forScope.addLocalVariable(JavaType.int, token = tokenStart)
       val forVariable = forScope.addLocalVariable(array.type.asArrayType.elementsType, token = tokenStart)
       val forStmt = forInArrayNode(tokenStart, tokenEnd, forScope = forScope, inNode = array, iVar = iVar, forVariable = forVariable) {
-        val forStatementsComposer = StatementsComposer(scopeQueue, caster, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
+        val forStatementsComposer = StatementsComposer(scopeQueue, this, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
         forStatementsComposerFunc.invoke(forStatementsComposer, forScope, forVariable)
         forStatementsComposer.asBlockStatement()
       }

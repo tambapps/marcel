@@ -316,7 +316,7 @@ open class MarcelSemantic(
                 JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, isSynthetic = true, classType, emptyList())
               )
             ) {
-              caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type))
+              cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type))
             }
           }
         }
@@ -571,7 +571,7 @@ open class MarcelSemantic(
         VariableAssignmentNode(
           variable = field,
           owner = if (isStaticContext) null else ThisReferenceNode(classType, field.token),
-          expression = caster.cast(field.type, initialValue),
+          expression = cast(field.type, initialValue),
           tokenStart = field.tokenStart, tokenEnd = initialValue.tokenEnd
         )
       )
@@ -760,7 +760,7 @@ open class MarcelSemantic(
       blockStatements(cstStatements.subList(0, cstStatements.size - 1)).apply {
         var lastStatement = cstStatements.last().accept(this@MarcelSemantic)
         if (lastStatement is ExpressionStatementNode && lastStatement.expressionNode.type != JavaType.void) {
-          lastStatement = ReturnStatementNode(caster.cast(JavaType.Object, lastStatement.expressionNode))
+          lastStatement = ReturnStatementNode(cast(JavaType.Object, lastStatement.expressionNode))
         }
         add(lastStatement)
       }

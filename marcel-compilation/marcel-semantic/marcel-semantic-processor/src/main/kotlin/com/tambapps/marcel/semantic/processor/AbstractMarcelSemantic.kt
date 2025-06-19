@@ -35,6 +35,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.processor.cast.ExpressionCaster
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
@@ -68,7 +69,7 @@ import java.util.*
 
 abstract class AbstractMarcelSemantic(
   val scopeQueue: LinkedList<Scope> = LinkedList<Scope>()
-) {
+): ExpressionCaster {
 
   /**
    * Object providing constants for class outer class levels.
@@ -88,7 +89,6 @@ abstract class AbstractMarcelSemantic(
   }
 
   abstract val symbolResolver: MarcelSymbolResolver
-  abstract val caster: AstNodeCaster
 
   protected val currentScope: Scope get() = scopeQueue.peek() // FIFO
   protected val currentMethodScope
@@ -165,7 +165,7 @@ abstract class AbstractMarcelSemantic(
       // in case the provider did provide the array
       || symbolResolver.matchesMethod(method, arguments)
     ) return arguments.mapIndexed { index, expressionNode ->
-      caster.cast(
+      cast(
         method.parameters[index].type,
         expressionNode
       )
@@ -175,14 +175,14 @@ abstract class AbstractMarcelSemantic(
     var i = 0
     while (i < method.parameters.size - 1) {
       castedArguments.add(
-        caster.cast(method.parameters[i].type, arguments[i])
+        cast(method.parameters[i].type, arguments[i])
       )
       i++
     }
     val varArgType = method.varArgType
     val arrayArgs = mutableListOf<ExpressionNode>()
     while (i < arguments.size) {
-      arrayArgs.add(caster.cast(varArgType, arguments[i]))
+      arrayArgs.add(cast(varArgType, arguments[i]))
       i++
     }
     castedArguments.add(ArrayNode(arrayArgs, LexToken.DUMMY, LexToken.DUMMY, method.varArgsType))
@@ -254,7 +254,7 @@ abstract class AbstractMarcelSemantic(
       tokenStart,
       tokenEnd
     )
-    return if (castType != null) caster.javaCast(castType, node) else node
+    return if (castType != null) javaCast(castType, node) else node
   }
 
   fun forInArrayNode(
@@ -311,7 +311,7 @@ abstract class AbstractMarcelSemantic(
       mutableListOf(
         ExpressionStatementNode(
           VariableAssignmentNode(
-            localVariable = forVariable, expression = caster.cast(
+            localVariable = forVariable, expression = cast(
               forVariable.type,
               ArrayAccessNode(owner = arrayRef, indexNode = iRef, tokenStart, tokenEnd)
             ), tokenStart, tokenEnd
@@ -384,7 +384,7 @@ abstract class AbstractMarcelSemantic(
 
       val nextMethod = symbolResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
       // cast to fit the declared variable type
-      val nextMethodCall = caster.cast(
+      val nextMethodCall = cast(
         variable.type,
         fCall(tokenStart, tokenEnd, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference)
       )
@@ -424,7 +424,7 @@ abstract class AbstractMarcelSemantic(
     useScope(methodScope) { scope ->
       val statementComposer = StatementsComposer(
         scopeQueue,
-        caster,
+        this,
         symbolResolver,
         methodNode.blockStatement.statements,
         methodNode.tokenStart,
@@ -439,7 +439,7 @@ abstract class AbstractMarcelSemantic(
     return useScope(scope) {
       val statements = mutableListOf<StatementNode>()
       val statementComposer =
-        StatementsComposer(scopeQueue, caster, symbolResolver, statements, node.tokenStart, node.tokenEnd)
+        StatementsComposer(scopeQueue, this, symbolResolver, statements, node.tokenStart, node.tokenEnd)
       composer.invoke(statementComposer, scope)
       BlockStatementNode(statements)
     }

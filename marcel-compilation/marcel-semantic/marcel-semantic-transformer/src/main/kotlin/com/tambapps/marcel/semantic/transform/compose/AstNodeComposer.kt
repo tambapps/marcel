@@ -144,7 +144,7 @@ abstract class AstNodeComposer(
         addStatementLast(
           ExpressionStatementNode(VariableAssignmentNode(
             variable = fieldNode,
-            expression = caster.cast(fieldNode.type, defaultValue),
+            expression = cast(fieldNode.type, defaultValue),
             owner = ThisReferenceNode(currentScope.classType, tokenStart),
             tokenStart = tokenStart,
             tokenEnd = tokenEnd
@@ -211,5 +211,5 @@ abstract class AstNodeComposer(
     } else statements.add(statement)
   }
 
-  fun newStatementsComposer(statements: MutableList<StatementNode>) = StatementsComposer(scopeQueue, caster, symbolResolver, statements, tokenStart, tokenEnd)
+  fun newStatementsComposer(statements: MutableList<StatementNode>) = StatementsComposer(scopeQueue, this, symbolResolver, statements, tokenStart, tokenEnd)
 }
