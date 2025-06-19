@@ -2718,10 +2718,14 @@ abstract class SemanticCstNodeVisitor constructor(
       throw VariableAccessException(node.token, "Cannot get value of variable ${variable.name}")
     }
     if (checkSet && !variable.isSettable) {
+      val scope = currentScope
+      print(scope)
+      val methodScope = currentScope as? MethodScope
       val message = when {
         // prevented because it would be useless, as async/switch/when generate and are executed on a new method
-        (currentScope as? MethodScope)?.method?.name?.contains(WHEN_METHOD_PREFIX) == true -> "Cannot set value of local variables in switch/when. Use if/else instead"
-        (currentScope as? MethodScope)?.method?.name?.contains(ASYNC_METHOD_PREFIX) == true -> "Cannot set value of local variables in async blocks"
+        methodScope?.method?.name?.contains(WHEN_METHOD_PREFIX) == true -> "Cannot set value of local variables from outer scope in a switch/when. Use if/else instead"
+        methodScope?.method?.name?.contains(ASYNC_METHOD_PREFIX) == true -> "Cannot set value of local variables from outer scope in an async block"
+        methodScope?.isInLambda == true -> "Cannot set value of local variables from outer scope in a lambda"
         else -> "Cannot set value for variable ${variable.name}"
       }
       throw VariableAccessException(node.token, message)

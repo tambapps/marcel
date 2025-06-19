@@ -28,5 +28,6 @@ open class MethodInnerScope(
 
   private val _isInLoop = isInLoop
   val isInLoop: Boolean get() = _isInLoop || (parentScope as? MethodInnerScope)?.isInLoop ?: false
+  override val isInLambda = parentScope.isInLambda
 
 }

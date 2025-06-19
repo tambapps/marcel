@@ -25,6 +25,7 @@ open class MethodScope internal constructor(
 ) : AbstractScope(symbolResolver, classType.packageName, importResolver) {
 
   override val forExtensionType = parentScope.forExtensionType
+  open val isInLambda get() = false
 
   constructor(classScope: ClassScope, method: MarcelMethod)
       : this(

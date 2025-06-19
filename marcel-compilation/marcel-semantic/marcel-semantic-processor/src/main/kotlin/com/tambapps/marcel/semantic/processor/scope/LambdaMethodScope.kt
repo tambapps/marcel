@@ -17,6 +17,7 @@ class LambdaMethodScope(
 ) : MethodScope(classScope, method) {
   private val usedOuterScopeLocalVariableMap = mutableMapOf<LocalVariable, MarcelField>()
   val usedOuterScopeLocalVariable get() = usedOuterScopeLocalVariableMap.keys
+  override val isInLambda get() = true
 
   override fun findField(name: String): MarcelField? {
     // local variables of outer scope come first
