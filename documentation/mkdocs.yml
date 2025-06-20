@@ -47,10 +47,7 @@ nav:
   - Getting Started: getting-started.md
   - Language Specification:
       - Intro: language-specification/index.md
-      - Basics:
-          - Identifier rules: language-specification/basics/identifiers.md
-          - Keywords: language-specification/basics/keywords.md
-          - Comments: language-specification/basics/comments.md
+      - Basics: language-specification/basics.md
       - Variables: language-specification/variables.md
       - Types:
           - Intro: language-specification/types/index.md
