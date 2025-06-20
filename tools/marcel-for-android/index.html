@@ -1,243 +1,2589 @@
-<!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
-    <head>
-        <!-- Book generated using mdBook -->
-        <meta charset="UTF-8">
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../marshell/">
+      
+      
+        <link rel="next" href="../dumbbell/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
         <title>Marcel for Android - The Marcel Programming Language</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+      
 
 
-        <!-- Custom HTML head -->
-        <link rel="icon" type="image/png" href="./favicon.png">
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="theme-color" content="#ffffff">
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../css/highlight.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
 
-        <link rel="shortcut icon" href="../../favicon.png">
-        <link rel="stylesheet" href="../../css/variables.css">
-        <link rel="stylesheet" href="../../css/general.css">
-        <link rel="stylesheet" href="../../css/chrome.css">
-        <link rel="stylesheet" href="../../css/print.css" media="print">
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#marcel-for-android" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
 
-        <!-- Fonts -->
-        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
-        <link rel="stylesheet" href="../../fonts/fonts.css">
+  
 
-        <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="../../highlight.css">
-        <link rel="stylesheet" href="../../tomorrow-night.css">
-        <link rel="stylesheet" href="../../ayu-highlight.css">
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="The Marcel Programming Language" class="md-header__button md-logo" aria-label="The Marcel Programming Language" data-md-component="logo">
+      
+  <img src="../../images/marcel_logo.png" alt="logo">
 
-        <!-- Custom theme stylesheets -->
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The Marcel Programming Language
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Marcel for Android
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
-        <!-- Provide site root to javascript -->
-        <script>
-            var path_to_root = "../../";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
-        </script>
 
-        <!-- Work around some values being stored in localStorage wrapped in quotes -->
-        <script>
-            try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
 
-                if (theme.startsWith('"') && theme.endsWith('"')) {
-                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
-                }
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="The Marcel Programming Language" class="md-nav__button md-logo" aria-label="The Marcel Programming Language" data-md-component="logo">
+      
+  <img src="../../images/marcel_logo.png" alt="logo">
 
-                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
-                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
-                }
-            } catch (e) { }
-        </script>
+    </a>
+    The Marcel Programming Language
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
 
-        <!-- Set the theme before any content is loaded, prevents flash -->
-        <script>
-            var theme;
-            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
-            if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
-            html.classList.remove('light')
-            html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
-        </script>
+      </a>
+    </li>
+  
 
-        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
 
-        <!-- Hide / unhide sidebar before it is displayed -->
-        <script>
-            var body = document.querySelector('body');
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
-            if (document.body.clientWidth >= 1080) {
-                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
-                sidebar = sidebar || 'visible';
-            } else {
-                sidebar = 'hidden';
-            }
-            sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
-        </script>
+      </a>
+    </li>
+  
 
-        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../marcel.html">The Marcel Programming Language</a></li><li class="chapter-item expanded "><a href="../../getting-started/index.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/hello-world.html"><strong aria-hidden="true">1.2.</strong> Hello World</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/index.html"><strong aria-hidden="true">2.</strong> Language Specification</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/syntax/index.html"><strong aria-hidden="true">2.1.</strong> Syntax</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/syntax/comments.html"><strong aria-hidden="true">2.1.1.</strong> Comments</a></li><li class="chapter-item expanded "><a href="../../language-specification/syntax/identifiers.html"><strong aria-hidden="true">2.1.2.</strong> Identifier rules</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/variables.html"><strong aria-hidden="true">2.2.</strong> Variables</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/index.html"><strong aria-hidden="true">2.3.</strong> Types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/types/primitives.html"><strong aria-hidden="true">2.3.1.</strong> Primitives</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/objects.html"><strong aria-hidden="true">2.3.2.</strong> Objects</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/string.html"><strong aria-hidden="true">2.3.3.</strong> String</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/arrays.html"><strong aria-hidden="true">2.3.4.</strong> Arrays</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/collections.html"><strong aria-hidden="true">2.3.5.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/collections-of-primitives.html"><strong aria-hidden="true">2.3.6.</strong> Collection of Primitives</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/maps.html"><strong aria-hidden="true">2.3.7.</strong> Maps</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/ranges.html"><strong aria-hidden="true">2.3.8.</strong> Ranges</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/dynamic-objects.html"><strong aria-hidden="true">2.3.9.</strong> Dynamic Objects</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/index.html"><strong aria-hidden="true">2.4.</strong> Control Flows</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/control-flows/marcel-truth.html"><strong aria-hidden="true">2.4.1.</strong> Marcel Truth</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/if-else.html"><strong aria-hidden="true">2.4.2.</strong> If/Else Statements</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/while-loops.html"><strong aria-hidden="true">2.4.3.</strong> While loops</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/for-loops.html"><strong aria-hidden="true">2.4.4.</strong> For loops</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/switch-when.html"><strong aria-hidden="true">2.4.5.</strong> Switch and When</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/exception-handling.html"><strong aria-hidden="true">2.4.6.</strong> Exception Handling</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/index.html"><strong aria-hidden="true">2.5.</strong> Source File Structure</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/imports.html"><strong aria-hidden="true">2.5.1.</strong> Imports</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/visibility.html"><strong aria-hidden="true">2.5.2.</strong> Visibility and Access</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/functions.html"><strong aria-hidden="true">2.5.3.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/classes.html"><strong aria-hidden="true">2.5.4.</strong> Classes</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/enums.html"><strong aria-hidden="true">2.5.5.</strong> Enums</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/script.html"><strong aria-hidden="true">2.5.6.</strong> Script</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/annotations.html"><strong aria-hidden="true">2.5.7.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/operators/index.html"><strong aria-hidden="true">2.6.</strong> Operators</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/operators/plus.html"><strong aria-hidden="true">2.6.1.</strong> Plus (+)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/minus.html"><strong aria-hidden="true">2.6.2.</strong> Minus (-)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/left-shift.html"><strong aria-hidden="true">2.6.3.</strong> Left Shift (&lt;&lt;)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/comparison.html"><strong aria-hidden="true">2.6.4.</strong> Comparison Operators</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/as.html"><strong aria-hidden="true">2.6.5.</strong> As (Type casting)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/instanceof.html"><strong aria-hidden="true">2.6.6.</strong> Instance Of (Type Checking)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/indexed-access.html"><strong aria-hidden="true">2.6.7.</strong> Indexed Access (expr[index])</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/safe-navigation.html"><strong aria-hidden="true">2.6.8.</strong> Safe Navigation (?.)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/ternary-elvis.html"><strong aria-hidden="true">2.6.9.</strong> Ternary and Elvis (?:)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/direct-field-access.html"><strong aria-hidden="true">2.6.10.</strong> Direct Field Access (@)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/operator-overloading.html"><strong aria-hidden="true">2.6.11.</strong> Define your own operators</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/index.html"><strong aria-hidden="true">2.7.</strong> Iterable Operations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/map-filter.html"><strong aria-hidden="true">2.7.1.</strong> Map/Filter</a></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/any-all.html"><strong aria-hidden="true">2.7.2.</strong> Any/All</a></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/find.html"><strong aria-hidden="true">2.7.3.</strong> Find</a></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/chain-operations.html"><strong aria-hidden="true">2.7.4.</strong> Chain operations</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/lambdas.html"><strong aria-hidden="true">2.8.</strong> Lambdas</a></li><li class="chapter-item expanded "><a href="../../language-specification/extension-classes.html"><strong aria-hidden="true">2.9.</strong> Extension Classes</a></li></ol></li><li class="chapter-item expanded "><a href="../../metaprogramming/index.html"><strong aria-hidden="true">3.</strong> Meta Programming</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/index.html"><strong aria-hidden="true">3.1.</strong> Meta Annotations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/stringify.html"><strong aria-hidden="true">3.1.1.</strong> @stringify</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/comparable.html"><strong aria-hidden="true">3.1.2.</strong> @comparable</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/data.html"><strong aria-hidden="true">3.1.3.</strong> @data</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/cached.html"><strong aria-hidden="true">3.1.4.</strong> @cached</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/lazy.html"><strong aria-hidden="true">3.1.5.</strong> @lazy</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../asynchronous-programming/index.html"><strong aria-hidden="true">4.</strong> Asynchronous Programmming</a></li><li class="chapter-item expanded "><a href="../../guides/index.html"><strong aria-hidden="true">5.</strong> Guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../guides/collections.html"><strong aria-hidden="true">5.1.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../guides/command-line-arguments.html"><strong aria-hidden="true">5.2.</strong> Command Line Options/Arguments</a></li><li class="chapter-item expanded "><a href="../../guides/regular-expressions.html"><strong aria-hidden="true">5.3.</strong> Regular Expressions</a></li><li class="chapter-item expanded "><a href="../../guides/stdlib-extensions.html"><strong aria-hidden="true">5.4.</strong> Standard Library Extensions</a></li><li class="chapter-item expanded "><a href="../../guides/csv.html"><strong aria-hidden="true">5.5.</strong> Parsing and producing CSV</a></li><li class="chapter-item expanded "><a href="../../guides/json.html"><strong aria-hidden="true">5.6.</strong> Parsing and producing JSON</a></li><li class="chapter-item expanded "><a href="../../guides/yaml.html"><strong aria-hidden="true">5.7.</strong> Parsing and producing YAML</a></li></ol></li><li class="chapter-item expanded "><a href="../../tools/index.html"><strong aria-hidden="true">6.</strong> Tools</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tools/marcl.html"><strong aria-hidden="true">6.1.</strong> MarCL - Marcel's Command Line tool</a></li><li class="chapter-item expanded "><a href="../../tools/marshell/index.html"><strong aria-hidden="true">6.2.</strong> Marshell — Marcel Shell</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tools/marshell/init-script.html"><strong aria-hidden="true">6.2.1.</strong> Initialization Script</a></li></ol></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/index.html" class="active"><strong aria-hidden="true">6.3.</strong> Marcel for Android</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/shell-workout.html"><strong aria-hidden="true">6.3.1.</strong> Shell Workout (Background scripts)</a></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/send-sms.html"><strong aria-hidden="true">6.3.2.</strong> Send SMS from Marcel Script</a></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/send-notification.html"><strong aria-hidden="true">6.3.3.</strong> Send Notification from Marcel Script</a></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/privacy-policy.html"><strong aria-hidden="true">6.3.4.</strong> Privacy Policy</a></li></ol></li><li class="chapter-item expanded "><a href="../../tools/dumbbell.html"><strong aria-hidden="true">6.4.</strong> Dumbbell - Marcel's Dependency Manager</a></li><li class="chapter-item expanded "><a href="../../tools/maven-plugin.html"><strong aria-hidden="true">6.5.</strong> Maven Plugin for Marcel</a></li><li class="chapter-item expanded "><a href="../../tools/intelij-plugin.html"><strong aria-hidden="true">6.6.</strong> IntelIJ Plugin for Marcel</a></li></ol></li><li class="chapter-item expanded "><a href="../../marcel-in-action/index.html"><strong aria-hidden="true">7.</strong> Marcel In Action</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../marcel-in-action/fibonacci.html"><strong aria-hidden="true">7.1.</strong> Fibonacci suite</a></li><li class="chapter-item expanded "><a href="../../marcel-in-action/advent-of-code.html"><strong aria-hidden="true">7.2.</strong> Advent of code</a></li></ol></li></ol>
-            </div>
-            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
-                <div class="sidebar-resize-indicator"></div>
-            </div>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Language Specification
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Language Specification
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Basics
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Basics
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/basics/identifiers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Identifier rules
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/basics/keywords/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Keywords
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/basics/comments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Comments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
         </nav>
+      
+    </li>
+  
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/variables/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Variables
+    
+  </span>
+  
 
-        <div id="page-wrapper" class="page-wrapper">
+      </a>
+    </li>
+  
 
-            <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
-                <div id="menu-bar" class="menu-bar sticky">
-                    <div class="left-buttons">
-                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
-                            <i class="fa fa-bars"></i>
-                        </label>
-                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
-                            <i class="fa fa-paint-brush"></i>
-                        </button>
-                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
-                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
-                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
-                        </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </div>
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Types
+    
+  </span>
+  
 
-                    <h1 class="menu-title">The Marcel Programming Language</h1>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Types
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
 
-                    <div class="right-buttons">
-                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
-                            <i id="print-button" class="fa fa-print"></i>
-                        </a>
-                        <a href="https://github.com/tambapps/marcel" title="Git repository" aria-label="Git repository">
-                            <i id="git-repository-button" class="fa fa-github"></i>
-                        </a>
+      </a>
+    </li>
+  
 
-                    </div>
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Primitives
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Objects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/string/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    String
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/arrays/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Arrays
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/collections/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Collections
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/collections-of-primitives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Collection of Primitives
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Maps
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/ranges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ranges
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/types/dynamic-objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dynamic Objects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Control Flows
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Control Flows
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/control-flows/marcel-truth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Marcel Truth
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/control-flows/if-else/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    If/Else Statements
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/control-flows/while-loops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    While loops
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/control-flows/for-loops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    For loops
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/control-flows/switch-when/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Switch and When
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/control-flows/exception-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exception Handling
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Source File Structure
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            Source File Structure
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/imports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Imports
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/visibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Visibility and Access
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/classes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Classes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enums
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/script/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Script
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/source-file-structure/annotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Annotations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operators
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
+            <span class="md-nav__icon md-icon"></span>
+            Operators
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/plus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Plus (+)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/minus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Minus (-)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/left-shift/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Left Shift (<<)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Comparison Operators
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/as/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    As (Type casting)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/instanceof/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Instance Of (Type Checking)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/indexed-access/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Indexed Access (expr[index])
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/safe-navigation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Safe Navigation (?.)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/ternary-elvis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ternary and Elvis (?:)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/direct-field-access/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Direct Field Access (@)
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/operators/operator-overloading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Define your own operators
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_8" id="__nav_3_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Iterable Operations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_8">
+            <span class="md-nav__icon md-icon"></span>
+            Iterable Operations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/iterable-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/iterable-operations/map-filter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Map/Filter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/iterable-operations/any-all/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Any/All
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/iterable-operations/find/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Find
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/iterable-operations/chain-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chain operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/lambdas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lambdas
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language-specification/extension-classes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Extension Classes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Meta Programming
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Meta Programming
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../metaprogramming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../metaprogramming/meta-annotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Meta-Annotations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../asynchronous-programming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Asynchronous Programming
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/collections/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Collections
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/command-line-arguments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Command Line Options/Arguments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/regular-expressions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Regular Expressions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/stdlib-extensions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Standard Library Extensions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/csv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parsing and producing CSV
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/json/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parsing and producing JSON
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/yaml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Parsing and producing YAML
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Tools
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../marcl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MarCL - Marcel's Command Line tool
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../marshell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Marshell — Marcel Shell
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Marcel for Android
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Marcel for Android
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#initialization-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialization scripts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#send-system-notifications-from-marcel-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send System Notifications from Marcel Script
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Send System Notifications from Marcel Script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#send-notification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send Notification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#send-sms-from-marcel-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send SMS from Marcel Script
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Send SMS from Marcel Script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sms-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMS Permission
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send-sms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send SMS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-sms" class="md-nav__link">
+    <span class="md-ellipsis">
+      List SMS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#screenshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      Screenshots
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shell-workouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shell Workouts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#privacy-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Privacy Policy
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dumbbell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Dumbbell - Marcel's Dependency Manager
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../maven-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Maven Plugin for Marcel
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../intelij-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IntelIJ Plugin for Marcel
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../marcel-in-action/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Marcel In Action
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
                 </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
 
-                <div id="search-wrapper" class="hidden">
-                    <form id="searchbar-outer" class="searchbar-outer">
-                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
-                    </form>
-                    <div id="searchresults-outer" class="searchresults-outer hidden">
-                        <div id="searchresults-header" class="searchresults-header"></div>
-                        <ul id="searchresults">
-                        </ul>
-                    </div>
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#initialization-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialization scripts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#send-system-notifications-from-marcel-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send System Notifications from Marcel Script
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Send System Notifications from Marcel Script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#send-notification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send Notification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#send-sms-from-marcel-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send SMS from Marcel Script
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Send SMS from Marcel Script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sms-permission" class="md-nav__link">
+    <span class="md-ellipsis">
+      SMS Permission
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#send-sms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Send SMS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-sms" class="md-nav__link">
+    <span class="md-ellipsis">
+      List SMS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#screenshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      Screenshots
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shell-workouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shell Workouts
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#privacy-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Privacy Policy
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
                 </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
 
-                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
-                <script>
-                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
-                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
-                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
-                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
-                    });
-                </script>
 
-                <div id="content" class="content">
-                    <main>
-                        <h1 id="marcel-for-android"><a class="header" href="#marcel-for-android">Marcel for Android</a></h1>
+
+<h1 id="marcel-for-android">Marcel for Android</h1>
 <p>Marcel for Android is the Marshell app made for Android, but with additional features. You can download it <a href="https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell">here</a>.</p>
 <p>Note that it was designed for dark theme so <strong>this app is much more UI friendly in dark mode</strong>.
 An update will come soon(-ish) to better handle light mode.</p>
-<p>With this app you can</p>
-<ul>
-<li>Run Marcel shells, as you would using Marshell</li>
-<li>edit Marcel source codes</li>
-<li>Schedule Shell Works, a concept allowing you to run Marcel scripts in the background, with the possibility to schedules the works
-and make them periodic.</li>
-</ul>
-<p>You can consult the privacy policy of this app <a href="./privacy-policy.html">here</a>.</p>
-<h2 id="initialization-scripts"><a class="header" href="#initialization-scripts">Initialization scripts</a></h2>
-<p>You can also use <a href="../marshell/init-script.html">Marshell's initialization scripts</a> to enhance your experience.</p>
+<p>With this app you can
+- Run Marcel shells, as you would using Marshell
+- edit Marcel source codes
+- Schedule Shell Works, a concept allowing you to run Marcel scripts in the background, with the possibility to schedules the works
+and make them periodic.</p>
+<p>You can consult the privacy policy of this app <a href="#privacy-policy">here</a>.</p>
+<h2 id="initialization-scripts">Initialization scripts</h2>
+<p>You can also use <a href="../marshell/#initialisation-script">Marshell's initialization scripts</a> to enhance your experience.</p>
+<h2 id="send-system-notifications-from-marcel-script">Send System Notifications from Marcel Script</h2>
+<p>Marcel for Android has integration with your Android system APIs. You can write code
+that sends a system notification to your Android device. This also applies to <a href="./#shell-workouts">Shell Workouts</a>, meaning that you can
+notify your device in your script executed in the background.</p>
+<h3 id="send-notification">Send Notification</h3>
+<p>Here is an example of code to notify.</p>
+<pre><code class="language-marcel">AndroidSystem.notify('Hello World', 'This is a notification')
+</code></pre>
+<p><img alt="Screenshot" src="../../images/notification_sent.jpg" /></p>
+<h2 id="send-sms-from-marcel-script">Send SMS from Marcel Script</h2>
+<p><strong>FEATURE NOT ACCESSIBLE FROM PLAYSTORE RELEASE</strong>:
+sending SMS is not a core functionality of my app, that's why, unfortunately, Google prevents me from enabling this feature on the published app in the PlayStore.</p>
+<p>Marcel for Android has integration with your Android system APIs. You can write code
+that sends SMS. This also applies to <a href="./#shell-workouts">Shell Workouts</a>, meaning that you can
+schedule for later a SMS.</p>
+<h3 id="sms-permission">SMS Permission</h3>
+<p>Before being able to send an SMS from a Marcel script, you must allow the app to do so. Go to the Settings screen, and
+then enable the 'Send SMS' permission, as shown in the below screenshot.</p>
+<h3 id="send-sms">Send SMS</h3>
+<p>Here is an example of code to send SMS.</p>
+<pre><code class="language-marcel">AndroidSystem.sendSms('+331234567890', 'Hello World')
+</code></pre>
+<p>Marcel cannot access your contacts, so you'll have to put the international phone numbers, in E.164 format (the format starting with <code>+</code>).</p>
+<h3 id="list-sms">List SMS</h3>
+<p>You can list sent SMS to track their status.</p>
+<pre><code class="language-marcel">AndroidSystem.listSms()
+</code></pre>
+<h3 id="screenshots">Screenshots</h3>
+<p align="center">
+  <img src="../../images/sms_permission.jpg" alt="Image 1" style="width: 40%; max-width: 300px;"/>
+  <img src="../../images/send_sms.jpg" alt="Image 2" style="width: 40%; max-width: 300px;"/>
+</p>
 
-                    </main>
+<h2 id="shell-workouts">Shell Workouts</h2>
+<p>Shell Workouts are scripts that you can execute in the background. They can perform heavy
+I/O operations while you do other things on your phone.</p>
+<p>They were implemented using <a href="https://developer.android.com/topic/libraries/architecture/workmanager">Android's WorkoutManager</a>.</p>
+<p>Thanks to these APIs, you can <strong>schedule</strong> Shell Workouts to run at a specific time, and/or make them <strong>periodic</strong>
+so that they are run every x hours.</p>
+<p>TODO add screenshot and examples</p>
+<h2 id="privacy-policy">Privacy Policy</h2>
+<p><strong>Marcel for Android</strong> is an open-source application. You can consult its full source code on <a href="https://github.com/tambapps/marcel">GitHub</a>.</p>
+<p>This application <strong>does not collect any analytics or personal data</strong> from its users.</p>
 
-                    <nav class="nav-wrapper" aria-label="Page navigation">
-                        <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../../tools/marshell/init-script.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                                <i class="fa fa-angle-left"></i>
-                            </a>
 
-                            <a rel="next prefetch" href="../../tools/marcel-for-android/shell-workout.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
-                            </a>
 
-                        <div style="clear: both"></div>
-                    </nav>
-                </div>
+
+
+
+
+
+
+
+
+
+                
+              </article>
             </div>
-
-            <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../../tools/marshell/init-script.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                        <i class="fa fa-angle-left"></i>
-                    </a>
-
-                    <a rel="next prefetch" href="../../tools/marcel-for-android/shell-workout.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-            </nav>
-
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-
-
-
-
-        <script>
-            window.playground_copyable = true;
-        </script>
-
-
-        <script src="../../elasticlunr.min.js"></script>
-        <script src="../../mark.min.js"></script>
-        <script src="../../searcher.js"></script>
-
-        <script src="../../clipboard.min.js"></script>
-        <script src="../../highlight.js"></script>
-        <script src="../../book.js"></script>
-
-        <!-- Custom JS scripts -->
-
-
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
     </div>
-    </body>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+        <script src="../../js/highlight.min.js"></script>
+      
+        <script src="../../js/highlight-marcel.js"></script>
+      
+        <script src="../../js/init-highlight.js"></script>
+      
+    
+  </body>
 </html>
