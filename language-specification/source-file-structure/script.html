@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Script - The Marcel Programming Language</title>
+
+
+        <!-- Custom HTML head -->
+        <link rel="icon" type="image/png" href="./favicon.png">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../marcel.html">The Marcel Programming Language</a></li><li class="chapter-item expanded "><a href="../../getting-started/index.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../getting-started/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../../getting-started/hello-world.html"><strong aria-hidden="true">1.2.</strong> Hello World</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/index.html"><strong aria-hidden="true">2.</strong> Language Specification</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/syntax/index.html"><strong aria-hidden="true">2.1.</strong> Syntax</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/syntax/comments.html"><strong aria-hidden="true">2.1.1.</strong> Comments</a></li><li class="chapter-item expanded "><a href="../../language-specification/syntax/identifiers.html"><strong aria-hidden="true">2.1.2.</strong> Identifier rules</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/variables.html"><strong aria-hidden="true">2.2.</strong> Variables</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/index.html"><strong aria-hidden="true">2.3.</strong> Types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/types/primitives.html"><strong aria-hidden="true">2.3.1.</strong> Primitives</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/objects.html"><strong aria-hidden="true">2.3.2.</strong> Objects</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/string.html"><strong aria-hidden="true">2.3.3.</strong> String</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/arrays.html"><strong aria-hidden="true">2.3.4.</strong> Arrays</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/collections.html"><strong aria-hidden="true">2.3.5.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/collections-of-primitives.html"><strong aria-hidden="true">2.3.6.</strong> Collection of Primitives</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/maps.html"><strong aria-hidden="true">2.3.7.</strong> Maps</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/ranges.html"><strong aria-hidden="true">2.3.8.</strong> Ranges</a></li><li class="chapter-item expanded "><a href="../../language-specification/types/dynamic-objects.html"><strong aria-hidden="true">2.3.9.</strong> Dynamic Objects</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/index.html"><strong aria-hidden="true">2.4.</strong> Control Flows</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/control-flows/marcel-truth.html"><strong aria-hidden="true">2.4.1.</strong> Marcel Truth</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/if-else.html"><strong aria-hidden="true">2.4.2.</strong> If/Else Statements</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/while-loops.html"><strong aria-hidden="true">2.4.3.</strong> While loops</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/for-loops.html"><strong aria-hidden="true">2.4.4.</strong> For loops</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/switch-when.html"><strong aria-hidden="true">2.4.5.</strong> Switch and When</a></li><li class="chapter-item expanded "><a href="../../language-specification/control-flows/exception-handling.html"><strong aria-hidden="true">2.4.6.</strong> Exception Handling</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/index.html"><strong aria-hidden="true">2.5.</strong> Source File Structure</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/imports.html"><strong aria-hidden="true">2.5.1.</strong> Imports</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/visibility.html"><strong aria-hidden="true">2.5.2.</strong> Visibility and Access</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/functions.html"><strong aria-hidden="true">2.5.3.</strong> Functions</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/classes.html"><strong aria-hidden="true">2.5.4.</strong> Classes</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/enums.html"><strong aria-hidden="true">2.5.5.</strong> Enums</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/script.html" class="active"><strong aria-hidden="true">2.5.6.</strong> Script</a></li><li class="chapter-item expanded "><a href="../../language-specification/source-file-structure/annotations.html"><strong aria-hidden="true">2.5.7.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/operators/index.html"><strong aria-hidden="true">2.6.</strong> Operators</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/operators/plus.html"><strong aria-hidden="true">2.6.1.</strong> Plus (+)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/minus.html"><strong aria-hidden="true">2.6.2.</strong> Minus (-)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/left-shift.html"><strong aria-hidden="true">2.6.3.</strong> Left Shift (&lt;&lt;)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/comparison.html"><strong aria-hidden="true">2.6.4.</strong> Comparison Operators</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/as.html"><strong aria-hidden="true">2.6.5.</strong> As (Type casting)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/instanceof.html"><strong aria-hidden="true">2.6.6.</strong> Instance Of (Type Checking)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/indexed-access.html"><strong aria-hidden="true">2.6.7.</strong> Indexed Access (expr[index])</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/safe-navigation.html"><strong aria-hidden="true">2.6.8.</strong> Safe Navigation (?.)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/ternary-elvis.html"><strong aria-hidden="true">2.6.9.</strong> Ternary and Elvis (?:)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/direct-field-access.html"><strong aria-hidden="true">2.6.10.</strong> Direct Field Access (@)</a></li><li class="chapter-item expanded "><a href="../../language-specification/operators/operator-overloading.html"><strong aria-hidden="true">2.6.11.</strong> Define your own operators</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/index.html"><strong aria-hidden="true">2.7.</strong> Iterable Operations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/map-filter.html"><strong aria-hidden="true">2.7.1.</strong> Map/Filter</a></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/any-all.html"><strong aria-hidden="true">2.7.2.</strong> Any/All</a></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/find.html"><strong aria-hidden="true">2.7.3.</strong> Find</a></li><li class="chapter-item expanded "><a href="../../language-specification/iterable-operations/chain-operations.html"><strong aria-hidden="true">2.7.4.</strong> Chain operations</a></li></ol></li><li class="chapter-item expanded "><a href="../../language-specification/lambdas.html"><strong aria-hidden="true">2.8.</strong> Lambdas</a></li><li class="chapter-item expanded "><a href="../../language-specification/extension-classes.html"><strong aria-hidden="true">2.9.</strong> Extension Classes</a></li></ol></li><li class="chapter-item expanded "><a href="../../metaprogramming/index.html"><strong aria-hidden="true">3.</strong> Meta Programming</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/index.html"><strong aria-hidden="true">3.1.</strong> Meta Annotations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/stringify.html"><strong aria-hidden="true">3.1.1.</strong> @stringify</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/comparable.html"><strong aria-hidden="true">3.1.2.</strong> @comparable</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/data.html"><strong aria-hidden="true">3.1.3.</strong> @data</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/cached.html"><strong aria-hidden="true">3.1.4.</strong> @cached</a></li><li class="chapter-item expanded "><a href="../../metaprogramming/meta-annotations/lazy.html"><strong aria-hidden="true">3.1.5.</strong> @lazy</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../../asynchronous-programming/index.html"><strong aria-hidden="true">4.</strong> Asynchronous Programmming</a></li><li class="chapter-item expanded "><a href="../../guides/index.html"><strong aria-hidden="true">5.</strong> Guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../guides/collections.html"><strong aria-hidden="true">5.1.</strong> Collections</a></li><li class="chapter-item expanded "><a href="../../guides/command-line-arguments.html"><strong aria-hidden="true">5.2.</strong> Command Line Options/Arguments</a></li><li class="chapter-item expanded "><a href="../../guides/regular-expressions.html"><strong aria-hidden="true">5.3.</strong> Regular Expressions</a></li><li class="chapter-item expanded "><a href="../../guides/stdlib-extensions.html"><strong aria-hidden="true">5.4.</strong> Standard Library Extensions</a></li><li class="chapter-item expanded "><a href="../../guides/csv.html"><strong aria-hidden="true">5.5.</strong> Parsing and producing CSV</a></li><li class="chapter-item expanded "><a href="../../guides/json.html"><strong aria-hidden="true">5.6.</strong> Parsing and producing JSON</a></li><li class="chapter-item expanded "><a href="../../guides/yaml.html"><strong aria-hidden="true">5.7.</strong> Parsing and producing YAML</a></li></ol></li><li class="chapter-item expanded "><a href="../../tools/index.html"><strong aria-hidden="true">6.</strong> Tools</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tools/marcl.html"><strong aria-hidden="true">6.1.</strong> MarCL - Marcel's Command Line tool</a></li><li class="chapter-item expanded "><a href="../../tools/marshell/index.html"><strong aria-hidden="true">6.2.</strong> Marshell — Marcel Shell</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tools/marshell/init-script.html"><strong aria-hidden="true">6.2.1.</strong> Initialization Script</a></li></ol></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/index.html"><strong aria-hidden="true">6.3.</strong> Marcel for Android</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/shell-workout.html"><strong aria-hidden="true">6.3.1.</strong> Shell Workout (Background scripts)</a></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/send-sms.html"><strong aria-hidden="true">6.3.2.</strong> Send SMS from Marcel Script</a></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/send-notification.html"><strong aria-hidden="true">6.3.3.</strong> Send Notification from Marcel Script</a></li><li class="chapter-item expanded "><a href="../../tools/marcel-for-android/privacy-policy.html"><strong aria-hidden="true">6.3.4.</strong> Privacy Policy</a></li></ol></li><li class="chapter-item expanded "><a href="../../tools/dumbbell.html"><strong aria-hidden="true">6.4.</strong> Dumbbell - Marcel's Dependency Manager</a></li><li class="chapter-item expanded "><a href="../../tools/maven-plugin.html"><strong aria-hidden="true">6.5.</strong> Maven Plugin for Marcel</a></li><li class="chapter-item expanded "><a href="../../tools/intelij-plugin.html"><strong aria-hidden="true">6.6.</strong> IntelIJ Plugin for Marcel</a></li></ol></li><li class="chapter-item expanded "><a href="../../marcel-in-action/index.html"><strong aria-hidden="true">7.</strong> Marcel In Action</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../marcel-in-action/fibonacci.html"><strong aria-hidden="true">7.1.</strong> Fibonacci suite</a></li><li class="chapter-item expanded "><a href="../../marcel-in-action/advent-of-code.html"><strong aria-hidden="true">7.2.</strong> Advent of code</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Marcel Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/tambapps/marcel" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="write-scripts"><a class="header" href="#write-scripts">Write Scripts</a></h1>
+<p>Scripts don't need a main() function. You can just start writing statements of your script directly, without wrapping them in a method.
+Script can be executed easily with <a href="../../tools/marcl.html">MarCL</a>.</p>
+<br/>
+<p>You can also define functions in your scripts.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">println(fibonacci(10))
+
+@cached
+fun int fibonacci(int n) -&gt; switch (n) {
+  0, 1 -&gt; n
+  else -&gt; fibonacci(n - 1) + fibonacci(n - 2)
+}
+</code></pre>
+<h2 id="local-variables"><a class="header" href="#local-variables">Local Variables</a></h2>
+<p>To declare a local variable in a script, simply declare it as you would in a function's body.</p>
+<pre><code class="language-marcel">int a = 2
+int b
+</code></pre>
+<h2 id="fields"><a class="header" href="#fields">Fields</a></h2>
+<p>To declare a class field for your script, you must explicitly provide its visibility, otherwise it will be
+considered as a local variable.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">internal int myField1 = 2
+protected myfield2
+</code></pre>
+<h2 id="global-variables"><a class="header" href="#global-variables">Global variables</a></h2>
+<p>Global variables are similar to fields. They were created especially for <a href="../../tools/marshell/index.html">Marshell</a>, in which you can't
+declare fields.</p>
+<h2 id="classes"><a class="header" href="#classes">Classes</a></h2>
+<p>You can also define classes in a script, but note that such classes will <strong>not</strong> be an inner class of your script. They will be
+top-level classes.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../language-specification/source-file-structure/enums.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../language-specification/source-file-structure/annotations.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../language-specification/source-file-structure/enums.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../language-specification/source-file-structure/annotations.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

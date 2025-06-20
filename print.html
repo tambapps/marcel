@@ -1,0 +1,2546 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The Marcel Programming Language</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        <link rel="icon" type="image/png" href="./favicon.png">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="marcel.html">The Marcel Programming Language</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/hello-world.html"><strong aria-hidden="true">1.2.</strong> Hello World</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/index.html"><strong aria-hidden="true">2.</strong> Language Specification</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/syntax/index.html"><strong aria-hidden="true">2.1.</strong> Syntax</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/syntax/comments.html"><strong aria-hidden="true">2.1.1.</strong> Comments</a></li><li class="chapter-item expanded "><a href="language-specification/syntax/identifiers.html"><strong aria-hidden="true">2.1.2.</strong> Identifier rules</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/variables.html"><strong aria-hidden="true">2.2.</strong> Variables</a></li><li class="chapter-item expanded "><a href="language-specification/types/index.html"><strong aria-hidden="true">2.3.</strong> Types</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/types/primitives.html"><strong aria-hidden="true">2.3.1.</strong> Primitives</a></li><li class="chapter-item expanded "><a href="language-specification/types/objects.html"><strong aria-hidden="true">2.3.2.</strong> Objects</a></li><li class="chapter-item expanded "><a href="language-specification/types/string.html"><strong aria-hidden="true">2.3.3.</strong> String</a></li><li class="chapter-item expanded "><a href="language-specification/types/arrays.html"><strong aria-hidden="true">2.3.4.</strong> Arrays</a></li><li class="chapter-item expanded "><a href="language-specification/types/collections.html"><strong aria-hidden="true">2.3.5.</strong> Collections</a></li><li class="chapter-item expanded "><a href="language-specification/types/collections-of-primitives.html"><strong aria-hidden="true">2.3.6.</strong> Collection of Primitives</a></li><li class="chapter-item expanded "><a href="language-specification/types/maps.html"><strong aria-hidden="true">2.3.7.</strong> Maps</a></li><li class="chapter-item expanded "><a href="language-specification/types/ranges.html"><strong aria-hidden="true">2.3.8.</strong> Ranges</a></li><li class="chapter-item expanded "><a href="language-specification/types/dynamic-objects.html"><strong aria-hidden="true">2.3.9.</strong> Dynamic Objects</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/control-flows/index.html"><strong aria-hidden="true">2.4.</strong> Control Flows</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/control-flows/marcel-truth.html"><strong aria-hidden="true">2.4.1.</strong> Marcel Truth</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/if-else.html"><strong aria-hidden="true">2.4.2.</strong> If/Else Statements</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/while-loops.html"><strong aria-hidden="true">2.4.3.</strong> While loops</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/for-loops.html"><strong aria-hidden="true">2.4.4.</strong> For loops</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/switch-when.html"><strong aria-hidden="true">2.4.5.</strong> Switch and When</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/exception-handling.html"><strong aria-hidden="true">2.4.6.</strong> Exception Handling</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/index.html"><strong aria-hidden="true">2.5.</strong> Source File Structure</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/source-file-structure/imports.html"><strong aria-hidden="true">2.5.1.</strong> Imports</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/visibility.html"><strong aria-hidden="true">2.5.2.</strong> Visibility and Access</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/functions.html"><strong aria-hidden="true">2.5.3.</strong> Functions</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/classes.html"><strong aria-hidden="true">2.5.4.</strong> Classes</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/enums.html"><strong aria-hidden="true">2.5.5.</strong> Enums</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/script.html"><strong aria-hidden="true">2.5.6.</strong> Script</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/annotations.html"><strong aria-hidden="true">2.5.7.</strong> Annotations</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/operators/index.html"><strong aria-hidden="true">2.6.</strong> Operators</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/operators/plus.html"><strong aria-hidden="true">2.6.1.</strong> Plus (+)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/minus.html"><strong aria-hidden="true">2.6.2.</strong> Minus (-)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/left-shift.html"><strong aria-hidden="true">2.6.3.</strong> Left Shift (&lt;&lt;)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/comparison.html"><strong aria-hidden="true">2.6.4.</strong> Comparison Operators</a></li><li class="chapter-item expanded "><a href="language-specification/operators/as.html"><strong aria-hidden="true">2.6.5.</strong> As (Type casting)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/instanceof.html"><strong aria-hidden="true">2.6.6.</strong> Instance Of (Type Checking)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/indexed-access.html"><strong aria-hidden="true">2.6.7.</strong> Indexed Access (expr[index])</a></li><li class="chapter-item expanded "><a href="language-specification/operators/safe-navigation.html"><strong aria-hidden="true">2.6.8.</strong> Safe Navigation (?.)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/ternary-elvis.html"><strong aria-hidden="true">2.6.9.</strong> Ternary and Elvis (?:)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/direct-field-access.html"><strong aria-hidden="true">2.6.10.</strong> Direct Field Access (@)</a></li><li class="chapter-item expanded "><a href="language-specification/operators/operator-overloading.html"><strong aria-hidden="true">2.6.11.</strong> Define your own operators</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/iterable-operations/index.html"><strong aria-hidden="true">2.7.</strong> Iterable Operations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/iterable-operations/map-filter.html"><strong aria-hidden="true">2.7.1.</strong> Map/Filter</a></li><li class="chapter-item expanded "><a href="language-specification/iterable-operations/any-all.html"><strong aria-hidden="true">2.7.2.</strong> Any/All</a></li><li class="chapter-item expanded "><a href="language-specification/iterable-operations/find.html"><strong aria-hidden="true">2.7.3.</strong> Find</a></li><li class="chapter-item expanded "><a href="language-specification/iterable-operations/chain-operations.html"><strong aria-hidden="true">2.7.4.</strong> Chain operations</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/lambdas.html"><strong aria-hidden="true">2.8.</strong> Lambdas</a></li><li class="chapter-item expanded "><a href="language-specification/extension-classes.html"><strong aria-hidden="true">2.9.</strong> Extension Classes</a></li></ol></li><li class="chapter-item expanded "><a href="metaprogramming/index.html"><strong aria-hidden="true">3.</strong> Meta Programming</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="metaprogramming/meta-annotations/index.html"><strong aria-hidden="true">3.1.</strong> Meta Annotations</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="metaprogramming/meta-annotations/stringify.html"><strong aria-hidden="true">3.1.1.</strong> @stringify</a></li><li class="chapter-item expanded "><a href="metaprogramming/meta-annotations/comparable.html"><strong aria-hidden="true">3.1.2.</strong> @comparable</a></li><li class="chapter-item expanded "><a href="metaprogramming/meta-annotations/data.html"><strong aria-hidden="true">3.1.3.</strong> @data</a></li><li class="chapter-item expanded "><a href="metaprogramming/meta-annotations/cached.html"><strong aria-hidden="true">3.1.4.</strong> @cached</a></li><li class="chapter-item expanded "><a href="metaprogramming/meta-annotations/lazy.html"><strong aria-hidden="true">3.1.5.</strong> @lazy</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="asynchronous-programming/index.html"><strong aria-hidden="true">4.</strong> Asynchronous Programmming</a></li><li class="chapter-item expanded "><a href="guides/index.html"><strong aria-hidden="true">5.</strong> Guides</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="guides/collections.html"><strong aria-hidden="true">5.1.</strong> Collections</a></li><li class="chapter-item expanded "><a href="guides/command-line-arguments.html"><strong aria-hidden="true">5.2.</strong> Command Line Options/Arguments</a></li><li class="chapter-item expanded "><a href="guides/regular-expressions.html"><strong aria-hidden="true">5.3.</strong> Regular Expressions</a></li><li class="chapter-item expanded "><a href="guides/stdlib-extensions.html"><strong aria-hidden="true">5.4.</strong> Standard Library Extensions</a></li><li class="chapter-item expanded "><a href="guides/csv.html"><strong aria-hidden="true">5.5.</strong> Parsing and producing CSV</a></li><li class="chapter-item expanded "><a href="guides/json.html"><strong aria-hidden="true">5.6.</strong> Parsing and producing JSON</a></li><li class="chapter-item expanded "><a href="guides/yaml.html"><strong aria-hidden="true">5.7.</strong> Parsing and producing YAML</a></li></ol></li><li class="chapter-item expanded "><a href="tools/index.html"><strong aria-hidden="true">6.</strong> Tools</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tools/marcl.html"><strong aria-hidden="true">6.1.</strong> MarCL - Marcel's Command Line tool</a></li><li class="chapter-item expanded "><a href="tools/marshell/index.html"><strong aria-hidden="true">6.2.</strong> Marshell — Marcel Shell</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tools/marshell/init-script.html"><strong aria-hidden="true">6.2.1.</strong> Initialization Script</a></li></ol></li><li class="chapter-item expanded "><a href="tools/marcel-for-android/index.html"><strong aria-hidden="true">6.3.</strong> Marcel for Android</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tools/marcel-for-android/shell-workout.html"><strong aria-hidden="true">6.3.1.</strong> Shell Workout (Background scripts)</a></li><li class="chapter-item expanded "><a href="tools/marcel-for-android/send-sms.html"><strong aria-hidden="true">6.3.2.</strong> Send SMS from Marcel Script</a></li><li class="chapter-item expanded "><a href="tools/marcel-for-android/send-notification.html"><strong aria-hidden="true">6.3.3.</strong> Send Notification from Marcel Script</a></li><li class="chapter-item expanded "><a href="tools/marcel-for-android/privacy-policy.html"><strong aria-hidden="true">6.3.4.</strong> Privacy Policy</a></li></ol></li><li class="chapter-item expanded "><a href="tools/dumbbell.html"><strong aria-hidden="true">6.4.</strong> Dumbbell - Marcel's Dependency Manager</a></li><li class="chapter-item expanded "><a href="tools/maven-plugin.html"><strong aria-hidden="true">6.5.</strong> Maven Plugin for Marcel</a></li><li class="chapter-item expanded "><a href="tools/intelij-plugin.html"><strong aria-hidden="true">6.6.</strong> IntelIJ Plugin for Marcel</a></li></ol></li><li class="chapter-item expanded "><a href="marcel-in-action/index.html"><strong aria-hidden="true">7.</strong> Marcel In Action</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="marcel-in-action/fibonacci.html"><strong aria-hidden="true">7.1.</strong> Fibonacci suite</a></li><li class="chapter-item expanded "><a href="marcel-in-action/advent-of-code.html"><strong aria-hidden="true">7.2.</strong> Advent of code</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Marcel Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/tambapps/marcel" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="marcel-a-simple-and-efficient-programming-language-for-any-jvm"><a class="header" href="#marcel-a-simple-and-efficient-programming-language-for-any-jvm">Marcel, a simple and efficient programming language for any JVM</a></h1>
+<p>Marcel is a programming language built with the following goals in mind:</p>
+<ul>
+<li>Being simple, not too verbose, allowing to write programs quickly</li>
+<li>Runnable on Android devices (this language is <strong>guaranteed</strong> to be compilable and executable on Android devices)</li>
+</ul>
+<p>Its features are inspired from many languages such as Groovy, Kotlin, Perl and Dart. You can consult the source code of
+this language <a href="https://github.com/tambapps/marcel">on GitHub</a></p>
+<br/>
+<p>Marcel compiles to Java bytecode (.class files). You can execute marcel script/projects on any JVMs (17+), as long as the Marcel stdlib is included
+in your classpath.</p>
+<p>As stated above, marcel is guaranteed to be compilable and executable on any Android devices running on Android 11 or +. You can install the <a href="https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell">Marcel for Android</a>
+app to develop, compile and execute Marcel programs.</p>
+<p align="center">
+  <img src="./images/marcel_logo.png" alt="Image 2" style="width: 30%; max-width: 300px;"/>
+</p><div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
+<p>In this section we'll discuss:</p>
+<ul>
+<li>Installing Marcel</li>
+<li>Writing and running a Marcel program that prints <code>Hello World</code></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<p>Marcel comes with</p>
+<ul>
+<li><a href="getting-started/../tools/marcl.html">marcl</a></li>
+<li><a href="getting-started/../tools/marshell/index">marshell</a></li>
+<li><a href="getting-started/../tools/dumbbell.html">dumbbell</a></li>
+</ul>
+<h2 id="install-from-release"><a class="header" href="#install-from-release">Install from release</a></h2>
+<h3 id="using-the-script"><a class="header" href="#using-the-script">Using the script</a></h3>
+<p>You can run the below command in order to install a Marcel release in a specific directory.</p>
+<pre><code class="language-shell">curl -s https://raw.githubusercontent.com/tambapps/marcel/main/install/install-from-release.sh | bash -s
+</code></pre>
+<p>It will install Marcel in the <code>$HOME/.marcel</code> folder.</p>
+<p>You can also specify a directory by passing it as an argument as shown below</p>
+<pre><code class="language-shell"># Will install in ./my-folder
+curl -s https://raw.githubusercontent.com/tambapps/marcel/main/install/install-from-release.sh | bash -s ./my-folder
+</code></pre>
+<h3 id="downloading-the-release"><a class="header" href="#downloading-the-release">Downloading the release</a></h3>
+<p>You can download the <code>release.zip</code> of a <a href="https://github.com/tambapps/marcel/releases">Marcel Release</a>. Unzip it where you want.</p>
+<h3 id="set-marcel_home"><a class="header" href="#set-marcel_home">Set MARCEL_HOME</a></h3>
+<p>Set the <code>MARCEL_HOME</code> environment to the path of the release you just unzipped. You can set it in your <code>.bashrc</code> or <code>.zshrc</code> so that
+this variable is set in all your sessions.
+You can also add <code>$MARCEL_HOME/bin</code> to your <code>PATH</code> so your shell recognize marcel commands.</p>
+<h2 id="install-from-source-code"><a class="header" href="#install-from-source-code">Install from source code</a></h2>
+<p>There is a <a href="https://github.com/tambapps/marcel/blob/main/install.sh">script in marcel repository</a> for that.</p>
+<p>Note that this script <strong>only works on Linux and Mac</strong> and requires <a href="https://maven.apache.org/">Maven</a> being installed.</p>
+<pre><code class="language-shell">git clone https://github.com/tambapps/marcel.git
+cd marcel
+./install/install-from-source.sh
+</code></pre>
+<h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
+<p>You'll need Maven for the installation.</p>
+<h3 id="run-script"><a class="header" href="#run-script">Run script</a></h3>
+<p>Clone the repository</p>
+<pre><code class="language-shell">git clone https://github.com/tambapps/marcel.git
+cd marcel
+</code></pre>
+<p>And then run the script</p>
+<pre><code class="language-shell">./install-from-source.sh
+</code></pre>
+<p>The script basically runs a lot of <code>mvn clean package</code> and then copy/create some files in <code>$HOME/.marcel/</code>.</p>
+<p>Lastly, you can add the following lines into your <code>$HOME/.bashrc</code> (or <code>$HOME/.zshrc</code> or whatever) to easily use marcel tools</p>
+<pre><code class="language-shell">MARCEL_HOME="$HOME/.marcel"
+PATH="$PATH:$MARCEL_HOME/bin"
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="hello-world"><a class="header" href="#hello-world">Hello World</a></h1>
+<p>Let's dive in some code now. Marcel can be used as a scripting language, so you don't need to declare a <code>main()</code> function
+if you just want to run some code.</p>
+<pre><code class="language-marcel">// HelloWorld.mcl
+println("Hello World!")
+</code></pre>
+<p>That's it! One line is all it takes to write the famous Hello World program.</p>
+<p>To execute it, use <a href="getting-started/../tools/marcl.html">marcl</a>.</p>
+<pre><code class="language-shell">marcl HelloWorld.mcl
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="language-specification"><a class="header" href="#language-specification">Language Specification</a></h1>
+<p>In this section, you'll learn all the little secrets of MarcelLang.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="syntax"><a class="header" href="#syntax">Syntax</a></h1>
+<p>This chapter covers the syntax of the Marcel programming language.</p>
+<h2 id="keywords"><a class="header" href="#keywords">Keywords</a></h2>
+<p>Marcel has the following keywords, which you cannot use as variable/function/fields names</p>
+<ul>
+<li>async</li>
+<li>int</li>
+<li>dynobj</li>
+<li>do</li>
+<li>long</li>
+<li>short</li>
+<li>float</li>
+<li>double</li>
+<li>bool</li>
+<li>byte</li>
+<li>void</li>
+<li>char</li>
+<li>fun</li>
+<li>return</li>
+<li>true</li>
+<li>false</li>
+<li>new</li>
+<li>import</li>
+<li>as</li>
+<li>inline</li>
+<li>static</li>
+<li>for</li>
+<li>in</li>
+<li>if</li>
+<li>else</li>
+<li>null</li>
+<li>break</li>
+<li>continue</li>
+<li>def</li>
+<li>class</li>
+<li>extension</li>
+<li>package</li>
+<li>extends</li>
+<li>implements</li>
+<li>final</li>
+<li>switch</li>
+<li>when</li>
+<li>this</li>
+<li>super</li>
+<li>dumbbell</li>
+<li>try</li>
+<li>catch</li>
+<li>finally</li>
+<li>instanceof</li>
+<li>throw</li>
+<li>throws</li>
+<li>constructor</li>
+<li>public</li>
+<li>protected</li>
+<li>internal</li>
+<li>private</li>
+<li>while</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="comments"><a class="header" href="#comments">Comments</a></h1>
+<p>You can comment your code in Marcel the same way you would in Java.</p>
+<p>Define comments like you would in Java. <code>// ...</code> for a single line comment, and <code>/* ... */</code> for a multi-line comment</p>
+<pre><code class="language-marcel">// this function does stuff
+doStuff()
+
+/* this function
+  does some
+  other stuff
+ */
+doOtherStuff()
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="identifiers"><a class="header" href="#identifiers">Identifiers</a></h1>
+<p>An identifier is a name that you can use to define a class, field, a function or variable.</p>
+<p>An identifier must follows all the below rules</p>
+<ul>
+<li>it must start with a letter ('a' to 'z' , and 'A' to 'Z'), or an underscore</li>
+<li>the following characters can be a letter, an underscore or a number</li>
+</ul>
+<h2 id="class-identifiers"><a class="header" href="#class-identifiers">Class identifiers</a></h2>
+<p>To reference a class, you need tp add the <code>.class</code> suffix, like in Java.
+But note that you can only reference simple name of classes, this means that you need to import it first.</p>
+<pre><code class="language-marcel">import java.util.concurrent.Callable
+println(Callable.class)
+
+println(Object.class)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="variables"><a class="header" href="#variables">Variables</a></h1>
+<h2 id="declare-variables"><a class="header" href="#declare-variables">Declare variables</a></h2>
+<p>Marcel variable declarations are the same as Java's</p>
+<pre><code class="language-marcel">int a = 2
+Object o = new Object()
+
+List&lt;int&gt; l = [1, 2] // collection of primivites
+</code></pre>
+<h3 id="multiple-declarations"><a class="header" href="#multiple-declarations">Multiple declarations</a></h3>
+<p>Marcel supports multiple assignments in one statement</p>
+<pre><code class="language-marcel">def (int a, String b, Object c) = [1, "2", new Object()]
+
+def (int d, String e, Object f) = functionReturningAnArrayOrList()
+</code></pre>
+<p>Note that if the array/list is shorter than the number of variable declared, this will lead to a runtime error</p>
+<br/>
+<p>Sometimes you might want to ignore a specific item of a list,
+You can use the <code>_</code> identifier to let the compiler know that.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">def (_, String world) = ("hello world" =~ /hello (world)/).groups()
+</code></pre>
+<h2 id="variable-assignments"><a class="header" href="#variable-assignments">Variable assignments</a></h2>
+<p>Just use <code>=</code> to assign values to defined variables</p>
+<pre><code class="language-marcel">int a = 2
+
+a = 3
+</code></pre>
+<h2 id="properties"><a class="header" href="#properties">Properties</a></h2>
+<p>Marcel allows to access getters and setters as properties.</p>
+<p>Suppose you have the below class</p>
+<pre><code class="language-marcel">class Foo {
+  private int bar
+  
+  fun getBar() {
+    return this.@bar
+  }
+  
+  fun setBar(int bar) {
+    this.@bar = bar
+  }
+}
+</code></pre>
+<p>You could call these <code>getBar/setBar</code> methods using the property syntax.
+The <code>@bar</code> notation is the <a href="language-specification/./operators/direct-field-access.html">direct field access operator</a>, make sure to reference the Java class's field.</p>
+<pre><code class="language-marcel">Foo foo = new Foo()
+
+foo.bar = 5 // will actully call foo.setBar(5)
+println(foo.bar) // will actually call foo.getBar()
+
+</code></pre>
+<h3 id="automatic-casting"><a class="header" href="#automatic-casting">Automatic casting</a></h3>
+<p>Variable assignments are automatically casted when needed.</p>
+<pre><code class="language-marcel">Optional o = Optional.of(123)
+Integer myInteger = o.get() // returns Object cast into an Integer 
+int myInt = o.get() // returns Object cast into an Integer then into an int
+</code></pre>
+<p>This can be useful as Marcel <a href="language-specification/./types/index.html#generic-types">doesn't support generic types</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="types"><a class="header" href="#types">Types</a></h1>
+<p>In this section we'll explore some common Marcel types.</p>
+<h2 id="java-types"><a class="header" href="#java-types">Java Types</a></h2>
+<p>Marcel is a JVM language, therefore you can use any classes defined in the JDK.</p>
+<h2 id="generic-types"><a class="header" href="#generic-types">Generic Types</a></h2>
+<p>Marcel <strong>doesn't</strong> support generic types except for collections of primitive (which technically aren't really generic). You can use generic classes but cannot specify generic types when using them.
+it's a conscious choice made to get rid of some complexity while developing the compiler and also because Java always casts at runtime anyway.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="primitives"><a class="header" href="#primitives">Primitives</a></h1>
+<p>Marcel supports the following Java primitives</p>
+<ul>
+<li>void</li>
+<li>boolean (bool)</li>
+<li>byte</li>
+<li>short</li>
+<li>int</li>
+<li>long</li>
+<li>float</li>
+<li>double</li>
+<li>char</li>
+<li>byte</li>
+</ul>
+<h2 id="literal-numbers"><a class="header" href="#literal-numbers">Literal Numbers</a></h2>
+<p>Marcel supports almost all Java primitives. The number primitive literals are the same as in Java</p>
+<pre><code class="language-marcel">// primitive types
+byte  b = 1
+short s = 2
+int   i = 3
+long  l = 4l
+float f = 5f
+double d = 6d
+</code></pre>
+<h3 id="binary-representation"><a class="header" href="#binary-representation">Binary representation</a></h3>
+<p>You can also create numbers using their binary representation with the <code>0b</code> prefix</p>
+<pre><code class="language-marcel">int i = 0b10
+long l = 0b11l
+</code></pre>
+<h3 id="hexadecimal-representation"><a class="header" href="#hexadecimal-representation">Hexadecimal representation</a></h3>
+<p>You can also create numbers using their hexadecimal representation with the <code>0x</code> prefix</p>
+<pre><code class="language-marcel">int i = 0x5
+long l = 0x5l
+</code></pre>
+<h2 id="boolean"><a class="header" href="#boolean">boolean</a></h2>
+<p>You can create booleans using the <code>true</code> or <code>false</code> keyword.</p>
+<pre><code class="language-marcel">bool b = true
+</code></pre>
+<h3 id="char"><a class="header" href="#char">char</a></h3>
+<p>Use the backtick (<code>`</code>) to create primitive characters.
+Only one character must be specified between the two backticks</p>
+<pre><code class="language-marcel">char c = `A`
+</code></pre>
+<h3 id="escaped-characters"><a class="header" href="#escaped-characters">Escaped characters</a></h3>
+<p>Use backslash to escape 'special' characters within strings/characters. Here is the list of escaped characters</p>
+<div class="table-wrapper"><table><thead><tr><th>escaped character</th><th>represented value</th></tr></thead><tbody>
+<tr><td>\b</td><td>backspace</td></tr>
+<tr><td>\n</td><td>newline</td></tr>
+<tr><td>\r</td><td>carriage return</td></tr>
+<tr><td>\t</td><td>tabulation</td></tr>
+<tr><td>\\</td><td>backslash</td></tr>
+<tr><td>\'</td><td>single quotes (useful in simple strings)</td></tr>
+<tr><td>\"</td><td>double quotes (useful in interpolated strings)</td></tr>
+<tr><td>\`</td><td>backtick (useful in character strings)</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="objects"><a class="header" href="#objects">Objects</a></h1>
+<p>Any non-null value that is not a primitive is an Object.</p>
+<p>As specified before, Marcel is a JVM language, therefore you can use any classes defined in the JDK.</p>
+<p>You can also define classes in Marcel</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="string"><a class="header" href="#string">String</a></h1>
+<p>The Java String as you know it.  There are different ways to create strings in Marcel</p>
+<h3 id="simple-strings"><a class="header" href="#simple-strings">Simple strings</a></h3>
+<p>You can use the single quote character (<code>'</code>) to create strings</p>
+<pre><code class="language-marcel">'Hello world!'
+</code></pre>
+<h3 id="interpolated-strings"><a class="header" href="#interpolated-strings">Interpolated strings</a></h3>
+<p>You can use the double quote character (<code>"</code>) to create strings resolving variables</p>
+<pre><code class="language-marcel">"$firstName $lastName is $age years old"
+</code></pre>
+<p>If you need to access a property, use the brackets</p>
+<pre><code class="language-marcel">"${person.firstName} ${person.lastName} is ${person.age} years old"
+</code></pre>
+<h3 id="pattern-strings"><a class="header" href="#pattern-strings">Pattern strings</a></h3>
+<p>You can instantiate <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Patterns</a> using backslash strings.
+These strings are reserved for pattern only.</p>
+<p>The backslash is <strong>not</strong> considered as an escape, except for the backlash character
+(which would be escaped as <code>\/</code>).</p>
+<pre><code class="language-marcel">r/some \w+/
+</code></pre>
+<p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
+just call the <code>Pattern.compile(String)</code> method with an interpolated string.</p>
+<br/>
+<p>It is good practise to end such regexes with a semi-colon (<code>;</code>) character, to make it clear to the compiler that what follows
+is not a regex flag (we'll talk about that just after) but a 'real' identifier.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">Pattern pattern = r/myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
+println(pattern)
+</code></pre>
+<h4 id="pattern-flags"><a class="header" href="#pattern-flags">Pattern flags</a></h4>
+<p>You can also specify flags by adding a suffix at the end of your regex String.</p>
+<pre><code class="language-marcel">Pattern pattern = r/myPattern/iu; // you can specify many flags at once
+println(pattern)
+</code></pre>
+<p>Here is the list of flags (you can see the doc of each flag in the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES">Javadoc of the Pattern's class</a>).</p>
+<div class="table-wrapper"><table><thead><tr><th>character</th><th>Java PatternFlag</th></tr></thead><tbody>
+<tr><td>d</td><td>UNIX_LINES</td></tr>
+<tr><td>i</td><td>CASE_INSENSITIVE</td></tr>
+<tr><td>x</td><td>COMMENTS</td></tr>
+<tr><td>m</td><td>MULTILINE</td></tr>
+<tr><td>l</td><td>LITERAL</td></tr>
+<tr><td>s</td><td>DOTALL</td></tr>
+<tr><td>u</td><td>UNICODE_CASE</td></tr>
+<tr><td>c</td><td>CANON_EQ</td></tr>
+<tr><td>U</td><td>UNICODE_CHARACTER_CLASS</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="arrays"><a class="header" href="#arrays">Arrays</a></h1>
+<p>Marcel supports Java arrays and has a syntax to specify array values.</p>
+<p>Create arrays with the square brackets.</p>
+<pre><code class="language-marcel">int[] ints = [1, 2, 3, 4]
+</code></pre>
+<p>Note that you can also use this syntax to <a href="language-specification/types/../types/collections-of-primitives.html">create collections</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="collections"><a class="header" href="#collections">Collections</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="collections-of-primitives"><a class="header" href="#collections-of-primitives">Collections of Primitives</a></h1>
+<p>Marcel allows to use collections with primitive elements. Such collections will not box all your primitives into their
+related Object class (e.g. store an int into an Integer). The elements will be stored in an array of primitives.</p>
+<p>Iterating over such collections will only use primitives, no (un)boxing will be done.</p>
+<p>Let's learn by example</p>
+<h2 id="lists"><a class="header" href="#lists">Lists</a></h2>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+
+println(list[1])
+
+list[1] = 1
+println(list[1])
+</code></pre>
+<p>Here, we're declaring a <code>List&lt;int&gt;</code>. This type isn't actually generic, it is in fact an IntList (you can see this class in the marcel stdlib), and the
+literal array will be converted into a IntArrayList (a int list that store elements in an int array).</p>
+<p>Here is the list of all list of primitives supported</p>
+<ul>
+<li>List&lt;int&gt; -&gt; IntList</li>
+<li>List&lt;long&gt; -&gt; LongList</li>
+<li>List&lt;float&gt; -&gt; FloatList</li>
+<li>List&lt;double&gt; -&gt; DoubleList</li>
+<li>List&lt;char&gt; -&gt; CharacterList</li>
+</ul>
+<h2 id="sets"><a class="header" href="#sets">Sets</a></h2>
+<p>You can do the same with sets</p>
+<pre><code class="language-marcel">Set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
+</code></pre>
+<p>Here is the list of all set of primitives supported</p>
+<ul>
+<li>Set&lt;int&gt; -&gt; IntSet</li>
+<li>Set&lt;long&gt; -&gt; LongSet</li>
+<li>Set&lt;float&gt; -&gt; FloatSet</li>
+<li>Set&lt;double&gt; -&gt; DoubleSet</li>
+<li>Set&lt;char&gt; -&gt; CharacterSet</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="maps"><a class="header" href="#maps">Maps</a></h1>
+<p>Square brackets can also be used to define maps</p>
+<pre><code class="language-marcel">Map map = [1.3: "1", 1.4: "2", "myStringKey": "myStringValue", 
+           myLiteralKey: myRefValue, (myRefKey): myRefValue]
+</code></pre>
+<p>Note that <code>myLiteralKey</code> is actually a String key, it doesn't refer to a variable (like in Groovy). If you want to reference
+a variable as a key, put it between parenthesis, like it is done for <code>(myRefKey)</code>.</p>
+<h2 id="iterating-over-maps"><a class="header" href="#iterating-over-maps">Iterating over maps</a></h2>
+<p>To iterate over maps you can use the below syntax</p>
+<pre><code class="language-marcel">Map map = [(1): "some", (2): "another"]
+for ((int key, String value) in map) {
+  println("$key -&gt; $value")
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ranges"><a class="header" href="#ranges">Ranges</a></h1>
+<p>A Range represents the list of discrete items between some starting (or from) value and working towards some ending (or to) value.
+It may be reversed (e.g. from 10 to 1).</p>
+<p>Marcel provides <code>IntRange</code> and <code>LongRange</code></p>
+<pre><code class="language-marcel">for (int i in 0..&lt;5) println(i)
+
+for (long i in 10l..1l) println(i)
+
+</code></pre>
+<p>You can create int (and long) ranges</p>
+<pre><code class="language-marcel">0..10 // 0 (inclusive) to 10 (inclusive)
+0&lt;..10 // 0 (exclusive) to 10 (inclusive)
+0..&lt;10 // 0 (inclusive) to 10 (exclusive)
+0&lt;..&lt;10 // 0 (exclusive) to 10 (exclusive)
+</code></pre>
+<p>Ranges also work in reverse order</p>
+<pre><code class="language-marcel">10..0 // 10 (inclusive) to 0 (inclusive)
+10&gt;..0 // 10 (exclusive) to 0 (inclusive)
+10..&gt;0 // 10 (inclusive) to 0 (exclusive)
+10&gt;..&gt;0 // 10 (exclusive) to 0 (exclusive)
+</code></pre>
+<p>Ranges work with all kinds of int/long expressions</p>
+<pre><code class="language-marcel">int start = computeStart()
+int end = computeEnd()
+
+for (int i in start..(end - 1)) println(i)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="dynamic-objects"><a class="header" href="#dynamic-objects">Dynamic Objects</a></h1>
+<p>Dynamic Objects are the one and only dynamic feature in Marcel. They allow you to manipulate any kind of objects using
+dynamic properties and method calls.</p>
+<h2 id="what-does-it-do"><a class="header" href="#what-does-it-do">What does it do</a></h2>
+<p><a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/DynamicObject.java">DynamicObject</a> (or <code>dynobj</code>)
+is an interface that is handled specially by the Marcel compiler. All field access, method calls and operator uses on a DynamicObject
+are resolved at runtime instead of compile-time.</p>
+<p>The DynamicObject wraps an actual (and non dynamic) object. Various types are handled in order to make them easy to manipulate through the
+DynamicObject API. For example, you can manipulate maps like objects with properties.</p>
+<pre><code class="language-marcel">dynobj dMap = [foo: 'bar', zoo: 'pew'] as dynobj
+
+println(dMap.foo)
+dMap.zoo = 8
+</code></pre>
+<p>Note that dynamic method calls won't be applicable for all methods of the actual object wrapped by the dynobj, this feature is limited.
+And if you attempt to call a method that isn't defined/handled, you will get an error <strong>at runtime</strong>.</p>
+<pre><code class="language-marcel">dynobj o = 1
+println(o[1]) // will throw MissingMethodException at runtime, instead of a semantic error at compile time
+</code></pre>
+<p>The same behaviour applies for field access.</p>
+<h2 id="register-fieldsmethods"><a class="header" href="#register-fieldsmethods">Register fields/methods</a></h2>
+<p>Dynamic Objects allow you to register method/fields to specific instances. Use the <code>registerMethod</code>/<code>registerField</code> methods for that.</p>
+<pre><code class="language-marcel">dynobj o = 1
+
+o.registerMethod("foo", Integer.class) { Integer i -&gt; i * 2 + 1 }
+println(o.foo(1)) // 3
+
+o.registerField("bar", "value")
+println(o.bar) // value
+o.bar = "new value"
+println(o.bar) // new value
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="control-flows"><a class="header" href="#control-flows">Control flows</a></h1>
+<p>In this chapter you'll explore all control flows thar Marcels offers, in particular how to perform</p>
+<ul>
+<li>if/else statements</li>
+<li>for loops</li>
+<li>while loops</li>
+<li>switch</li>
+<li>try/catch/finally</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marcel-truth"><a class="header" href="#marcel-truth">Marcel truth</a></h1>
+<p>A truthy value is a value that is considered to be true for an if, or a while.</p>
+<p>A falsey value is a value that is considered false in those places.</p>
+<p>The only falsey values are the following:</p>
+<ul>
+<li><code>false</code></li>
+<li><code>null</code></li>
+<li>a Boolean instance whose value is <code>false</code></li>
+<li><code>Optional.empty()</code>, <code>OptionalInt.empty()</code>, <code>OptionalDouble.empty()</code>, <code>OptionalLong.empty()</code></li>
+<li>An empty collection</li>
+<li>An empty array</li>
+<li>An empty Map</li>
+<li>An empty String</li>
+<li>A <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html">Matcher</a> who's <code>find()</code> method would return false</li>
+<li>A <a href="https://docs.oracle.com/javase/8/docs/api/java/io/File.html">File</a> who's <code>exists()</code> method would return false</li>
+<li>A failure <a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/util/Result.java">Result</a></li>
+<li>An object implementing MarcelTruth who's <code>isTruthy()</code> method would return false</li>
+</ul>
+<p>Any other value is truthy.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="if-expression"><a class="header" href="#if-expression">If expression</a></h1>
+<p>If statements are similar as Java's, but you can provide any expression in them. If the provided expression is not a boolean,
+the <a href="language-specification/control-flows/marcel-truth.html">Marcel truth</a> will decide if your expression is <code>true</code> or not.</p>
+<pre><code class="language-marcel">if (a == 1) {
+  println("a is 1")
+} else if (a == 2) {
+  println("a is 2")
+} else {
+  println("a is not 1 and not 2")
+}
+</code></pre>
+<h2 id="if-variable-declaration"><a class="header" href="#if-variable-declaration">if variable declaration</a></h2>
+<p>The <a href="language-specification/control-flows/marcel-truth.html">marcel truth</a> allows you to declare variable in an <code>if</code> condition, and execute the code block if the variable is truthy</p>
+<pre><code class="language-marcel">if (Something result = fetchSomething()) {
+  println("Fetched $result")
+}
+</code></pre>
+<p>You can also unbox Optional values such as in the below example</p>
+<pre><code class="language-marcel">// assuming getOptionalInteger() returns an Optional
+if (Integer result = getOptionalInteger()) {
+  println(result)
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="while-loops"><a class="header" href="#while-loops">While loops</a></h1>
+<p>While loops are also similar as Java's. You can also provide any expression in them as you would in a Marcel <a href="language-specification/control-flows/./if-else.html">if</a>.
+If the provided expression is not a boolean, the <a href="language-specification/control-flows/marcel-truth.html">Marcel truth</a> will decide if your expression is <code>true</code> or not.</p>
+<pre><code class="language-marcel">int i = 0
+while (i &lt; 10) {
+  println(i++)
+}
+</code></pre>
+<h2 id="while-variable-declaration"><a class="header" href="#while-variable-declaration">while variable declaration</a></h2>
+<p>The <a href="language-specification/control-flows/marcel-truth.html">marcel truth</a> allows you to declare variable in an <code>while</code> condition, and execute the code block if the variable is truthy</p>
+<pre><code class="language-marcel">while (String line = reader.readLine()) println(line)
+
+// outside the loop, this line variable doesn't exist anymore
+</code></pre>
+<h1 id="do-while"><a class="header" href="#do-while">Do while</a></h1>
+<p>You can also perform do-while instructions, which will always execute at least one the do statement and then check the condition.
+If the condition is true the do statement is executed again.</p>
+<pre><code class="language-marcel">int i = 15
+do {
+  println(i++)
+} while (i &lt; 10)
+</code></pre>
+<p>The above code will only print <code>15</code>.</p>
+<h1 id="do"><a class="header" href="#do">Do</a></h1>
+<p>You can specify a <code>do</code> instruction without a while instruction at the end. It will just execute the do statement once.
+This can be useful to create inner scopes, in which you can create all the local variables you want, as they won't be accessible
+outside the <code>do</code> scope</p>
+<pre><code class="language-marcel">
+int result = 5
+do {
+  int variable = 1
+  int anotherVariable = 2
+  int anotherOtherVariable = 3
+  int anotherOne = 5
+  result = variable + anotherVariable + anotherOtherVariable + anotherOne
+}
+
+// now only result variable exists
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="for-loops"><a class="header" href="#for-loops">For loops</a></h1>
+<p>There are different ways to iterate over elements</p>
+<h2 id="for-i"><a class="header" href="#for-i">For i</a></h2>
+<p>The Java for i is compatible with Marcel</p>
+<pre><code class="language-marcel">for (int i = 0; i &lt; 10; i++) {
+  println(i)
+}
+</code></pre>
+<h2 id="for-in"><a class="header" href="#for-in">For in</a></h2>
+<p>The <code>in</code> keyword allows to iterate over values in an array, any objects implementing Iterable (including all Collections) or Iterator.</p>
+<pre><code class="language-marcel">int[] ints = getInts()
+for (int i in ints) {
+  println(i)
+}
+</code></pre>
+<p>Marcel also have a Ranges, allowing you to iterate with the below syntax</p>
+<pre><code class="language-marcel">// inclusive range
+for (int i in 0..9) {
+  println(i)
+}
+
+// exclusive range
+for (int i in 0..&lt;10) {
+  println(i)
+}
+
+// also work in reverse orde
+for (int i in 9..0) {
+  println(i)
+}
+
+// exclusive range
+for (int i in 10&gt;..0) {
+  println(i)
+}
+</code></pre>
+<h2 id="for-in-map"><a class="header" href="#for-in-map">For in map</a></h2>
+<p>You can also iterate over a Map entries using the below syntax</p>
+<pre><code class="language-marcel">Map m = [foo: 1, bar: 2]
+for ((String key, int value) in m) println("$key=$value")
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="switch-and-when"><a class="header" href="#switch-and-when">Switch and When</a></h1>
+<p>Marcel defines conditional control flows that can return values. Note that in the below
+control flows described, you <strong>can't</strong> re-assign a value to <strong>local variables</strong> created <strong>outside</strong>
+the switch/when scope.</p>
+<h2 id="when"><a class="header" href="#when">When</a></h2>
+<pre><code class="language-marcel">when {
+  string == "foo" -&gt; 2
+  string == "bar" -&gt; {
+    doSomeStuff()
+    3
+  }
+  otherCondition() -&gt; 4
+}
+</code></pre>
+<p>Each <code>when</code> branch consists of a condition, and a statement. If the given condition is true, the corresponding statement
+will be executed.</p>
+<p>Whens are very similar to <code>if/elseif/else</code> control flow, but they allow you to <strong>return values</strong>.
+They are useful to assign variables, or returning values in functions.</p>
+<p>In the above example, you can notice that a default case is missing.
+If no conditions matched, the <code>when</code> will return <code>null</code>.</p>
+<p>This means that you must <strong>always</strong> specify an <code>else</code> branch for whens returning primitive types, as they cannot be null.</p>
+<pre><code class="language-marcel">int myInt = when {
+  string == "foo" -&gt; 2
+  string == "bar" -&gt; {
+    doSomeStuff()
+    3
+  }
+  string == someString() -&gt; 4
+  otherCondition() -&gt; 5
+  else -&gt; 5
+}
+</code></pre>
+<h2 id="switch"><a class="header" href="#switch">Switch</a></h2>
+<p>Switch are very similar to whens. Every switch can be translated to a when (but the other way around is not true).</p>
+<p>In switches, you compare an expression against multiple values. Based on the above <code>when</code> example, we could do the following
+<code>switch</code></p>
+<pre><code class="language-marcel">switch (string) {
+  "foo" -&gt; 2
+  "bar" -&gt; {
+    doSomeStuff()
+    3
+  }
+  someString() -&gt; 4
+}
+</code></pre>
+<p>You'll notice that we couldn't translate the <code>when</code> condition <code>otherCondition()</code>, this is because it isn't a comparison against
+the switched expression.</p>
+<p>Each switch branch consists of a value, and a statement. If the provided switch expression matches the branch's expression,
+the corresponding statement will be executed.</p>
+<p>Switches also have an else, that is required when returning a primitive</p>
+<pre><code class="language-marcel">int myInt = switch (string) {
+  "foo" -&gt; 2
+  "bar" -&gt; {
+    doSomeStuff()
+    3
+  }
+  someString() -&gt; 4
+  else -&gt; 5
+}
+</code></pre>
+<h2 id="access-the-switched-expression"><a class="header" href="#access-the-switched-expression">Access the switched expression</a></h2>
+<p>The provided expression can be accessed in the switch branches using the implicit variable <code>it</code>.</p>
+<pre><code class="language-marcel">int myInt = switch (computeSomeInt()) {
+  1 -&gt; it + 1
+  else -&gt;  it + 4
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="exception-handling"><a class="header" href="#exception-handling">Exception Handling</a></h1>
+<h2 id="throw-exception"><a class="header" href="#throw-exception">Throw Exception</a></h2>
+<p>In Marcel you can throw Exceptions (or any Throwable) like in Java</p>
+<pre><code class="language-marcel">throw new RuntimeException("Error Message")
+</code></pre>
+<p>You are not forced to catch checked Exceptions in Marcel.</p>
+<h2 id="trycatchfinally"><a class="header" href="#trycatchfinally">Try/Catch/Finally</a></h2>
+<p>Exception handling is very similar as Java's.</p>
+<pre><code class="language-marcel">try {
+  Object a = null
+  println(a.hashCode())
+  println("Successfully tried")
+} catch (IOException|NullPointerException e) {
+    println("Caught exception")
+} finally {
+  println("finally")
+}
+</code></pre>
+<p>The above code will print</p>
+<pre><code class="language-text">Caught exception
+Finally
+</code></pre>
+<h2 id="try-with-resources"><a class="header" href="#try-with-resources">Try with resources</a></h2>
+<p>Try with resources is like in Java. You can declare Variables as resources and they will be properly closed automatically by the compiler.</p>
+<pre><code class="language-marcel">try (BufferedReader reader = Files.reader('input.txt')) {
+  println(reader.readLine())
+} catch (IOException e) {
+  e.printStackTrace()
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="program-structure"><a class="header" href="#program-structure">Program structure</a></h1>
+<h2 id="package"><a class="header" href="#package">Package</a></h2>
+<p>A Marcel source file can have a package. It is optional but if it is specified, it must be the first instruction in the file
+(excluding comments)</p>
+<pre><code class="language-marcel">package my.package
+</code></pre>
+<h2 id="imports"><a class="header" href="#imports">Imports</a></h2>
+<p>Then, some <a href="language-specification/source-file-structure/./imports.html">imports</a> can follow. You can consult the default imported class/package <a href="language-specification/source-file-structure/./imports.html#default-imports">here</a></p>
+<h2 id="class"><a class="header" href="#class">Class</a></h2>
+<p>You can define <a href="language-specification/source-file-structure/./classes.html">classes</a> like in Java.</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<p>Classes can have <a href="language-specification/source-file-structure/./functions.html">functions</a></p>
+<h2 id="fields"><a class="header" href="#fields">Fields</a></h2>
+<p>Classes can also have <a href="language-specification/source-file-structure/./classes.html#class-fields">fields</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="imports-1"><a class="header" href="#imports-1">Imports</a></h2>
+<p>Marcel's imports are very similar to Java's.</p>
+<h3 id="class-import"><a class="header" href="#class-import">Class import</a></h3>
+<p>Such imports are like Java's</p>
+<pre><code class="language-marcel">import java.text.SimpleDateFormat
+</code></pre>
+<p>But Marcel adds the capability to import a class <code>as</code> a given name. All references to the given name will be replaced by the
+actual class imported when compiling</p>
+<pre><code class="language-marcel">import java.text.SimpleDateFormat as SDF
+
+SDF sdf = someSdf()
+</code></pre>
+<h3 id="wildcard-imports"><a class="header" href="#wildcard-imports">Wildcard imports</a></h3>
+<p>Again, just like Java</p>
+<pre><code class="language-marcel">import java.text.*
+</code></pre>
+<h3 id="static-imports"><a class="header" href="#static-imports">Static imports</a></h3>
+<p>Yup, like in Java</p>
+<pre><code class="language-marcel">import static org.junit.jupiter.api.Assertions.assertEquals
+</code></pre>
+<h3 id="default-imports"><a class="header" href="#default-imports">Default imports</a></h3>
+<p>Marcel import by default all the following packages</p>
+<ul>
+<li>java.lang.*</li>
+<li>java.util.*</li>
+<li>java.io.*</li>
+<li>marcel.lang.*</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="visibility-and-access"><a class="header" href="#visibility-and-access">Visibility and Access</a></h1>
+<p>In marcel, there are 4 kinds of visibility.</p>
+<ul>
+<li><code>public</code> -&gt; which refers to Java's public visibility. Your class/method/field may be accessible from any package</li>
+<li><code>protected</code> -&gt; which refers to Java's protected visibility. Your class/method/field may only be accessible from other classes in the same package or inheriting your class</li>
+<li><code>internal</code> -&gt; which refers to Java's package-private visibility. Your class/method/field may only be accessible from classes in the same package</li>
+<li><code>private</code> -&gt; Your method may be accessible only from the class it was defined in</li>
+</ul>
+<p>The default visibility is <code>public</code> (meaning that when it isn't specified, the class/method/field will be considered as public)</p>
+<h2 id="access"><a class="header" href="#access">Access</a></h2>
+<p>Class/method/fields access should be specified in the below order.</p>
+<ol>
+<li>public/protected/internal/private (or nothing, which would default to public visibility)</li>
+<li>static (Optional. only if you want your member to be static)</li>
+<li>final (Optional. only if you want your member to be final)</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="functions-1"><a class="header" href="#functions-1">Functions</a></h1>
+<p>Use the <code>fun</code> keyword to define functions</p>
+<pre><code class="language-marcel">fun int sum(int a, int b) {
+  return a + b
+}
+
+protected fun void foo() {
+  // do nothing
+}
+</code></pre>
+<p>As shown in the above example, a function define has the following structures</p>
+<ol>
+<li>starts with the <a href="language-specification/source-file-structure/./visibility.html">visibility</a> which is optional and defaults to <code>public</code>.(you can also define static function with the <code>static</code> keyword)</li>
+<li>the <code>fun</code> keyword</li>
+<li>the return type</li>
+<li>the function's name</li>
+<li>the list of your function's parameters. The parameter's type first, and then the parameter's name.</li>
+</ol>
+<p>If your function only contains one statement/expression, you can specify it with the below syntax</p>
+<pre><code class="language-marcel">fun int sum(int a, int b) -&gt; a + b
+
+protected fun void foo() -&gt; println("Did nothing")
+</code></pre>
+<h2 id="function-visibility"><a class="header" href="#function-visibility">Function Visibility</a></h2>
+<p>You can specify your function's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>fun</code> keyword</p>
+<pre><code class="language-marcel">private fun foo() {
+}
+</code></pre>
+<h2 id="function-calls"><a class="header" href="#function-calls">Function Calls</a></h2>
+<p>Function calls are no different from in any other language</p>
+<pre><code class="language-marcel">int result = sum(1, 2)
+</code></pre>
+<h3 id="cast-results"><a class="header" href="#cast-results">Cast Results</a></h3>
+<p>Marcel has a diamond operator for function calls which is different from Java's. It casts the
+result of the function to the specified type.</p>
+<pre><code class="language-marcel">Foo otherResult = compute&lt;Foo&gt;()
+</code></pre>
+<p>This above example isn't really useful as Marcel <a href="language-specification/source-file-structure/../variables.html#automatic-casting">automatically cast variable assignments when needed</a> but this feature can be useful when chaining function calls</p>
+<pre><code class="language-marcel">Optional opt = Optional.of(new Foo())
+// assuming computeObject() and result return Object in their declaration
+Bar result = opt.get&lt;Foo&gt;().computeObject&lt;Bar&gt;()
+</code></pre>
+<p>But note that this is useless if the function/property already returns the specified type in their declaration.</p>
+<h3 id="named-parameters-call"><a class="header" href="#named-parameters-call">Named Parameters Call</a></h3>
+<p>You can also call a function by specifying its parameters by name. When doing so, the order in which
+you specify them doesn't matter.</p>
+<p>Such calls can also start with positional arguments.</p>
+<p>Following on our <code>sum()</code> example:</p>
+<pre><code class="language-marcel">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
+int otherResult = sum(1, b: 0) // equivalent to sum(1, 0)
+</code></pre>
+<p>It works the same with constructors.
+Here are some examples below.</p>
+<pre><code class="language-marcel">class B {
+  int i
+  int j
+  
+  constructor(this.i, this.j)
+
+}
+class C {
+  int a
+  int b
+}
+
+B b = new B(i: 1, j: 2) // will call new B(i, j)
+C c = new C(b: 2, a: 1) // will call new C(a, b)
+</code></pre>
+<pre><code class="language-marcel">int result = sum(2, b: 1) // equivalent to sum(2, 1)
+
+int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start 
+</code></pre>
+<p>Note that you can only used named parameters call for functions of Marcel-compiled classes, because Java doesn't keep method parameter names available at runtime by default.</p>
+<h2 id="parameter-default-value"><a class="header" href="#parameter-default-value">Parameter default value</a></h2>
+<p>Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
+with named parameters function calls.</p>
+<pre><code class="language-marcel">fun int sum(int a = 0, int b = 8) {
+return a + b
+}
+
+sum(a: 2) // 2 + 8
+sum(b: 5) // 0 + 8
+sum(a: 2, b: 5) // 2 + 5
+</code></pre>
+<p>You can specify any expression from a static context (this means you can't call/use non static functions/fields from the class your method is defined).</p>
+<p>These default parameter values are kept after compilation so you can also benefit them from other Marcel libraries.</p>
+<h2 id="optional-parenthesis"><a class="header" href="#optional-parenthesis">Optional parenthesis</a></h2>
+<p>When calling a function with at least one parameter, you can omit the parenthesis.</p>
+<p>Here are some examples</p>
+<pre><code class="language-marcel">int result = sum 1, 2
+println result
+
+doSomethingWithAnIntAndALambda 1, { /* my lambda */ }
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="classes"><a class="header" href="#classes">Classes</a></h1>
+<p>You can define classes using the <code>class</code> keyword</p>
+<pre><code class="language-marcel">class Foo {
+
+}
+</code></pre>
+<h2 id="extendingimplementing-classesinterfaces"><a class="header" href="#extendingimplementing-classesinterfaces">Extending/Implementing classes/interfaces</a></h2>
+<p>The syntax is like Java's</p>
+<pre><code class="language-marcel">class Foo extends Object implements List&lt;Integer&gt; {
+
+}
+</code></pre>
+<h2 id="class-visibility"><a class="header" href="#class-visibility">Class visibility</a></h2>
+<p>You can specify your class's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>class</code> keyword</p>
+<pre><code class="language-marcel">public class Foo {
+
+}
+</code></pre>
+<h2 id="class-functions"><a class="header" href="#class-functions">Class functions</a></h2>
+<p>See the <a href="language-specification/source-file-structure/./functions.html">functions section</a> to see how to define functions</p>
+<h2 id="class-fields"><a class="header" href="#class-fields">Class fields</a></h2>
+<p>You can define class fields like you would in Java</p>
+<pre><code class="language-marcel">class Foo {
+  private int a;
+  double b = 3
+  Object c;
+}
+</code></pre>
+<h2 id="constructors"><a class="header" href="#constructors">Constructors</a></h2>
+<p>You can use the keyword <code>constructor</code> to define constructors. The definition is similar to a function</p>
+<pre><code class="language-marcel">class Foo {
+  int bar
+  String zoo
+  
+  constructor(int bar, String zoo) {
+    this.bar = bar
+    this.zoo = zoo
+  }
+}
+</code></pre>
+<p>Constructors where you just want to assign values to your fields are common use-cases. Marcel has a syntax
+allowing you to write such constructors with a less verbose code.</p>
+<pre><code class="language-marcel">class Foo {
+  int bar
+  String zoo
+  
+  constructor(this.bar, this.zoo)
+}
+</code></pre>
+<p>We didn't even specify a function block, but you can specify one if you want. The first statements
+of your class will be the field assignments (after the super() call of course).</p>
+<h3 id="calling-constructors"><a class="header" href="#calling-constructors">Calling constructors</a></h3>
+<p>You can call specific <code>super</code> and <code>this</code> constructors.</p>
+<pre><code class="language-marcel">class A {
+  int foo
+  constructor(this.foo)
+}
+
+class B extends A {
+  int bar
+  constructor(int foo, this.bar): super(foo) {
+    println("Yahoo")  
+  }
+  
+  constructor(this.bar): this(0, bar)
+
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="enum-classes"><a class="header" href="#enum-classes">Enum classes</a></h1>
+<p>You can define enums using the <code>enum</code> keyword</p>
+<pre><code class="language-marcel">enum Foo {
+  BAR, ZOO
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="write-scripts"><a class="header" href="#write-scripts">Write Scripts</a></h1>
+<p>Scripts don't need a main() function. You can just start writing statements of your script directly, without wrapping them in a method.
+Script can be executed easily with <a href="language-specification/source-file-structure/../../tools/marcl.html">MarCL</a>.</p>
+<br/>
+<p>You can also define functions in your scripts.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">println(fibonacci(10))
+
+@cached
+fun int fibonacci(int n) -&gt; switch (n) {
+  0, 1 -&gt; n
+  else -&gt; fibonacci(n - 1) + fibonacci(n - 2)
+}
+</code></pre>
+<h2 id="local-variables"><a class="header" href="#local-variables">Local Variables</a></h2>
+<p>To declare a local variable in a script, simply declare it as you would in a function's body.</p>
+<pre><code class="language-marcel">int a = 2
+int b
+</code></pre>
+<h2 id="fields-1"><a class="header" href="#fields-1">Fields</a></h2>
+<p>To declare a class field for your script, you must explicitly provide its visibility, otherwise it will be
+considered as a local variable.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">internal int myField1 = 2
+protected myfield2
+</code></pre>
+<h2 id="global-variables"><a class="header" href="#global-variables">Global variables</a></h2>
+<p>Global variables are similar to fields. They were created especially for <a href="language-specification/source-file-structure/../../tools/marshell/index.html">Marshell</a>, in which you can't
+declare fields.</p>
+<h2 id="classes-1"><a class="header" href="#classes-1">Classes</a></h2>
+<p>You can also define classes in a script, but note that such classes will <strong>not</strong> be an inner class of your script. They will be
+top-level classes.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="annotations"><a class="header" href="#annotations">Annotations</a></h1>
+<p>Annotations are a lot like Java's. Use the <code>@MyAnnotation</code> syntax to annotate a class, field or method parameter.</p>
+<pre><code class="language-marcel">@MyAnnotation
+class MyClass {
+  @MyAnnotation
+  int myField
+
+  fun int myMethod(@MyAnnotation Integer someInt) {
+    return someInt + myField
+  }
+}
+</code></pre>
+<h2 id="annotation-attributes"><a class="header" href="#annotation-attributes">Annotation attributes</a></h2>
+<p>You can specify attributes like in Java. If your annotation only has one attribute, with the name <code>value()</code> You can just
+type your attribute value between parentheses.</p>
+<pre><code class="language-marcel">@MyAnnotation(1)
+</code></pre>
+<p>Or you can specify the attribute name like in the below example</p>
+<pre><code class="language-marcel">@MyAnnotation(value = 1)
+</code></pre>
+<p>If you have multiple attributes, separate them with a comma</p>
+<pre><code class="language-marcel">@MyAnnotation(value1 = 1, value2 = 3)
+</code></pre>
+<h3 id="enum-attributes"><a class="header" href="#enum-attributes">Enum attributes</a></h3>
+<p>When specifying enum attributes you just have to specify the enum's name, without its class</p>
+<pre><code class="language-marcel">@MyAnnotation(timeUnit = MILLISECONDS)
+</code></pre>
+<h3 id="class-attributes"><a class="header" href="#class-attributes">Class attributes</a></h3>
+<p>For attributes of type <code>Class</code>, you can specify any class as you would in Java</p>
+<pre><code class="language-marcel">@MyAnnotation(converter = MyConverter.class)
+</code></pre>
+<p>But like in Groovy, you can also specify Lambdas</p>
+<pre><code class="language-marcel">@MyAnnotation(converter = { it.toString() })
+</code></pre>
+<p>A lambda generates a class at compilation. This generated class will be used as the value for this attribute.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="operators"><a class="header" href="#operators">Operators</a></h1>
+<p>Marcel provides arithmetic operators to work with numbers (+, -, /, * and soonish %)
+but there are also operators that can be used on specific types.</p>
+<p>We will explore all of them in this section</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="plus-operator-"><a class="header" href="#plus-operator-">Plus operator (+)</a></h1>
+<p>The plus operator is used for arithmetic and concatenating Strings, but in Marcel it also has other uses.</p>
+<h2 id="add-collections"><a class="header" href="#add-collections">Add collections</a></h2>
+<p>You can use <code>+</code> to add Collections. The two operand will not be modified. A new collection will be created with both operand
+added to it.</p>
+<p>It works well with lists</p>
+<pre><code class="language-marcel">
+List&lt;int&gt; myList1 = [1, 2, 3]
+List&lt;int&gt; myList2 = [4, 5, 6]
+
+List&lt;int&gt; myList3 = mySet1 + mySet2
+println(myList3) // [1, 2, 3, 4, 5, 6]
+</code></pre>
+<p>and sets</p>
+<pre><code class="language-marcel">
+Set&lt;int&gt; mySet1 = [1, 2, 3]
+Set&lt;int&gt; mySet2 = [3, 4, 5]
+
+Set&lt;int&gt; mySetUnion = mySet1 + mySet2
+mySetUnion(myList3) // [1, 2, 3, 4, 5]
+</code></pre>
+<br/>
+<p>You can also add different kind of collections. The type of the returned collection will be the same as the first operand</p>
+<pre><code class="language-marcel">Set&lt;int&gt; newSet = mySet1 + myList1
+List&lt;int&gt; newList = myList1 + mySet1
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="minus-operator--"><a class="header" href="#minus-operator--">Minus operator (-)</a></h1>
+<p>The minus operator is used for arithmetic but in Marcel it also has other uses.</p>
+<h2 id="add-collections-1"><a class="header" href="#add-collections-1">Add collections</a></h2>
+<p>You can use <code>-</code> to add Collections. The two operand will not be modified. A new collection will be created with the elements
+of the first operand having removed all elements from the second operand if any.</p>
+<p>It works well with lists</p>
+<pre><code class="language-marcel">
+List&lt;int&gt; myList1 = [1, 2, 3]
+List&lt;int&gt; myList2 = [3, 4, 5]
+
+List&lt;int&gt; myList3 = mySet1 - mySet2
+println(myList3) // [1, 2]
+</code></pre>
+<p>and sets</p>
+<pre><code class="language-marcel">
+Set&lt;int&gt; mySet1 = [1, 2, 3]
+Set&lt;int&gt; mySet2 = [3, 4, 5]
+
+Set&lt;int&gt; mySetUnion = mySet1 - mySet2
+println(mySetUnion) // [1, 2]
+</code></pre>
+<br/>
+<p>You can also add different kind of collections. The type of the returned collection will be the same as the first operand</p>
+<pre><code class="language-marcel">Set&lt;int&gt; newSet = mySet1 - myList1
+List&lt;int&gt; newList = myList1 - mySet1
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="left-shift-operator-"><a class="header" href="#left-shift-operator-">Left Shift operator (&lt;&lt;)</a></h1>
+<p>Left shift operator allows to add elements to collections</p>
+<pre><code class="language-marcel">List&lt;int&gt; a = [1, 2, 3]
+
+a &lt;&lt; 2
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h1>
+<h2 id="equal-"><a class="header" href="#equal-">Equal (==)</a></h2>
+<p>Unlike in Java <code>==</code> operator will do its best to compare the 2 operands by value. This operator is null safe, meaning that if one of the operand is null, it won't throw a <code>NullPointerException</code>.</p>
+<p>This operator works as described below</p>
+<ul>
+<li>if both operand are primitives, Java-like <code>==</code> will be performed</li>
+<li>if both operand are primitive arrays, Arrays.equals() will be used to compare the values</li>
+<li>if both operand are object arrays, Objects.deepEquals() will be used to compare the values</li>
+<li>otherwise it will call Objects.equals()</li>
+</ul>
+<p>This logic is applied at compile-time, meaning you won't have a runtime overhead because the program would have to check types.</p>
+<ul>
+<li>if at least one of the two operand is an Object, the other operand is casted as an object if needed and the Marcel <code>==</code> is applied.</li>
+</ul>
+<h2 id="not-equal-"><a class="header" href="#not-equal-">Not Equal (!=)</a></h2>
+<p>The not equal is the negation of the Marcel's <code>==</code></p>
+<h2 id="lt-loe-gt-goe----"><a class="header" href="#lt-loe-gt-goe----">LT, LOE, GT, GOE (&lt;, &lt;= ,&gt;, &gt;=)</a></h2>
+<p>These operators works like in Java for primitive types. For object types, Marcel will check at compile-time if the first operand
+has a <code>compareTo()</code> method and apply it on the second operand. The result of the compareTo will be used to apply the given comparison.</p>
+<h2 id="is-same-"><a class="header" href="#is-same-">Is Same (===)</a></h2>
+<p>This operator is the Java's <code>==</code> operator for Objects. It will check if the two operand are the same instance, or are both null.
+(Note that it can't be used on primitives).</p>
+<h2 id="is-not-same-"><a class="header" href="#is-not-same-">Is Not Same (!==)</a></h2>
+<p>It is the negation of the Is Same operator.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="as-smart-casting"><a class="header" href="#as-smart-casting">As (smart casting)</a></h1>
+<p>The <code>as</code> keyword allows to <strong>smart</strong> cast variables to a provided type.</p>
+<h2 id="smart-casting"><a class="header" href="#smart-casting">Smart casting</a></h2>
+<p>Smart casting is like an enhanced Java cast. It can cast objects like a Java cast would, but it
+can also convert the object to make it fit the target type.</p>
+<h3 id="collections-smart-casting"><a class="header" href="#collections-smart-casting">Collections smart casting</a></h3>
+<p>The smart cast can transform arrays into (primitive) lists/sets</p>
+<pre><code class="language-marcel">int[] array = [1, 2, 3]
+
+List&lt;int&gt; intList = array as List&lt;int&gt;
+Set&lt;long&gt; longSet = [1l, 2l, 3l] as Set&lt;long&gt;
+</code></pre>
+<h3 id="boolean-truthy-smart-casting"><a class="header" href="#boolean-truthy-smart-casting">Boolean (truthy) smart casting</a></h3>
+<p>You can smart cast any value to a boolean. The value of the boolean will be determined based
+on the <a href="language-specification/operators/../control-flows/marcel-truth.html">Marcel truth</a>.</p>
+<h3 id="dynamic-object-smart-casting"><a class="header" href="#dynamic-object-smart-casting">Dynamic object smart casting</a></h3>
+<p>Any type can become a dynamic object</p>
+<pre><code class="language-marcel">dynobj obj = 1 as dynobj
+</code></pre>
+<h2 id="java-casting"><a class="header" href="#java-casting">(Java) casting</a></h2>
+<p>To perform a simple cast, you can use the function <code>cast</code> with the <a href="language-specification/operators/../source-file-structure/functions.html#cast-results">diamond operator</a>,
+provided specifically for this use-case</p>
+<pre><code class="language-marcel">int a = 1
+
+Integer b = a as Integer
+Number c = b as Number
+Long d = c as Long // will fail as a is not an instance of Long
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="instance-of-type-checking"><a class="header" href="#instance-of-type-checking">Instance Of (type checking)</a></h1>
+<p>The <code>instanceof</code> keyword allows to verify if an Object variable is <strong>an instance</strong> of the provided type.</p>
+<p>It cannot be used on primitive variables, and will always return <code>false</code> on <code>null</code> variables.</p>
+<h2 id="examples"><a class="header" href="#examples">Examples</a></h2>
+<pre><code class="language-marcel">Integer a = 1
+
+println(a instanceof Integer) // true
+println(a instanceof Number) // true
+println(a instanceof Long) // false
+</code></pre>
+<h2 id="not-instance-of"><a class="header" href="#not-instance-of">Not Instance Of</a></h2>
+<p>To check the opposite, use <code>!instanceof</code></p>
+<pre><code class="language-marcel">Integer a = 1
+
+println(a !instanceof Integer) // false
+println(a !instanceof Number) // false
+println(a !instanceof Long) // true
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="indexed-access-operator-exprindex"><a class="header" href="#indexed-access-operator-exprindex">Indexed Access Operator (expr[index])</a></h1>
+<p>This operator is usually (or at least in Java) reserved for arrays,
+but in Marcel you can also use it to access lists. You can get/set
+items of your list using the same syntax as for an array</p>
+<pre><code class="language-marcel">
+List&lt;int&gt; list = [1, 2, 3]
+
+println(list[0])
+
+list[1] = 4
+</code></pre>
+<br/>
+<p>You can also <a href="language-specification/operators/./operator-overloading.html">define your own accesses for custom types</a></p>
+<h2 id="safe-indexed-access-getatsafe"><a class="header" href="#safe-indexed-access-getatsafe">Safe indexed access (getAtSafe)</a></h2>
+<p>Similarly to <a href="language-specification/operators/./safe-navigation.html">safe navigation</a>, you can access elements of list/arrays</p>
+<pre><code class="language-marcel">println(list?[5]) // will print null
+</code></pre>
+<p>This operator checks that the index provided is within the list/array's bounds (<code>0 &lt;= index &lt; length</code>)</p>
+<p>You can also set elements safely with the <code>putAtSafe</code> operator</p>
+<pre><code class="language-marcel">List&lt;int&gt; = [1, 2, 3]
+
+list?[1] = 5 // will actually set the value
+list?[10] = 4 // will not set the value as the index is not within bounds
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="safe-navigation-operator-"><a class="header" href="#safe-navigation-operator-">Safe Navigation Operator (?.)</a></h1>
+<p>The safe navigation operator is used to access a property of an object that might be null, without getting a <code>NullPointerException</code>.</p>
+<p>It is a simple syntax allowing you to simple code. In Java, you could code</p>
+<pre><code class="language-marcel">Foo foo = getFoo()
+Bar bar = foo != null ? foo.getBar() : null
+</code></pre>
+<p>In Marcel, you would code</p>
+<pre><code class="language-marcel">Foo foo = getFoo()
+Bar bar = foo?.bar // Marcel recognizes getters and translates '.bar' into '.getBar()' at compilation
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ternary-operator-----"><a class="header" href="#ternary-operator-----">Ternary operator (<expr> ? <expr> : <expr>)</a></h1>
+<p>Marcel supports ternary operator like in Java. This operator have 3 operands:</p>
+<ol>
+<li>the condition expression</li>
+<li>the 'true' expression</li>
+<li>the 'false' expression.</li>
+</ol>
+<p>This operator evaluates the condition. It can be any kind of expression, as the <a href="language-specification/operators/../control-flows/marcel-truth.html">Marcel truth</a> will determine if the expression
+is truthy or not, for non-boolean expressions.</p>
+<p>If the condition expression is truthy, the 'true' expression will be evaluated, otherwise it will be the 'false' expression.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">int temperature = isSunny() ? 21 : -5
+println(temperature)
+
+fun bool isSunny() -&gt; return true
+</code></pre>
+<p>This script will print the value <code>21</code></p>
+<p>Let's take a look at another example.</p>
+<pre><code class="language-marcel">Integer input = null
+Integer a = input ? input : 34
+println(a)
+</code></pre>
+<p>This script will print the value <code>34</code></p>
+<p>Note that this last example can be simplified using the <strong>Elvis operator</strong></p>
+<h2 id="elvis-operator"><a class="header" href="#elvis-operator">Elvis operator</a></h2>
+<p>The Elvis operator is just a simplified ternary operator in which the condition expression and the 'true' expression
+are the same.</p>
+<p>You could translate the above example using the below code</p>
+<pre><code class="language-marcel">Integer input = null
+Integer a = input ?: 34
+println(a)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="direct-field-access-fieldname"><a class="header" href="#direct-field-access-fieldname">Direct field access @fieldName</a></h1>
+<p>This operator allows to make sure to reference a class field, and not a getter/setter.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">class Foo {
+ int bar
+  
+  fun getBar() {
+    return this.@bar
+  }
+  
+  fun setBar(int bar) {
+    this.@bar = bar
+  }
+}
+
+Foo foo = new Foo()
+</code></pre>
+<p>In the above class, calling <code>foo.@bar</code> or <code>foo.@bar = 4</code> would make sure to actually use the field, and not the getter/setter.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="define-custom-operators"><a class="header" href="#define-custom-operators">Define custom operators</a></h1>
+<p>You can define operators in a very similar way as <a href="https://groovy-lang.org/operators.html#Operator-Overloading">groovy's</a>.</p>
+<p>Each operator is associated to a function. To define an operator for a given type.</p>
+<p>Here is the table of functions to define for each operator</p>
+<h2 id="define-operators-from-extensions"><a class="header" href="#define-operators-from-extensions">Define operators from extensions</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Operator</th><th>Method</th></tr></thead><tbody>
+<tr><td>a + b</td><td>a.plus(b)</td></tr>
+<tr><td>a - b</td><td>a.minus(b)</td></tr>
+<tr><td>- a</td><td>a.negate()</td></tr>
+<tr><td>a * b</td><td>a.multiply(b)</td></tr>
+<tr><td>a % b</td><td>a.mod(b)</td></tr>
+<tr><td>a / b</td><td>a.div(b)</td></tr>
+<tr><td>a &lt;&lt; b</td><td>a.leftShift(b)</td></tr>
+<tr><td>a &gt;&gt; b</td><td>a.rightShift(b)</td></tr>
+<tr><td>a[b]</td><td>a.getAt(b)</td></tr>
+<tr><td>a?[b]</td><td>a.getAtSafe(b)</td></tr>
+<tr><td>a[b, c, d]</td><td>a.getAt(b, c, d)</td></tr>
+<tr><td>a[b] = c</td><td>a.putAt(b, c)</td></tr>
+<tr><td>a?[b] = c</td><td>a.putAtSafe(b, c)</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="iterable-operations"><a class="header" href="#iterable-operations">Iterable Operations</a></h1>
+<p>Iterable operations provide a special syntax to perform common operations of a daily programmer's life on Iterables.</p>
+<p>Actually those operations don't only work with Iterables, but also with arrays and CharSequence (e.g. String).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="map-andor-filter"><a class="header" href="#map-andor-filter">Map and/or Filter</a></h1>
+<h2 id="map"><a class="header" href="#map">Map</a></h2>
+<p>You can create a new collection resulting of the mapping of another.</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;int&gt; list2 = [for int i in list -&gt; i + 1] // [2, 3, 4, 5]
+</code></pre>
+<h2 id="filter"><a class="header" href="#filter">Filter</a></h2>
+<p>Filtering is also possible using a similar syntax.</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;int&gt; list2 = [for int i in list if i &lt;= 2] // [1, 2]
+</code></pre>
+<h2 id="map-and-filter"><a class="header" href="#map-and-filter">Map and Filter</a></h2>
+<p>You can do both in one operation.</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;float&gt; list2 = [for int i in list -&gt; i + 0.1f if i &lt;= 2] // [1.1f, 2.2f]
+</code></pre>
+<h2 id="casting"><a class="header" href="#casting">Casting</a></h2>
+<p>All the above operations can return Lists, primitive Lists, Sets, or primitive Sets. The type is
+usually guessed by the compiler when possible (e.g. looking at the type of the variable you're trying to set), but
+you can explicitly specify the wanted type using the <a href="language-specification/iterable-operations/../operators/as.html">as operator</a>.</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+Set&lt;int&gt; list2 = [for int i in list -&gt; i % 2] // [0, 1]
+println([for int i in list -&gt; Optional.of(i % 2)] as Set) // [Optional(0), Optional(1)]
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="any-all"><a class="header" href="#any-all">Any, All</a></h1>
+<p>Checking if any/all elements of an Iterable, CharSequence or array all matches a given predicates
+is possible using the below syntax.</p>
+<h2 id="any"><a class="header" href="#any">Any</a></h2>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list |&gt; a &gt;= 3) // true
+</code></pre>
+<p>The <code>|&gt;</code> arrow is used to check if at least one element matches the predicate.</p>
+<h2 id="all"><a class="header" href="#all">All</a></h2>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list &amp;&gt; a &gt;= 3) // false
+</code></pre>
+<p>The <code>&amp;&gt;</code> arrow is used to check if all elements matches the predicate.</p>
+<h2 id="negations"><a class="header" href="#negations">Negations</a></h2>
+<p>You can also negate those conditions using the <code>!when</code> keyword.</p>
+<pre><code class="language-marcel">println(!when int a in list |&gt; a &gt;= 3) // false
+println(!when int a in list &amp;&gt; a &gt;= 3) // true
+</code></pre>
+<h2 id="complex-boolean-expressions"><a class="header" href="#complex-boolean-expressions">Complex boolean expressions</a></h2>
+<p>To use properly the above described operations in boolean expressions, wrap them with the parenthesis to
+avoid any ambiguity</p>
+<pre><code class="language-marcel">if ((when int a in list &amp;&gt; a &gt;= 3) &amp;&amp; somethingElse) {
+  doAllTheThings()
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="find"><a class="header" href="#find">Find</a></h1>
+<p>This iterable operation allows to find an element on an Iterable, CharSequence or array and return it, or null.
+As the element may not be found, this operator always return an object, even for collections of primitive (e.g. Integer for a <code>List&lt;int&gt;</code>).</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list -&gt; a % 2 == 0) // 2
+println(when int a in list -&gt; a % 2 == 5) // null
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="chain-operations"><a class="header" href="#chain-operations">Chain operations</a></h1>
+<p>You can chain multiple iterable operations in a same expression using the right shift (<code>&gt;&gt;</code>) operator.</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+println(list &gt;&gt; when int a -&gt; a % 2 == 0)
+println([for int a in list -&gt; a + 3] &gt;&gt; when int a -&gt; a % 2 == 0)
+</code></pre>
+<p>In those example you can see that we omit the <code>in something</code> part of the operations, this is because the left operand
+of the <code>&gt;&gt;</code> operator is used instead.</p>
+<p>So the above code is equivalent of the below code.</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list -&gt; a % 2 == 0)
+println(when int a in [for int a in list -&gt; a + 3] -&gt; a % 2 == 0)
+</code></pre>
+<p>But this piece of code is hard to read, right? That is why the <code>&gt;&gt;</code> is here.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="lambdas"><a class="header" href="#lambdas">Lambdas</a></h1>
+<p>Marcel supports lambda expressions, but note that they are not compiled to Java lambdas, they are compiled to anonymous classes instead.</p>
+<p>Lambda are declared like Kotlin's, and Groovy closures. They can be used for any functional interfaces, such as Runnable, Supplier...</p>
+<h2 id="lambdas-with-no-parameters"><a class="header" href="#lambdas-with-no-parameters">Lambdas with no parameters</a></h2>
+<pre><code class="language-marcel">Lambda0 l0 = {
+  
+}
+</code></pre>
+<h2 id="lambdas-with-1-parameter"><a class="header" href="#lambdas-with-1-parameter">Lambdas with 1 parameter</a></h2>
+<p>If you don't specify any parameter, an implicit <code>Object it</code> parameter will be declared.</p>
+<pre><code class="language-marcel">Lambda0 l1 = {
+  println(it)
+}
+</code></pre>
+<p>Or you can explicitly declare it yourself, specifying the type</p>
+<pre><code class="language-marcel">Lambda1 l1 = { Integer p0 -&gt;
+  println(p0)
+}
+</code></pre>
+<h2 id="lambdas-with-2-parameter"><a class="header" href="#lambdas-with-2-parameter">Lambdas with 2+ parameter</a></h2>
+<p>You have to declare explicitly all parameters, separated by a comma</p>
+<pre><code class="language-marcel">Lambda3 l3 = { Integer foo, Long bar, String zoo -&gt;
+  // do something
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="extension-classes"><a class="header" href="#extension-classes">Extension classes</a></h1>
+<p>Extension classes allows you to add methods to an existing class.</p>
+<h2 id="how-to-declare"><a class="header" href="#how-to-declare">How to declare</a></h2>
+<p>An extension class is declared like a regular class, but with the keyword <code>extension</code>. You'll
+also need to specify which class your are extending.</p>
+<pre><code class="language-marcel">extension class MyExtension for Integer {
+}
+</code></pre>
+<h2 id="define-instance-methods"><a class="header" href="#define-instance-methods">Define instance methods</a></h2>
+<p>Define methods as you would if you were in the class you are extending (not talking about inheritance).</p>
+<pre><code class="language-marcel">extension class MyExtension for Integer {
+  
+  fun int next() {
+    return this + 1
+  }
+
+  fun float foo() {
+    return floatValue() + 2f * next()
+  }
+
+}
+</code></pre>
+<p>As you can see in the above example, you can also call methods of the extended class, and other extensions methods
+you defined.</p>
+<h2 id="define-static-methods"><a class="header" href="#define-static-methods">Define static methods</a></h2>
+<p>This works the same as instance methods. Define your static method as if you were in the extended class.</p>
+<pre><code class="language-marcel">extension class MyExtension for Integer {
+  
+  static fun int zoo() {
+    return 1
+  }
+
+}
+</code></pre>
+<h2 id="how-to-use"><a class="header" href="#how-to-use">How to use</a></h2>
+<p>Import your extension class with the <code>extension</code> keyword.</p>
+<pre><code class="language-marcel">// another file
+import extension MyExtension
+
+Integer a = 1
+println(a.next())
+println(Integer.zoo())
+</code></pre>
+<p>Note that you can also use an extension in the same file it was declared in. In such case, you don't
+need to specify the import</p>
+<pre><code class="language-marcel">extension class MyExtension for Integer {
+   fun int next() {
+      return this + 1
+    }
+
+    fun float foo() {
+      return floatValue() + 2f * next()
+    }
+
+   static fun int zoo() {
+      return 1
+    }
+}
+
+Integer a = 1
+println(a.next())
+println(Integer.zoo())
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="metaprogramming-in-marcel"><a class="header" href="#metaprogramming-in-marcel">Metaprogramming in Marcel</a></h1>
+<p>Marcel offers some metaprogramming features, allowing you to write code that generates code.</p>
+<p>Such code is generating while compiling it. As Marcel is a static language, it only supports compile-time metaprogramming
+and has <strong>no</strong> <a href="https://groovy-lang.org/metaprogramming.html#_runtime_metaprogramming">runtime metaprogramming features</a>.</p>
+<h2 id="compile-time-metaprogramming-with-syntax-tree-transformations"><a class="header" href="#compile-time-metaprogramming-with-syntax-tree-transformations">Compile-time metaprogramming with Syntax Tree Transformations</a></h2>
+<p>Syntax Tree Transformations can modify the representation of your source code before converting it into Java bytecode.</p>
+<p>This process can alter the <a href="https://en.wikipedia.org/wiki/Parse_tree">Concrete Syntax Tree</a> (CST) and/or the <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">Abstract Syntax Tree</a> (AST) of your program.</p>
+<p>This concept is <a href="https://groovy-lang.org/metaprogramming.html#_compile_time_metaprogramming">similar as Groovy's AST transformations</a>, except that in Marcel
+you can also transform the CST, and the AST transformation occurs <strong>after</strong> the <a href="https://en.wikipedia.org/wiki/Semantic_analysis_(compilers)">semantic analysis</a>.</p>
+<p>This <code>SyntaxTreeTransformation</code> interface specifies the transformation of a CST/AST node and operates in 2 steps occurring in different phases of the compilation process (3 if you count the initialization).</p>
+<h3 id="how-syntax-tree-transformations-operate"><a class="header" href="#how-syntax-tree-transformations-operate">How Syntax Tree Transformations operate</a></h3>
+<p>After the <a href="https://en.wikipedia.org/wiki/Parsing">parsing</a> of your code which outputs the Concrete Syntax Tree (CST), and before performing the <a href="https://en.wikipedia.org/wiki/Semantic_analysis_(compilers)">semantic analysis</a> which would generate the Abstract Syntax Tree (AST), all symbols (classes, methods, fields) are defined.</p>
+<p>Then occurs the first step of an Syntax Tree transformation: the symbol definition transformation. A Syntax Tree transformation can alter the definition of symbols
+(e.g. make your class implement an interface, or add a field to a class, modify a method signature...). This step only affects the definition of the symbols. It tells the compiler
+(for example) that "This class also implements the Foo interface" or "This class has a field bar of type int", and the compiler will just have to trust it, especially when performing the semantic analysis.</p>
+<p>In this step you can also modify the Concrete Syntax Tree.</p>
+<p>After all the Syntax Tree transformations completed their first step, the semantic analysis is performed.</p>
+<p>Finally, comes the second step of Syntax Tree transformations: the AST transformation. This step can alter in many ways the AST,
+but <strong>it must alter it carefully as not all semantic checks are performed while doing so</strong>.</p>
+<p>The modifications made on the AST must also be coherent with the previous symbol definition transformations.
+E.g. if we defined a new method in the first step, we must create and add a new valid method node with the same signature in the AST, in the second step.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="meta-annotations-metaprogramming-with-annotations"><a class="header" href="#meta-annotations-metaprogramming-with-annotations">Meta-annotations (metaprogramming with annotations)</a></h1>
+<p><a href="metaprogramming/meta-annotations/../index.html">AST transformations</a> can be specified on annotations. Doing so allows to perform specific transformations when annotating a given
+class, field, method and/or field.</p>
+<p>Marcel's standard library provides many annotations useful to avoid writing boilerplate code. Some of them are similar as the one you could find in <a href="https://projectlombok.org/">Lombok</a>.</p>
+<p>Meta-annotations from the Marcel's standard-library are all lowercase (even the first letter), this is how you can differentiate them from
+other (non-meta) annotations.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="stringify"><a class="header" href="#stringify">@stringify</a></h1>
+<p>This annotation is similar to <a href="https://projectlombok.org/features/ToString">Lombok's @ToString annotation</a>.
+It auto-generates a <code>toString()</code> method for your class, based on your class's members.</p>
+<p>The generated toString method will put all fields of the class with their values in the generated String.</p>
+<pre><code class="language-marcel">@stringify
+class Foo {
+ String bar = "myBar"
+}
+
+println(new Foo())
+</code></pre>
+<p>This script would print <code>Foo(bar=myBar)</code>.</p>
+<h2 id="include-getters"><a class="header" href="#include-getters">Include getters</a></h2>
+<p>The getters are not included in the generated String by default. To change this behaviour, you can use the flag <code>includeGetters=true</code>.</p>
+<pre><code class="language-marcel">@stringify(includeGetters=true)
+class Foo {
+ String bar = "myBar"
+ 
+ fun int getZoo() -&gt; 5 
+}
+
+println(new Foo())
+</code></pre>
+<p>This script would print <code>Foo(bar=myBar, zoo=5)</code>.</p>
+<h3 id="exclude-particular-fieldsmethods"><a class="header" href="#exclude-particular-fieldsmethods">Exclude particular fields/methods</a></h3>
+<p>You can use the annotation <code>@stringify.Exclude</code> to exclude a particular field or getter.</p>
+<pre><code class="language-marcel">@stringify(includeGetters=true)
+class Foo {
+ int i = 1
+
+ @stringify.Exclude
+ String b = "srsr"
+
+ @stringify.Exclude
+ fun String getFoo() -&gt; "foo"
+
+ fun String getBar() -&gt; "bar"
+}
+</code></pre>
+<p>This script would print <code>A(i=1, bar=bar)</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="comparable"><a class="header" href="#comparable">@comparable</a></h1>
+<p>This makes your class implement <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Comparable.html">Comparable</a> interface. The comparison will be made based on your class's field, in the order
+in which they were defined.</p>
+<p>For example take a look at the below class</p>
+<pre><code class="language-marcel">@comparable
+class Foo {
+  int a
+  String b
+  double c
+}
+</code></pre>
+<p>When comparing 2 Foo instances, we'll start by comparing the fields <code>a</code>. If they are not the same (one is greater/lower than the other),
+we'll stop the comparison here as we already can determine which Foo instance is greater than the other. If both <code>a</code> fields hold the same value,
+we'll continue the comparison with <code>b</code>, and so on and so on...</p>
+<h2 id="include-getters-1"><a class="header" href="#include-getters-1">Include getters</a></h2>
+<p>The getters are not included in the generated Comparison by default. To change this behaviour, you can use the flag <code>includeGetters=true</code>.</p>
+<h3 id="exclude-particular-fieldsmethods-1"><a class="header" href="#exclude-particular-fieldsmethods-1">Exclude particular fields/methods</a></h3>
+<p>You can use the annotation <code>@comparable.Exclude</code> to exclude a particular field or getter.</p>
+<pre><code class="language-marcel">@comparable(includeGetters=true)
+class Foo {
+ int i = 1
+
+ @comparable.Exclude
+ String b = "srsr"
+
+ @comparable.Exclude
+ fun String getFoo() -&gt; "foo"
+
+ fun String getBar() -&gt; "bar"
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="data"><a class="header" href="#data">@data</a></h1>
+<p>This annotation is similar to <a href="https://projectlombok.org/features/Data">Lombok's @Data annotation</a>.
+It auto-generates the <code>equals()</code>, <code>hashCode()</code> and <code>toString()</code> method for your class, based on your class's members.</p>
+<p>The</p>
+<p>You can also make your class <a href="metaprogramming/meta-annotations/./comparable.html">implement Comparable</a> by providing the <code>comparable=true</code> flag</p>
+<pre><code class="language-marcel">@data
+class Foo {
+  int a = 2
+  String b = "b"
+}
+</code></pre>
+<h3 id="exclude-particular-fieldsmethods-2"><a class="header" href="#exclude-particular-fieldsmethods-2">Exclude particular fields/methods</a></h3>
+<p>You can use the <code>@data.Exclude</code>, <code>@comparable.Exclude</code> or <code>@stringify.Exclude</code> annotations to exclude properties from the sring representation,</p>
+<p><code>@data.Exclude</code> will exclude the property from both the <code>toString()</code>, and the <code>equals()</code>,<code>hashCode()</code> methods.
+<code>@comparable.Exclude</code> will only exclude the property for the <code>equals()</code>,<code>hashCode()</code> methods.
+<code>@stringify.Exclude</code> will only exclude the property for the <code>toString()</code> method.</p>
+<pre><code class="language-marcel">@data
+class Foo {
+ @data.Exclude
+ int i = 1
+
+ @comparable.Exclude
+ String b = "srsr"
+
+ @comparable.Exclude
+ fun String getFoo() -&gt; "foo"
+
+ fun String getBar() -&gt; "bar"
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cached"><a class="header" href="#cached">@cached</a></h1>
+<p>This annotation allows to cache results of a method in order to prevent having to compute multiple times the result for a same input.
+It will generate a cache and make the annotated method use this cache. The cache key is produced with the method parameter(s).</p>
+<p>If the value for the given input (method parameters) is in the cache, we just return it from the cache. If it isn't in it, we compute the value, put
+it in the cache and then return it.</p>
+<p>A perfect example is a recursive implementation of the fibonacci suite. With high numbers, we may compute multiple times the value
+for a same input, making the operation really long. That's where <code>@cached</code> comes to save the day. No value for a same input will be computed more than once, this
+will allow to save a lot of time.</p>
+<pre><code class="language-marcel">println(fibonacci(10))
+
+@cached
+fun int fibonacci(int n) -&gt; switch (n) {
+  0, 1 -&gt; n
+  else -&gt; fibonacci(n - 1) + fibonacci(n - 2)
+}
+</code></pre>
+<p>This script would print <code>Foo(bar=myBar)</code>.</p>
+<p>Caching also work with functions having many parameters</p>
+<pre><code class="language-marcel">println(funnynacci(10, 15))
+
+@cached
+fun int funnynacci(int n, int m) -&gt; switch (n) {
+  0, 1 -&gt; n + m
+  else -&gt; funnynacci(n - 1, m - 1) + funnynacci(n - 2, m - 1)
+}
+</code></pre>
+<h2 id="thread-safe-cache"><a class="header" href="#thread-safe-cache">Thread-safe cache</a></h2>
+<p>By default, the cache is <strong>not</strong> thread safe and is backed by a <a href="https://docs.oracle.com/javase/8/docs/api/java/util/HashMap.html">HashMap</a>.</p>
+<p>You can set the <code>threadSafe</code> flag to <code>true</code> if you want to make the implementation thread-safe. The cache will then be backed by
+a <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentHashMap.html">ConcurrentHashMap</a>.</p>
+<pre><code class="language-marcel">println(fibonacci(10))
+
+@cached(threadSafe=true)
+fun int fibonacci(int n) -&gt; switch (n) {
+  0, 1 -&gt; n
+  else -&gt; fibonacci(n - 1) + fibonacci(n - 2)
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="lazy"><a class="header" href="#lazy">@lazy</a></h1>
+<p>This annotation is used to make a field lazy. The value of the field will only be computed when it is referenced, and
+not before.</p>
+<h2 id="prerequisites-1"><a class="header" href="#prerequisites-1">Prerequisites</a></h2>
+<p>The annotated field must be of Object type (non-primitive) and must have an initial value specified.</p>
+<p>E.g.</p>
+<pre><code class="language-marcel">@lazy
+Integer i = computeI()
+
+fun int computeI() {
+  initCount++
+  return 1
+}
+</code></pre>
+<h2 id="how-it-is-transformed"><a class="header" href="#how-it-is-transformed">How it is transformed</a></h2>
+<p>This meta-annotation will transform the code to make the annotated field lazy.</p>
+<p>Using the above example, the code would be transformed as such</p>
+<pre><code class="language-marcel">private Integer _i = null
+
+fun getI() {
+  if (_i == null) {
+    _i = computeI()
+  }
+  return _i
+}
+
+fun int computeI() {
+  initCount++
+  return 1
+}
+</code></pre>
+<p>As Marcel allows to <a href="metaprogramming/meta-annotations/../../language-specification/variables.html#properties">access getters as properties</a>, you can access this variable using
+the <code>a</code> syntax (or <code>this.a</code>), as if you were referencing the original field.
+You'll notice that in the above script, the value of <code>i</code> will never be computed, as the variable <code>i</code> wasn't referenced anywhere outside.</p>
+<p>Now let's take a look at a full example.</p>
+<pre><code class="language-marcel">@lazy
+Integer i = computeI()
+
+for (int _ in 1..3) println(i)
+
+fun int computeI() {
+  initCount++
+  return 1
+}
+</code></pre>
+<p>The output of the above script would be</p>
+<pre><code class="language-text">Computing...
+1
+1
+1
+</code></pre>
+<p>As the variable is lazy, the value of i will be computed at the first call of <code>println(i)</code>, and the other calls
+will just use the already computed value.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="asynchronous-programming-in-marcel"><a class="header" href="#asynchronous-programming-in-marcel">Asynchronous programming in Marcel</a></h1>
+<p>This feature is currently under development and is therefore not available yet.</p>
+<p>Marcel provides an async/await paradigm allowing to execute tasks in the backgrounds.
+In Marcel, asynchronous (AKA <code>async</code>) code will be executed on background threads (virtual threads if you JRE supports it).</p>
+<h2 id="async-functions"><a class="header" href="#async-functions">Async functions</a></h2>
+<p>Async functions provide a way to write functions that are executed in the background when called</p>
+<pre><code class="language-marcel">async fun int compute() {
+  Thread.sleep(2000l)
+  return 1
+}
+</code></pre>
+<p>The actual return type of async functions are <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Future.html">Futures</a>
+(in above example a <code>Future&lt;Integer&gt;</code>).</p>
+<h2 id="await"><a class="header" href="#await">Await</a></h2>
+<p>The <code>await</code> keyword allows to wait for the result of an asynchronous function.</p>
+<pre><code class="language-marcel">async fun int computeInBackground() {
+  int result = await doCompute()
+  println(result)
+}
+</code></pre>
+<h2 id="async-context"><a class="header" href="#async-context">Async context</a></h2>
+<p>It's important to know that <strong>async functions can only be executed in an async context.</strong>, that is in an async function or in an async block (we'll get on that later).</p>
+<p>E.g. the below code example wouldn't compile</p>
+<pre><code class="language-marcel">async fun int doCompute() -&gt; 1
+
+fun void computeInBackground() {
+  int result = await doCompute() // Compiler error: cannot call async function in a non async context
+  println(result)
+}
+</code></pre>
+<h2 id="async-block"><a class="header" href="#async-block">Async block</a></h2>
+<p>An <code>async</code> code block is a block in which you can perform async operations</p>
+<pre><code class="language-marcel">async fun int doCompute() -&gt; 1
+
+async {
+  int result = await(doCompute())
+  result
+}
+</code></pre>
+<p><code>async</code> blocks will always wait (at the end) for all asynchronous tasks to complete.
+Although this is done automatically, you can also do it manually with the <code>await</code> function.</p>
+<h2 id="await-1"><a class="header" href="#await-1">await</a></h2>
+<p>Await is (a set of) static methods that you can use in <code>async</code> contexts.</p>
+<h2 id="await-2"><a class="header" href="#await-2">await()</a></h2>
+<p>Awaits for all asynchronous tasks to complete.</p>
+<h2 id="awaitfuture"><a class="header" href="#awaitfuture">await(Future)</a></h2>
+<p>Awaits for a particular asynchronous task to complete.</p>
+<h2 id="awaitcollection-awaitobject"><a class="header" href="#awaitcollection-awaitobject">await(Collection), await(Object[])</a></h2>
+<p>Awaits for a collection/array of asynchronous tasks to complete.</p>
+<h2 id="awaitawaitprogresslistener"><a class="header" href="#awaitawaitprogresslistener">await(AwaitProgressListener)</a></h2>
+<p>Awaits using the provider lambda to listen to progress update.
+E.g.</p>
+<pre><code class="language-marcel">async {
+  doCompute()
+  await { int completedTasks, int total -&gt; 
+    print("\rComputed $completedTasks out of $total configurations")
+  }
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tutorials"><a class="header" href="#tutorials">Tutorials</a></h1>
+<p>In this section, you'll find all sort of tutorials explaining how to use a given Marcel feature.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="collections-1"><a class="header" href="#collections-1">Collections</a></h1>
+<p>In this section we'll explore ways to use Marcel Collections APIs enhancements</p>
+<h2 id="literals"><a class="header" href="#literals">Literals</a></h2>
+<p>You can declare collections using the literal array syntax as shown below</p>
+<pre><code class="language-marcel">List&lt;int&gt; ints = [1, 2, 3, 4]
+List list = [1 new Object(), 1..2]
+
+
+Set&lt;char&gt; chars = [`A`, `C`, `B`, `D`]
+</code></pre>
+<h2 id="operate-on-collections-and-arrays"><a class="header" href="#operate-on-collections-and-arrays">Operate on Collections and Arrays</a></h2>
+<p>Collections and Arrays have useful functions allowing you to operate on them</p>
+<h3 id="map-1"><a class="header" href="#map-1">map</a></h3>
+<p>This operator allows you to map each element of the collection to another.</p>
+<pre><code class="language-marcel">List&lt;int&gt; ints = [1, 2, 3]
+List&lt;float&gt; floats = ints.mapToFloat { it + 1f } // mapping to another collection of primitive
+int[] intArray = [3, 4, 5, 6]
+List&lt;int&gt; otherInts = intArray.mapToInt { it - 1 }
+
+List list = ints.map { new Foo(list) }
+// specified type explicitely
+List list2 = list.map { Foo foo -&gt; foo.bar }
+</code></pre>
+<p>Note that for collections of primitive you don't have to specify explicitly your parameter's type.
+But for non-primitive lists, as Marcel <a href="guides/../language-specification/types/index.html#generic-types">doesn't support generic types</a>, you'll have to explicitly
+<a href="guides/../language-specification/lambdas.html">declare your lambda's arguments</a>.</p>
+<h3 id="find-findall"><a class="header" href="#find-findall">find, findAll</a></h3>
+<p>The <code>find</code> operator finds and return the first element of the collection/array matching the provided predicate (or null if no element matched).</p>
+<p><code>findAll</code> returns a list of all elements matching the given predicate</p>
+<pre><code class="language-marcel">Set&lt;int&gt; ints = [1, 2, 3]
+int myInt = ints.find { it == 2 }
+int[] intArray = [3, 4, 5, 6]
+int myInt2 = intArray.find { it == 5 }
+List&lt;int&gt; myInts = ints.findAll { it &gt;= 2 }
+
+
+List list = [1..1, 2..3, 3..4]
+IntRange myRange = list.find { IntRange range -&gt; range.contains(4) }
+List myRanges = list.findAll { IntRange range -&gt; range.contains(2) }
+</code></pre>
+<h3 id="any-all-none"><a class="header" href="#any-all-none">any, all, none</a></h3>
+<p>Those operations return booleans.</p>
+<ul>
+<li>any returns true if at least one element of the collection/array matches the given predicate</li>
+<li>all returns true if all elements of the collection/array matche the given predicate</li>
+<li>none returns true if all elements of the collection/array does <strong>not</strong> match the given predicate</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="command-line-optionsarguments"><a class="header" href="#command-line-optionsarguments">Command Line options/arguments</a></h1>
+<p>Marcel provides utilities to parse command-line options and arguments.</p>
+<p>All classes referenced in this guide are available under the package <code>marcel.io.clargs</code>.</p>
+<h2 id="options-vs-arguments"><a class="header" href="#options-vs-arguments">Options VS Arguments</a></h2>
+<p>When running a script, there are options and arguments.
+The arguments of your programs are the value passed, not assigned to any name, whereas the options are values assigned to specific names.</p>
+<p>For example, in the example below</p>
+<pre><code>marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
+</code></pre>
+<p>There is</p>
+<ul>
+<li>the option <code>d=1</code></li>
+<li>the option <code>n="a value"</code></li>
+<li>the arguments <code>arg1</code>, <code>arg2</code>, <code>arg3</code></li>
+</ul>
+<h2 id="define-options"><a class="header" href="#define-options">Define options</a></h2>
+<p>An option can be defined as a field, annotated with <code>@Option</code>.</p>
+<pre><code class="language-marcel">@Option
+private int depth;
+</code></pre>
+<p>The above piece of code declares an option named <code>depth</code>.</p>
+<h3 id="specify-option-names"><a class="header" href="#specify-option-names">Specify option names</a></h3>
+<p>You can specify short and/or long name of your option through the annotation.</p>
+<pre><code class="language-marcel">@Option(shortName = "d", longName = "depth")
+private int depth
+</code></pre>
+<p>The difference between short and long names are how you specify the option when running the script.
+Short name are to be specified with only one dash, whereas long names are to be specified with 2.</p>
+<p>E.g.</p>
+<pre><code class="language-shell">marcl script.mcl -d 1
+marcl script.mcl --depth 1
+</code></pre>
+<p>When no longName was specified, Marcel fallbacks to the name of the annotated field.</p>
+<h3 id="optional-options-and-default-values"><a class="header" href="#optional-options-and-default-values">Optional options and default values</a></h3>
+<p>By default an option is <strong>required</strong>. You can change this behaviour by marking it as <code>required = false</code> <strong>or</strong>
+by giving it a default value.</p>
+<pre><code class="language-marcel">@Option(required = false)
+private int depth
+
+@Option
+private int depth2 = 5 // not required as it has a default value
+</code></pre>
+<p>As you can see above, you can specify the default value of an option by assigning a value to a field.</p>
+<p>Note that for <code>null</code> or 0 values, you'll still need to explicitly specify the <code>required = false</code> flag in order for the option to be optional.</p>
+<h3 id="multivalued-options"><a class="header" href="#multivalued-options">Multivalued options</a></h3>
+<p>Sometimes you may want an option to be specifiable multiple times. In such case you'll need to declare the field as a Collection.
+List and Sets (<a href="guides/../language-specification/types/collections-of-primitives.html">even of primitives</a>) are supported.</p>
+<p>for example the below example allows to specify multiple <code>depth</code></p>
+<pre><code class="language-marcel">@Option(shortName = "d", longName = "depth", arity = "*")
+private List&lt;int&gt; depths
+</code></pre>
+<p>As Marcel doesn't really support generic types, you must use the <code>elementsType</code> annotation property to specify the wanted type of the
+multivalued option.</p>
+<pre><code class="language-marcel">@Option(shortName = "d", longName = "depth", elementsType = BigDecimal.class, arity = "*")
+private List&lt;BigDecimal&gt; depths
+</code></pre>
+<p>The <code>arity</code> annotation property is a String specifying how many arguments there can be for the given option (defaults to 1).
+It supports many formats:</p>
+<ul>
+<li><code>*</code> corresponds to any arity (0, or more)</li>
+<li>a range, like 2..5 (from 2 inclusive to 5 inclusive)</li>
+<li>a range with one infinite bound. E.g. 2..* for at least 2, or *..4 for at most 4</li>
+<li>a number n followed be a '+' to specify at least n (e.g. 5+)</li>
+<li>a number, for exactly n arguments</li>
+</ul>
+<h3 id="conversion"><a class="header" href="#conversion">Conversion</a></h3>
+<p>Marcel supports argument of the following types</p>
+<ul>
+<li>all primitive types and their object wrapper class</li>
+<li>String</li>
+<li>BigInteger</li>
+<li>BigDecimal</li>
+<li>File</li>
+<li>Path</li>
+<li>Enum classes</li>
+</ul>
+<p>You can declare an option field of one of the above type, and Marcel will
+automatically know how to convert the option's value (String) into the target type.</p>
+<p>For other types, you can specify a custom <code>converter</code> as shown below</p>
+<pre><code class="language-marcel">@Option(converter = { String s -&gt; Duration.parse(s) })
+private Duration duration
+</code></pre>
+<p>You can throw an <code>IllegalArgumentException</code> in those lambda to specify that the option value is incorrect.</p>
+<p>Yes, in Marcel (like in Groovy) you <a href="guides/../language-specification/source-file-structure/annotations.html#class-attributes">can specify lambdas as an annotation attribute value</a>.</p>
+<h3 id="multivalued-options-1"><a class="header" href="#multivalued-options-1">Multivalued options</a></h3>
+<p>for Multi-valued options, Marcel supports</p>
+<ul>
+<li>List</li>
+<li>Set</li>
+<li>all <a href="guides/../language-specification/types/collections-of-primitives.html">list/set of primitives</a></li>
+</ul>
+<p>But as Marcel does not support generic types if you declare a field as a List/Set (Java's List/Set, not of primitives),
+it will put the raw value as a String in it.</p>
+<p>You can still specify a custom <code>converter</code> for such options, it will be applied on <strong>each</strong> value of the option.</p>
+<p>Let's look at the below options</p>
+<pre><code class="language-marcel">@Option(longName = "int", arity = '*') // no need for a converter as it is a list of primitive ints
+private List&lt;int&gt; ints
+@Option(longName = "duration", arity = '*', converter = { String s -&gt; Duration.parse(s) })
+private List durations
+</code></pre>
+<p>For the command</p>
+<pre><code class="language-shell"> marcl Test.marcel -duration PT1S PT1M -int 1 -int 2 -int 3
+</code></pre>
+<p>We will have <code>ints = [1, 2, 3]</code> and <code>durations = [PT1S, PT1M]</code>.</p>
+<h4 id="value-separator"><a class="header" href="#value-separator">Value separator</a></h4>
+<p>As seen above, we provide multiple values to a multivalued option by using multiple times the same option,
+but there is another way to pass those: using a <code>valueSeparator</code>.</p>
+<p>The value separator will force the user to pass all the values of the option at once, separated by the <code>valueSeparator</code>.</p>
+<p>For example, the option</p>
+<pre><code class="language-marcel">@Option(longName = "int", arity = '*', valueSeparator = ',')
+private List&lt;int&gt; ints
+</code></pre>
+<p>with the command</p>
+<pre><code class="language-shell"> marcl Test.marcel -int 1,2,3
+</code></pre>
+<p>Will result in <code>ints = [1, 2, 3]</code>.</p>
+<h3 id="validator"><a class="header" href="#validator">Validator</a></h3>
+<p>Sometimes you may want to add validation to an option. You can do so by specifying
+a lambda under the <code>validation</code> annotation parameter. Any <code>IllegalArgumentException</code> thrown in this lambda
+will be considered as a validation error.</p>
+<pre><code class="language-marcel">@Option(shortName = "n", validator = { int n -&gt;
+    if (n % 2 != 0) throw new IllegalArgumentException("n should be even")
+  })
+private int number
+</code></pre>
+<h3 id="help-option"><a class="header" href="#help-option">Help option</a></h3>
+<p>You can use the <code>@HelpOption</code> annotation on a <code>boolean</code> field to specify an option that should print usage and then exit the program
+(this behaviour is handled automatically by the <code>ClArgs.init(...)</code> method), as shown below.</p>
+<pre><code class="language-marcel">@HelpOption
+private boolean help
+</code></pre>
+<h2 id="define-arguments"><a class="header" href="#define-arguments">Define arguments</a></h2>
+<p>You can assign the arguments values to a field thanks to the <code>@Arguments</code> annotation.</p>
+<pre><code class="language-marcel">@Arguments
+private List args
+</code></pre>
+<h3 id="arguments-conversion-and-validation"><a class="header" href="#arguments-conversion-and-validation">Arguments conversion and validation</a></h3>
+<p>This annotation also has the <code>elementsType</code>, <code>converter</code> and <code>validator</code> annotation properties allowing you to customize
+the parsing/validation.</p>
+<h2 id="parse-options-and-arguments"><a class="header" href="#parse-options-and-arguments">Parse options and arguments</a></h2>
+<p>After having declared the options and/or arguments, we want to assign them values based on the command line arguments passed
+to execute the script.</p>
+<p>This can be done with one line</p>
+<pre><code>ClArgs.init(this, args)
+</code></pre>
+<p>This line of code will parse the command line <code>args</code> and assign the appropriate values to your options.</p>
+<p>In more details it will</p>
+<ul>
+<li>parse the command line arguments</li>
+<li>if any error occurred (e.g. arity not respected, type not respected, validation error): print the error, print the usage of this script, and then exit (<code>System.exit(1)</code>)</li>
+<li>if no error occurred, you option fields are ready to be used</li>
+</ul>
+<h2 id="document-the-usage-of-your-script"><a class="header" href="#document-the-usage-of-your-script">Document the usage of your script</a></h2>
+<p>We've seen that the usage of your script will be printed in case of error.
+You can provide more data to annotations and the <code>ClArgs.init(...)</code> method call in order to print a well explained usage.</p>
+<h3 id="option-description"><a class="header" href="#option-description">Option description</a></h3>
+<p>Use the <code>description</code> annotation parameter to describe what your option does</p>
+<pre><code>@Option(description = "the max depth at which to search files")
+private int depth
+</code></pre>
+<h3 id="customize-usage"><a class="header" href="#customize-usage">Customize usage</a></h3>
+<p>The <code>ClArgs.init(...)</code> has several optional arguments allowing to enrich the <code>usage</code> message.</p>
+<h4 id="usage"><a class="header" href="#usage">usage</a></h4>
+<p>Usage summary displayed as the first line.</p>
+<h4 id="header"><a class="header" href="#header">header</a></h4>
+<p>Optional additional message for usage; displayed after the usage summary but before the options are displayed.</p>
+<h4 id="footer"><a class="header" href="#footer">footer</a></h4>
+<p>Optional additional message for usage; displayed after the options are displayed.</p>
+<h2 id="full-example"><a class="header" href="#full-example">Full example</a></h2>
+<p>Take a look at the below script.</p>
+<pre><code class="language-marcel">import marcel.io.clargs.*
+import java.time.Duration
+
+@Option(shortName = "d", validator = { int d -&gt;
+    if (d &lt;= 0) throw new IllegalArgumentException("should be positive")
+  }, description = "The depth limit of the search")
+private int depth = 100
+
+@Option(shortName = "n", description = "The name to search")
+private String name
+
+@Option(shortName = "i", longName = "ignore-case", description = "whether to ignore case when matching the name", required = false)
+private boolean ignoreCase
+
+
+@HelpOption
+private boolean help
+
+@Arguments
+private List filePaths
+
+ClArgs.init(this, args, usage: 'marcl script.mcl')
+
+// process options and arguments
+</code></pre>
+<p>The usage of this script would result as shown below</p>
+<pre><code class="language-text">usage: marcl script.mcl ARGUMENTS
+ -d,--depth &lt;arg&gt;   The depth limit of the search. default: 100
+ -h,--help          Prints usage information
+ -i,--ignore-case   whether to ignore case when matching the name. default: false
+ -n,--name &lt;arg&gt;    The name to search
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="regular-expressions-pattern-matching"><a class="header" href="#regular-expressions-pattern-matching">Regular Expressions (Pattern Matching)</a></h1>
+<p>Marcel's <a href="guides/../language-specification/types/string.html#pattern-strings">Pattern strings</a>
+allows you to create pattern in a simple manner. When you add that with the <a href="guides/../language-specification/operators/find.html">find operator</a>,
+matching with regular expression has never been this easy.</p>
+<pre><code class="language-marcel">Pattern pattern = r/Hello (\w+)/; // semi-colon required because of pattern flags
+Matcher matcher = "Hello you" =~ pattern
+println(matcher.matches())
+</code></pre>
+<p>The above code tests is the String <code>Hello you</code> matches the pattern <code>Hello (\w+)</code>.</p>
+<h2 id="extract-groups-from-a-pattern"><a class="header" href="#extract-groups-from-a-pattern">Extract groups from a pattern</a></h2>
+<p>With Marcel's <a href="guides/../language-specification/variables.html#multiple-declarations">multiple variable declaration</a>, you can extract
+matched groups in the following way</p>
+<pre><code class="language-marcel">def (String wholeMatch, String groupMatch) = ("Hello you" =~ r/Hello (\w+)/).groups() // method from the Marcel Development Kit
+</code></pre>
+<p>In some case, you might not care about the whole match (you just want the groups you declared in your regex).
+If that's so you can ignore it like this</p>
+<pre><code class="language-marcel">def (_, String groupMatch) = ("Hello you" =~ r/Hello (\w+)/).groups()
+</code></pre>
+<p>Wait for it, there's an even better way to do that</p>
+<pre><code class="language-marcel">def (String groupMatch) = ("Hello you" =~ r/Hello (\w+)/).definedGroups()
+</code></pre>
+<p>The defined groups only return the groups you defined in the regex, and therefore skip the group corresponding to the whole match.</p>
+<h2 id="truthy-pattern-declaration"><a class="header" href="#truthy-pattern-declaration">Truthy pattern declaration</a></h2>
+<pre><code class="language-marcel">Pattern pattern = r/Hello (\w+)/;
+
+if ("yellow me" =~ pattern) {
+  println("It matched????")
+}
+
+if (Matcher m = "Hello me" =~ pattern) {
+  println("It matched" + m.group(1))
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="standard-library-extensions"><a class="header" href="#standard-library-extensions">Standard Library extensions</a></h1>
+<p>In this section we'll take a look at the extensions Marcel stdlib provides.</p>
+<p>To understand how extensions work, you can consult the <a href="guides/../language-specification/extension-classes.html">related page</a>.</p>
+<h2 id="automatically-imported-extensions"><a class="header" href="#automatically-imported-extensions">Automatically imported extensions</a></h2>
+<p>Marcel imports by default a large panel of extensions, which you can consult under the
+<a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/methods/DefaultMarcelMethods.java">DefaultMarcelMethods class</a>.</p>
+<p>There are also methods defined in separate classes.</p>
+<h3 id="character-extensions"><a class="header" href="#character-extensions">Character extensions</a></h3>
+<p>You can call static methods from <code>Character</code> class as if they were instance methods, even on primitive <code>char</code> values.</p>
+<pre><code class="language-marcel">println(`c`.isLowerCase()) // true
+
+Character foo = `s`
+println(foo.isDigit()) // false
+</code></pre>
+<h3 id="charsequence-extensions"><a class="header" href="#charsequence-extensions">CharSequence Extensions</a></h3>
+<p>There are some extensions on classes implementing <code>CharSequence</code> to handle them like a collection of characters.</p>
+<pre><code class="language-marcel">CharSequence foo = "a simple string 2"
+println(foo[0])
+List&lt;char&gt; charList = foo.toList()
+
+int index = foo.indexOf { it == ` ` }
+int lastIndex = foo.lastIndexOf { it == `s` }
+
+if (Character c = foo.find { it.isDigit() }) {
+  println("There is a digit char: '$c'")
+}
+println("There are " + foo.count { it == `s` } + " 's'")
+if (foo.any { it.isWhitespace() }) {
+  println("The string contains spaces")
+}
+</code></pre>
+<p>And other useful methods</p>
+<pre><code class="language-marcel">CharSequence foo = "string"
+println(foo.reversed())
+
+println("123".toInt()) // there is also toDouble, toFloat, toLong
+</code></pre>
+<h2 id="other-extensions"><a class="header" href="#other-extensions">Other extensions</a></h2>
+<p>There are other extensions in Marcel's Standrard Library you can use, by explicitely importing them. E.g.</p>
+<pre><code>import extension marcel.lang.extensions.TimeExtensions
+</code></pre>
+<h3 id="time-extensions"><a class="header" href="#time-extensions">Time Extensions</a></h3>
+<p>The <a href="https://github.com/tambapps/marcel/blob/main/marcel-extensions/src/main/java/marcel/lang/extensions/TimeExtensions.java">TimeExtensions class</a>
+provides utilities to construct durations easily.</p>
+<p>Let's take a look at the below example</p>
+<pre><code class="language-marcel">import extension marcel.lang.extensions.TimeExtensions
+
+println(1.days)
+println(2.hours)
+println(1.minutes)
+println(1.seconds)
+println(1.millis)
+println(1.nanos)
+</code></pre>
+<p>You can access a "field" from the <code>int</code>, <code>Integer</code>, <code>long</code>, <code>Long</code> classes to create a duration. Of course this isn't a real field, as
+primitive types don't have any, but an extension provided by the <code>TimeExtensions</code> class.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parsing-and-producing-csv"><a class="header" href="#parsing-and-producing-csv">Parsing and producing CSV</a></h1>
+<p>Marcel comes with integrated support for converting between Marcel objects and CSV.
+The classes dedicated to CSV parsing are found in the <code>marcel.csv</code> package.</p>
+<p>The CSV (de)serialization is backed by <a href="https://opencsv.sourceforge.net/">OpenCSV</a>. All is handled by the <code>DynamicCsv</code> class.</p>
+<h2 id="parsing-csv"><a class="header" href="#parsing-csv">Parsing CSV</a></h2>
+<p>The parsing of CSV takes advantage of <a href="guides/../language-specification/types/dynamic-objects.html">Dynamic Objects</a> to make the API easy to use.</p>
+<p>Here is an example:</p>
+<pre><code class="language-marcel">import marcel.csv.*
+
+List companies;
+// with headers to parse the first line of the CSV as the field names
+try (CsvReader reader = DynamicCsv.reader(new File('companies.csv'), withHeader: true)) {
+  companies = [
+    for dynobj line in reader -&gt; line.companyName 
+      if line.keywords.asString().split(',').find { it == 'Java' } 
+  ]
+}
+println(companies)
+</code></pre>
+<p>You can also access a line's values by index:</p>
+<pre><code class="language-marcel">import marcel.csv.*
+
+List companies = []
+try (CsvReader reader = DynamicCsv.reader(new File('companies.csv'))) {
+  while (dynobj line = reader.readNext()) {
+    if (line[2].asString().split(',').find { it == 'Java' }) {
+      companies &lt;&lt; line[0]
+    }
+  }
+}
+println(companies)
+</code></pre>
+<p>There are many optional parameters to the <code>reader()</code> methods:</p>
+<ul>
+<li>separator: the separator character of the CSV (defaults to <code>,</code>)</li>
+<li>quoteChar: the quote character of the CSV (defaults to <code>"</code>)</li>
+<li>escapeChar: the escape character (defaults to <code>\</code>)</li>
+<li>withHeader: whether the first line should be considered as an header and parsed automatically (defaults to <code>false</code>)</li>
+<li>strictQuotes: whether to ignore characters outside the quotes (defaults to <code>false</code>)</li>
+</ul>
+<p>Here is the CSV used for the above examples</p>
+<pre><code class="language-csv">companyName,website,keywords,nbEmployees
+Company A,https://company.a.fr,"Java, Spring Boot",10
+Company B,https://company.b.fr,"Javascript",5000
+Company C,https://company.c.fr,"Java, Quarkus",250
+Company D,https://company.d.fr,"Python",43
+</code></pre>
+<h2 id="producing-csv"><a class="header" href="#producing-csv">Producing CSV</a></h2>
+<p>Writing a CSV is pretty much straight-forward</p>
+<pre><code class="language-marcel">import marcel.csv.*
+List companies;
+
+try (CsvWriter writer = DynamicCsv.writer(new File('output.csv'))) {
+  writer.write(['companyName','website','keywords','nbEmployees'])
+  writer.write(List.of("company A", "http://company.a/", 5))
+  writer.write(DynamicObject.of(["Company B","https://company.b.fr","Javascript",5000]))
+  writer.write(["company, C", "http://company.c/", IntRanges.of(1, 10)])
+}
+</code></pre>
+<p>There are many optional parameters to the <code>writer()</code> methods:</p>
+<ul>
+<li>separator: the separator character of the CSV (defaults to <code>,</code>)</li>
+<li>quoteChar: the quote character of the CSV (defaults to <code>"</code>)</li>
+<li>escapeChar: the escape character (defaults to <code>\</code>)</li>
+<li>applyQuotesToAll: whether all cells should be quoted even when not necessary (defaults to <code>false</code>)</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parsing-and-producing-json"><a class="header" href="#parsing-and-producing-json">Parsing and producing JSON</a></h1>
+<p>Marcel comes with integrated support for converting between Marcel objects and JSON.
+The classes dedicated to JSON serialization and parsing are found in the <code>marcel.json</code> package.</p>
+<p>The JSON (de)serialization is backed by <a href="https://github.com/FasterXML/jackson">Jackson</a>.</p>
+<p>All is handled by the <code>DynamicJson</code> class. It takes
+advantage of <a href="guides/../language-specification/types/dynamic-objects.html">Dynamic Objects</a> to make this API easy to use.</p>
+<pre><code class="language-marcel">import marcel.json.*
+
+
+dynobj json = DynamicJson.instance.read('{"id": 0, "name": "Something", "tags": ["fun", "adventure", "friendship"], "metadata": {"foo": "bar"}}')
+println(json['name'] == json.name) // true
+println(json.tags[2]) // friendship
+println(json.metadata.foo) // bar
+println(json.id.asInt() + 1) // 1
+
+json.name = "Something Else"
+
+println(DynamicJson.instance.writeAsString(json)) // {"metadata":{"foo":"bar"},"name":"Something Else","id":0,"tags":["fun","adventure","friendship"]}
+// use writeAsPrettyString to write a pretty indented JSON string
+
+DynamicJson.instance.write([json], new File('output.json')) // write json list in file
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="parsing-and-producing-yaml"><a class="header" href="#parsing-and-producing-yaml">Parsing and producing YAML</a></h1>
+<p>Marcel comes with integrated support for converting between Marcel objects and YAML.
+The classes dedicated to YAML serialization and parsing are found in the <code>marcel.yaml</code> package.</p>
+<p>The YAML (de)serialization is backed by <a href="https://github.com/FasterXML/jackson">Jackson</a>.</p>
+<p>All is handled by the <code>DynamicYaml</code> class. It takes
+advantage of <a href="guides/../language-specification/types/dynamic-objects.html">Dynamic Objects</a> to make this API easy to use.</p>
+<pre><code class="language-marcel">import marcel.yaml.*
+
+
+dynobj yaml = DynamicYaml.instance.read('{"id": 0, "name": "Something", "tags": ["fun", "adventure", "friendship"], "metadata": {"foo": "bar"}}')
+println(yaml['name'] == yaml.name) // true
+println(yaml.tags[2]) // friendship
+println(yaml.metadata.foo) // bar
+println(yaml.id.asInt() + 1) // 1
+
+yaml.name = "Something Else"
+
+println(DynamicYaml.instance.writeAsString(yaml))
+DynamicYaml.instance.write([yaml], new File('output.yaml')) // write yaml list in file
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tools"><a class="header" href="#tools">Tools</a></h1>
+<p>This section describes the different tools to take your Marcel experience to the next level.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marcl"><a class="header" href="#marcl">Marcl</a></h1>
+<p>MarCL (MARcel Command Line tool) is useful to compile/execute marcel source files/scripts.</p>
+<p>Let's explore all the commands it provides</p>
+<h2 id="execute"><a class="header" href="#execute">Execute</a></h2>
+<p>This is the default command, meaning that if you don't specify a command, it will
+use this one.</p>
+<pre><code class="language-text">Usage: marcl execute [OPTIONS] FILE [SCRIPT_ARGUMENTS]...
+
+  Execute a marcel script
+
+Options:
+  -c, --keep-class         keep compiled class files after execution
+  -j, --keep-jar           keep compiled jar file after execution
+  -p, --print-stack-trace  print stack trace on compilation error
+  -h, --help               Show this message and exit
+</code></pre>
+<h3 id="examples-1"><a class="header" href="#examples-1">Examples</a></h3>
+<pre><code class="language-shell">marcl execute script.mcl
+</code></pre>
+<pre><code class="language-shell">marcl -c script.mcl
+</code></pre>
+<pre><code class="language-shell">marcl execute -cj script.mcl myScriptArg1 myScriptArg2
+</code></pre>
+<h2 id="compile"><a class="header" href="#compile">Compile</a></h2>
+<pre><code class="language-text">Usage: marcl compile [OPTIONS] FILE
+
+  Compiles a Marcel class to a .class file and/or .jar file
+
+Options:
+  -c, --class              Compile to class
+  -j, --jar                Compile to jar
+  -p, --print-stack-trace  print stack trace on compilation error
+  -h, --help               Show this message and exit
+
+</code></pre>
+<h3 id="examples-2"><a class="header" href="#examples-2">Examples</a></h3>
+<pre><code class="language-shell">marcl compile script.mcl
+</code></pre>
+<pre><code class="language-shell">marcl compile -cj script.mcl
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marshell"><a class="header" href="#marshell">Marshell</a></h1>
+<p>Marshell is a shell that can be used to run marcel instructions, on the fly. It is
+a Read Eval Print Loop tool.</p>
+<p>It is the equivalent of <a href="https://groovy-lang.org/groovysh.html">groovysh</a> for Marcel.</p>
+<p>This shell supports syntax highlighting and also highlights defined functions/variables.</p>
+<h2 id="global-variables-1"><a class="header" href="#global-variables-1">Global variables</a></h2>
+<p>In marshell, you can't have <a href="tools/marshell/../../language-specification/source-file-structure/script.html#fields">class fields</a>, <strong>but</strong> you can use global variables.
+To declare a global variable, just assign to a variable a value, without specifying its type</p>
+<pre><code class="language-marcel">a = 1 // this will create a global variable a
+</code></pre>
+<p>We didn't declare the variable <code>a</code>. If we were in a regular class/source file this wouldn't compile, but in Marshell this is possible.</p>
+<p>The type of the global variable is determined by the value provided, and it can't change type. Meaning that after having defining one, you can't assign to it
+a value that is of an incompatible type of the one you used when you first assigned it a value.</p>
+<pre><code class="language-marcel">a = 1
+
+doSomething(a)
+
+a = "2" // Semantic Error: Expected expression of type int but gave String
+</code></pre>
+<p>To specify explicitly the type of the global variable, use the <code>as</code> keyword.</p>
+<pre><code class="language-marcel">a = [1, 2] as Set&lt;int&gt;
+</code></pre>
+<h3 id="how-global-variables-works"><a class="header" href="#how-global-variables-works">How global variables works</a></h3>
+<p>Global variables are variables that are stored in the script's <a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/Binding.java">Binding</a>. The means you could also
+retrieve them/set them using methods like <code>Script.getVariable(name)</code>/<code>Script.setVariable(name, value)</code></p>
+<h2 id="define-functions"><a class="header" href="#define-functions">Define functions</a></h2>
+<p>Define functions as you would in a Marcel script</p>
+<h2 id="define-classes"><a class="header" href="#define-classes">Define classes</a></h2>
+<p>Define classes as you would in a Marcel script. All defined classes are top-level classes (they
+are not inner class as they would be in a Marcel script).</p>
+<h2 id="run-commands"><a class="header" href="#run-commands">Run commands</a></h2>
+<p>Marshell has some specific commands make your experience even better.</p>
+<p>Use the <code>:help</code> command to see all the commands (marshell-specific instructions) you can run</p>
+<h2 id="import-dependencies"><a class="header" href="#import-dependencies">Import dependencies</a></h2>
+<p>You can import dependencies on the fly with the <code>:pull</code> command</p>
+<pre><code class="language-text">marshell:000&gt; :pull com.google.code.gson:gson:2.10.1
+marshell:000&gt; :import com.google.gson.Gson
+marshell:000&gt; gson = new Gson()
+</code></pre>
+<h2 id="initialisation-script"><a class="header" href="#initialisation-script">Initialisation script</a></h2>
+<p>If you want to always load some data everytime you run marshell, you can create a
+script in <code>$MARCEL_HOME/marshell/init.mcl</code>.</p>
+<p>In this script you <strong>can't</strong> use commands. If you want to import a dependency/dumbbell,
+just do it like you would in a normal marcel script (<code>import ...</code> or <code>dumbbell '...'</code>)</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marshell-initialization-scripts"><a class="header" href="#marshell-initialization-scripts">Marshell initialization scripts</a></h1>
+<p>Here are some useful initialization scripts that you can use for your shells. These scripts
+provide useful methods and utilities to enhance your marshell experience, given a context.</p>
+<h2 id="file-explorer-initializer"><a class="header" href="#file-explorer-initializer">File explorer initializer</a></h2>
+<p>With the below script, transform Marshell into a file explorer, with shell-like methods such as <code>cd</code>,
+<code>ls</code> and a variable <code>pwd</code> to get the current directory.</p>
+<pre><code class="language-marcel">pwd = System.getProperty("user.home") ? new File(System.getProperty("user.home"))
+    // for Marshell android compatibility
+    : getVariable&lt;File&gt;('ROOT_DIR')
+if (pwd == null) {
+  println("WARNING: Couldn't initialise properly pwd")
+}
+_hint = pwd
+
+
+fun File cd(String path) {
+  File f = pwd.child(path)
+  if (!f.exists()) throw new IllegalArgumentException("Directory $f doesn't exists")
+  if (!f.isDirectory()) throw new IllegalArgumentException("File $f isn't a directory")
+  pwd = f
+  _hint = pwd
+  return f
+}
+
+
+fun File file(String path) -&gt; pwd.child(path)
+
+fun void ls() {
+  File[] files = pwd.listFiles()
+  if (files != null) {
+    for (File f in files) println("- $f")
+  }
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marcel-for-android"><a class="header" href="#marcel-for-android">Marcel for Android</a></h1>
+<p>Marcel for Android is the Marshell app made for Android, but with additional features. You can download it <a href="https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell">here</a>.</p>
+<p>Note that it was designed for dark theme so <strong>this app is much more UI friendly in dark mode</strong>.
+An update will come soon(-ish) to better handle light mode.</p>
+<p>With this app you can</p>
+<ul>
+<li>Run Marcel shells, as you would using Marshell</li>
+<li>edit Marcel source codes</li>
+<li>Schedule Shell Works, a concept allowing you to run Marcel scripts in the background, with the possibility to schedules the works
+and make them periodic.</li>
+</ul>
+<p>You can consult the privacy policy of this app <a href="tools/marcel-for-android/./privacy-policy.html">here</a>.</p>
+<h2 id="initialization-scripts"><a class="header" href="#initialization-scripts">Initialization scripts</a></h2>
+<p>You can also use <a href="tools/marcel-for-android/../marshell/init-script.html">Marshell's initialization scripts</a> to enhance your experience.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="shell-workouts"><a class="header" href="#shell-workouts">Shell Workouts</a></h1>
+<p>Shell Workouts are scripts that you can execute in the background. They can perform heavy
+I/O operations while you do other things on your phone.</p>
+<p>They were implemented using <a href="https://developer.android.com/topic/libraries/architecture/workmanager">Android's WorkoutManager</a>.</p>
+<p>Thanks to these APIs, you can <strong>schedule</strong> Shell Workouts to run at a specific time, and/or make them <strong>periodic</strong>
+so that they are run every x hours.</p>
+<p>TODO add screenshot and examples</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="send-sms-from-marcel-script"><a class="header" href="#send-sms-from-marcel-script">Send SMS from Marcel Script</a></h1>
+<p><strong>FEATURE NOT ACCESSIBLE FROM PLAYSTORE RELEASE</strong>:
+sending SMS is not a core functionality of my app, that's why, unfortunately, Google prevents me from enabling this feature on the published app in the PlayStore.</p>
+<p>Marcel for Android has integration with your Android system APIs. You can write code
+that sends SMS. This also applies to <a href="tools/marcel-for-android/./shell-workout.html">Shell Workouts</a>, meaning that you can
+schedule for later a SMS.</p>
+<h2 id="sms-permission"><a class="header" href="#sms-permission">SMS Permission</a></h2>
+<p>Before being able to send an SMS from a Marcel script, you must allow the app to do so. Go to the Settings screen, and
+then enable the 'Send SMS' permission, as shown in the below screenshot.</p>
+<h2 id="send-sms"><a class="header" href="#send-sms">Send SMS</a></h2>
+<p>Here is an example of code to send SMS.</p>
+<pre><code class="language-marcel">AndroidSystem.sendSms('+331234567890', 'Hello World')
+</code></pre>
+<p>Marcel cannot access your contacts, so you'll have to put the international phone numbers, in E.164 format (the format starting with <code>+</code>).</p>
+<h2 id="list-sms"><a class="header" href="#list-sms">List SMS</a></h2>
+<p>You can list sent SMS to track their status.</p>
+<pre><code class="language-marcel">AndroidSystem.listSms()
+</code></pre>
+<h2 id="screenshots"><a class="header" href="#screenshots">Screenshots</a></h2>
+<p align="center">
+  <img src="tools/marcel-for-android/../../images/sms_permission.jpg" alt="Image 1" style="width: 40%; max-width: 300px;"/>
+  <img src="tools/marcel-for-android/../../images/send_sms.jpg" alt="Image 2" style="width: 40%; max-width: 300px;"/>
+</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="send-system-notifications-from-marcel-script"><a class="header" href="#send-system-notifications-from-marcel-script">Send System Notifications from Marcel Script</a></h1>
+<p>Marcel for Android has integration with your Android system APIs. You can write code
+that sends a system notification to your Android device. This also applies to <a href="tools/marcel-for-android/./shell-workout.html">Shell Workouts</a>, meaning that you can
+notify your device in your script executed in the background.</p>
+<h2 id="send-sms-1"><a class="header" href="#send-sms-1">Send SMS</a></h2>
+<p>Here is an example of code to notify.</p>
+<pre><code class="language-marcel">AndroidSystem.notify('Hello World', 'This is a notification')
+</code></pre>
+<p><img src="tools/marcel-for-android/../../images/notification_sent.jpg" alt="Screenshot" /></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marcel-for-android--privacy-policy"><a class="header" href="#marcel-for-android--privacy-policy">Marcel for Android – Privacy Policy</a></h1>
+<p><strong>Marcel for Android</strong> is an open-source application. You can consult its full source code on <a href="https://github.com/tambapps/marcel">GitHub</a>.</p>
+<p>This application <strong>does not collect any analytics or personal data</strong> from its users.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="dumbbell---marcels-dependency-manager"><a class="header" href="#dumbbell---marcels-dependency-manager">Dumbbell - Marcel's dependency manager</a></h1>
+<p>Dumbbell is a dependency manager for Marcel. It allows you to easily import dependencies in your scripts,
+without having to create a Maven/Gradle project.</p>
+<p>It was inspired strongly from <a href="https://groovy-lang.org/grape.html">Groovy's grapes</a></p>
+<br/>
+<h2 id="import-dependencies-in-a-script"><a class="header" href="#import-dependencies-in-a-script">Import dependencies in a script</a></h2>
+<p>To import a dependency, use the <code>dumbbell</code> keyword.</p>
+<pre><code class="language-marcel">dumbbell 'com.google.code.gson:gson:2.8.6'
+import com.google.gson.Gson
+
+Gson gson = new Gson()
+
+println(gson.toJson(['a': 'b']))
+</code></pre>
+<p>Dependencies are pulled from Maven central. The list of repository to pull from will be configurable (someday).</p>
+<p>Note that this feature <strong>only works when running scripts with <a href="tools/./marcl.html">MarCL</a></strong>.</p>
+<h2 id="import-dependencies-in-marshell"><a class="header" href="#import-dependencies-in-marshell">Import dependencies in Marshell</a></h2>
+<p>Dumbbell is also used in <a href="tools/marshell/index.html">Marshell</a>. Use the <code>:pull</code> command to pull
+dependencies dynamically.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="maven-plugin-for-marcel"><a class="header" href="#maven-plugin-for-marcel">Maven Plugin for Marcel</a></h1>
+<p>Here is the official plugin to compile marcel source files under a Maven project.
+The Marcel source files should be placed under the <code>src/main/marcel</code> directory.</p>
+<p><a href="https://github.com/tambapps/marcel/tree/main/marcel-maven-plugin">Link here</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="intelij-plugin-for-marcel"><a class="header" href="#intelij-plugin-for-marcel">IntelIJ Plugin for Marcel</a></h1>
+<p>Here is the IntelIJ plugin to support Marcel on your IDE.
+This plugin has very limited features (it only does syntax highlighting...)</p>
+<p><a href="https://github.com/tambapps/marcel-intelij-plugin">Link here</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marcel-in-action"><a class="header" href="#marcel-in-action">Marcel In Action</a></h1>
+<p>Here are example of projects using marcel</p>
+<ul>
+<li><a href="https://github.com/tambapps/advent-of-code">Tambapps's Advent Of Code</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="fibonacci-suite"><a class="header" href="#fibonacci-suite">Fibonacci suite</a></h1>
+<p>Here is an implementation of the Fibonacci suite in Marcel.</p>
+<pre><code class="language-marcel">println(fibonacci(10))
+
+fun int fibonacci(int n) {
+  return switch (n) {
+    0, 1 -&gt; n
+    else -&gt; fibonacci(n - 1) + fibonacci(n - 2)
+  }
+}
+</code></pre>
+<p>But this implementation takes a lot of time when using large <code>n</code> values. A way to solve this problem would be to cache
+fibonnaci's results, which can be done using the <a href="marcel-in-action/../metaprogramming/meta-annotations/cached.html">@cached annotation</a></p>
+<pre><code class="language-marcel">println(fibonacci(10))
+
+@cached
+fun int fibonacci(int n) -&gt; switch (n) {
+  0, 1 -&gt; n
+  else -&gt; fibonacci(n - 1) + fibonacci(n - 2)
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="advent-of-code"><a class="header" href="#advent-of-code">Advent of code</a></h1>
+<p>Checkout <a href="https://github.com/tambapps/advent-of-code">Tambapps's Advent Of Code</a></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
