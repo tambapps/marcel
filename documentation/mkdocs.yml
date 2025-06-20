@@ -1,0 +1,122 @@
+site_name: The Marcel Programming Language
+site_description: Marcel, a simple and efficient programming language for any JVM
+site_author: FONKOUA Nelson (Tambapps)
+site_url: https://tambapps.github.io/marcel/
+theme:
+  name: material
+  logo: img/marcel_logo.png
+  favicon: img/marcel_logo.png
+
+  palette:
+      - scheme: slate  # dark theme
+        primary: custom
+        accent: amber
+        toggle:
+            icon: material/weather-night
+            name: Passer au thème clair
+      - scheme: default  # light theme
+        primary: custom
+        accent: amber
+        toggle:
+            icon: material/weather-sunny
+            name: Passer au thème sombre
+  features:
+    - content.code.copy
+    - content.action.edit
+extra_javascript:
+    - js/highlight.min.js
+    - js/highlight-marcel.js
+    - js/init-highlight.js
+extra_css:
+    - css/highlight-theme-switch.css
+    - css/highlight.css
+    - css/overrides.css
+
+repo_url: https://github.com/tambapps/marcel
+repo_name: tambapps/marcel
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tambapps/marcel
+      name: GitHub
+      repo: tambapps/marcel
+      type: github
+nav:
+  - Intro: index.md
+  - Getting Started: getting-started.md
+  - Language Specification:
+      - Intro: language-specification/index.md
+      - Basics:
+          - Identifier rules: language-specification/basics/identifiers.md
+          - Keywords: language-specification/basics/keywords.md
+          - Comments: language-specification/basics/comments.md
+      - Variables: language-specification/variables.md
+      - Types:
+          - Intro: language-specification/types/index.md
+          - Primitives: language-specification/types/primitives.md
+          - Objects: language-specification/types/objects.md
+          - String: language-specification/types/string.md
+          - Arrays: language-specification/types/arrays.md
+          - Collections: language-specification/types/collections.md
+          - Collection of Primitives: language-specification/types/collections-of-primitives.md
+          - Maps: language-specification/types/maps.md
+          - Ranges: language-specification/types/ranges.md
+          - Dynamic Objects: language-specification/types/dynamic-objects.md
+      - Control Flows:
+          - Marcel Truth: language-specification/control-flows/marcel-truth.md
+          - If/Else Statements: language-specification/control-flows/if-else.md
+          - While loops: language-specification/control-flows/while-loops.md
+          - For loops: language-specification/control-flows/for-loops.md
+          - Switch and When: language-specification/control-flows/switch-when.md
+          - Exception Handling: language-specification/control-flows/exception-handling.md
+      - Source File Structure:
+          - Intro: language-specification/source-file-structure/index.md
+          - Imports: language-specification/source-file-structure/imports.md
+          - Visibility and Access: language-specification/source-file-structure/visibility.md
+          - Functions: language-specification/source-file-structure/functions.md
+          - Classes: language-specification/source-file-structure/classes.md
+          - Enums: language-specification/source-file-structure/enums.md
+          - Script: language-specification/source-file-structure/script.md
+          - Annotations: language-specification/source-file-structure/annotations.md
+      - Operators:
+          - Intro: language-specification/operators/index.md
+          - Plus (+): language-specification/operators/plus.md
+          - Minus (-): language-specification/operators/minus.md
+          - Left Shift (<<): language-specification/operators/left-shift.md
+          - Comparison Operators: language-specification/operators/comparison.md
+          - As (Type casting): language-specification/operators/as.md
+          - Instance Of (Type Checking): language-specification/operators/instanceof.md
+          - Indexed Access (expr[index]): language-specification/operators/indexed-access.md
+          - Safe Navigation (?.): language-specification/operators/safe-navigation.md
+          - Ternary and Elvis (?:): language-specification/operators/ternary-elvis.md
+          - Direct Field Access (@): language-specification/operators/direct-field-access.md
+          - Define your own operators: language-specification/operators/operator-overloading.md
+      - Iterable Operations:
+          - Intro: language-specification/iterable-operations/index.md
+          - Map/Filter: language-specification/iterable-operations/map-filter.md
+          - Any/All: language-specification/iterable-operations/any-all.md
+          - Find: language-specification/iterable-operations/find.md
+          - Chain operations: language-specification/iterable-operations/chain-operations.md
+      - Lambdas: language-specification/lambdas.md
+      - Extension Classes: language-specification/extension-classes.md
+  - Meta Programming:
+      - Intro: metaprogramming/index.md
+      - Meta-Annotations: metaprogramming/meta-annotations.md
+  - Asynchronous Programming: asynchronous-programming.md
+  - Guides:
+      - Collections: guides/collections.md
+      - Command Line Options/Arguments: guides/command-line-arguments.md
+      - Regular Expressions: guides/regular-expressions.md
+      - Standard Library Extensions: guides/stdlib-extensions.md
+      - Parsing and producing CSV: guides/csv.md
+      - Parsing and producing JSON: guides/json.md
+      - Parsing and producing YAML: guides/yaml.md
+  - Tools:
+      - MarCL - Marcel's Command Line tool: tools/marcl.md
+      - Marshell — Marcel Shell: tools/marshell.md
+      - Marcel for Android: tools/marcel-for-android.md
+      - Dumbbell - Marcel's Dependency Manager: tools/dumbbell.md
+      - Maven Plugin for Marcel: tools/maven-plugin.md
+      - IntelIJ Plugin for Marcel: tools/intelij-plugin.md
+  - Marcel In Action: marcel-in-action.md

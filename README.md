@@ -1,6 +1,6 @@
 # Marcel 
 
-<img src="./documentation/src/images/marcel_logo.png" alt="Image 2" style="width: 30%; max-width: 300px;"/>
+<img src="documentation/docs/img/marcel_logo.png" alt="Image 2" style="width: 30%; max-width: 300px;"/>
 
 Marcel is language that compiles to Java bytecode, with a guaranteed support for Android. It also aims to use primitive types as much as possible when
 working with Collections.
