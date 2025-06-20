@@ -115,5 +115,5 @@ nav:
       - Marcel for Android: tools/marcel-for-android.md
       - Dumbbell - Marcel's Dependency Manager: tools/dumbbell.md
       - Maven Plugin for Marcel: tools/maven-plugin.md
-      - IntelIJ Plugin for Marcel: tools/intelij-plugin.md
+      - Marcel Language Server (LSP): tools/lsp-server.md
   - Marcel In Action: marcel-in-action.md
