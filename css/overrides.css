@@ -1,0 +1,13 @@
+[data-md-color-scheme="slate"] {
+    --md-primary-fg-color: #ffcc00;
+}
+
+[data-md-color-scheme="slate"] {
+    --md-primary-fg-color: #ffc300;
+    --md-primary-fg-color--light: #ffdb4d;
+    --md-primary-fg-color--dark: #cc9a00;
+}
+
+[data-md-color-scheme="slate"] .md-header {
+    background-color: #8a6300 !important; /* Navigation bar color */
+}
