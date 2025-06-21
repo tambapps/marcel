@@ -353,7 +353,7 @@ abstract class AbstractMarcelSemantic(
         listOf(inNode),
         tokenStart
       )
-
+      // TODO problem. Need to collect this error in SemanticCstVisitor
       else -> throw MarcelSemanticException(tokenStart, "Cannot iterate over an expression of type ${inNode.type}")
     }
     val iteratorExpressionType = iteratorExpression.type
