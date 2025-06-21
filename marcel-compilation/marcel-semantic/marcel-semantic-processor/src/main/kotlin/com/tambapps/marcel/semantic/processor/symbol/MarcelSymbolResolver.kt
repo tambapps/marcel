@@ -394,7 +394,14 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   }
 
   fun getMethods(javaType: JavaType): List<MarcelMethod> {
-    if (javaType.isLoaded) return javaType.realClazz.methods.map { ReflectJavaMethod(it, javaType) }
+    if (javaType.isLoaded) return javaType.realClazz.methods.map {
+      val method = ReflectJavaMethod(it, javaType)
+      if (javaType.isExtensionType && method.isStatic && method.parameters.isNotEmpty() && method.visibility != Visibility.PRIVATE) {
+        toExtensionMethod(method)
+      } else {
+        method
+      }
+    }
     val methods = mutableListOf<MarcelMethod>()
     var t: JavaType? = javaType
     while (t != null && !t.isLoaded) {
