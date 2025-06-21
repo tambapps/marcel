@@ -35,12 +35,6 @@
         </receiver>
 
         <activity
-            android:name=".DocumentationActivity"
-            android:exported="false"
-            android:label="@string/title_activity_documentation"
-            android:theme="@style/Theme.MarcelAndroid" />
-
-        <activity
             android:name=".FilePickerActivity"
             android:exported="false"
             android:label="@string/title_activity_file_explorer"

@@ -2,12 +2,13 @@ package com.tambapps.marcel.android.marshell
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
@@ -15,7 +16,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -103,6 +103,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -179,7 +180,11 @@ class MainActivity : ComponentActivity() {
               composable(WORKOUT_LIST, scope, navController, drawerState) {
                 WorksListScreen(navController = navController)
               }
-              composable("$WORKOUT_FORM?$WORKOUT_NAME_ARG={$WORKOUT_NAME_ARG}&${EDIT_ARG}={${EDIT_ARG}}", scope, navController, drawerState,
+              composable(
+                "$WORKOUT_FORM?$WORKOUT_NAME_ARG={$WORKOUT_NAME_ARG}&${EDIT_ARG}={${EDIT_ARG}}",
+                scope,
+                navController,
+                drawerState,
                 arguments = listOf(
                   navArgument(WORKOUT_NAME_ARG) { type = NavType.StringType; nullable = true },
                   navArgument(EDIT_ARG) { type = NavType.BoolType; defaultValue = false }
@@ -323,14 +328,18 @@ class MainActivity : ComponentActivity() {
             backStackState = backStackState,
             route = SETTINGS
           )
-          DrawerItem(
+
+          NavigationDrawerItem(
+            label = { Text(text = "Documentation", fontWeight = FontWeight.Bold) },
             selected = false,
-            text = "Documentation",
+            shape = RectangleShape,
             onClick = {
-              context.startActivity(Intent(context, DocumentationActivity::class.java))
-              scope.launch { drawerState.close() }
+              val intent = CustomTabsIntent.Builder()
+                .build()
+              intent.launchUrl(context, "https://tambapps.github.io/marcel/".toUri())
             }
           )
+
         }
       }
       , content = content)
