@@ -15,6 +15,9 @@ class ExtensionMarcelMethod constructor(
   val marcelOwnerClass: JavaType
 ) : AbstractMethod() {
 
+  override val ownerString: String
+    get() = marcelOwnerClass.simpleName
+
   companion object {
 
     const val THIS_PARAMETER_NAME = "\$self"

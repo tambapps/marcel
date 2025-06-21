@@ -5,6 +5,9 @@ import java.util.*
 
 abstract class AbstractMethod: MarcelMethod {
 
+  // used for the toString method, overridden by ExtensionMarcelMethod
+  protected open val ownerString get() = ownerClass.simpleName
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is MarcelMethod) return false
@@ -28,12 +31,12 @@ abstract class AbstractMethod: MarcelMethod {
       append(ownerClass.simpleName)
     } else {
       if (isAbstract) append("abstract ")
-      if (isStatic) append("static ")
+      if (isMarcelStatic) append("static ")
       if (isAsync) append("async ")
       append("fun ")
       append(returnType.simpleName)
       append(" ")
-      append(ownerClass.simpleName)
+      append(ownerString)
       append(".")
       append(name)
     }
