@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#marcel-a-simple-and-efficient-programming-language-for-any-jvm" class="md-skip">
+        <a href="#marcel-a-concise-and-efficient-jvm-language-for-fast-and-elegant-scripting" class="md-skip">
           Skip to content
         </a>
       
@@ -271,6 +271,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Intro
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="." class="md-nav__link md-nav__link--active">
         
   
@@ -282,6 +295,61 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-marcel" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Marcel?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How it works
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-on-android" class="md-nav__link">
+    <span class="md-ellipsis">
+      Try it on Android
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open Source
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -2186,6 +2254,50 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-marcel" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Marcel?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How it works
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-on-android" class="md-nav__link">
+    <span class="md-ellipsis">
+      Try it on Android
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open Source
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -2208,17 +2320,21 @@
   
 
 
-<h1 id="marcel-a-simple-and-efficient-programming-language-for-any-jvm">Marcel, a simple and efficient programming language for any JVM</h1>
-<p>Marcel is a programming language built with the following goals in mind:
-- Being simple, not too verbose, allowing to write programs quickly
-- Runnable on Android devices (this language is <strong>guaranteed</strong> to be compilable and executable on Android devices)</p>
-<p>Its features are inspired from many languages such as Groovy, Kotlin, Perl and Dart. You can consult the source code of
-this language <a href="https://github.com/tambapps/marcel">on GitHub</a></p>
-<p><br/></p>
-<p>Marcel compiles to Java bytecode (.class files). You can execute marcel script/projects on any JVMs (17+), as long as the Marcel stdlib is included
-in your classpath.</p>
-<p>As stated above, marcel is guaranteed to be compilable and executable on any Android devices running on Android 11 or +. You can install the <a href="https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell">Marcel for Android</a>
-app to develop, compile and execute Marcel programs.</p>
+<h1 id="marcel-a-concise-and-efficient-jvm-language-for-fast-and-elegant-scripting">Marcel, a concise and efficient JVM language for fast and elegant scripting</h1>
+<p>Marcel is a lightweight programming language designed to make scripting on the JVM simple, expressive, and fast — without sacrificing power or portability.</p>
+<h3 id="why-marcel">Why Marcel?</h3>
+<ul>
+<li>Concise &amp; expressive: Say goodbye to boilerplate — Marcel lets you write clear, elegant code in less time.</li>
+<li>Android-ready: Marcel is guaranteed to compile and run on any Android device (Android 11+), making it ideal for mobile scripting or development on the go.</li>
+<li>Modern yet familiar: Inspired by Groovy, Kotlin, Perl, and Dart, Marcel brings together the best of several languages while staying lightweight and accessible.</li>
+<li>Hassle-free dependencies: Marcel includes <a href="tools/dumbbell/">Dumbbell</a>, a built-in dependency manager that makes it easy to import libraries in your scripts — no Maven or Gradle setup required.</li>
+</ul>
+<h3 id="how-it-works">How it works</h3>
+<p>Marcel compiles directly to Java bytecode (.class files), making it fully compatible with any Java 17+ JVM. Just include the Marcel standard library in your classpath, and you’re good to go.</p>
+<h3 id="try-it-on-android">Try it on Android</h3>
+<p>Want to code on your phone? Install <a href="tools/marcel-for-android/">Marcel for Android</a> to write, compile, and run Marcel programs directly from your device.</p>
+<h3 id="open-source">Open Source</h3>
+<p>Marcel is fully open-source — explore the language, or just dive into its internals on <a href="https://github.com/tambapps/marcel">GitHub</a>.</p>
 <p align="center">
   <img src="img/marcel_logo.png" alt="Image 2" style="width: 30%; max-width: 300px;"/>
 </p>
