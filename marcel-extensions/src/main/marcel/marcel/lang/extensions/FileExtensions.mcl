@@ -20,21 +20,25 @@ extension class FileExtensions for File {
 
   fun List<String> readLines(Charset charset) -> JavaFiles.readAllLines(toPath(), charset)
 
-  fun void writeText(CharSequence text) -> JavaFiles.writeString(toPath(), text, StandardCharsets.UTF_8)
+  fun void writeText(CharSequence text) -> JavaFiles.writeString(toPath(), text, StandardCharsets.UTF_8, StandardOpenOption.CREATE)
 
   fun void writeText(CharSequence text, String charset) -> writeText(text, Charset.forName(charset))
 
-  fun void writeText(CharSequence text, Charset charset) -> JavaFiles.writeString(toPath(), text, charset)
+  fun void writeText(CharSequence text, Charset charset) -> JavaFiles.writeString(toPath(), text, charset, StandardOpenOption.CREATE)
 
-  fun void appendText(CharSequence text) -> JavaFiles.writeString(toPath(), text, StandardCharsets.UTF_8, StandardOpenOption.APPEND)
+  fun void leftShift(CharSequence text) -> appendText(text)
+
+  fun void appendText(CharSequence text) -> JavaFiles.writeString(toPath(), text, StandardCharsets.UTF_8, StandardOpenOption.APPEND, StandardOpenOption.CREATE)
 
   fun void appendText(CharSequence text, String charset) -> appendText(text, Charset.forName(charset))
 
   fun void appendText(CharSequence text, Charset charset) -> JavaFiles.writeString(toPath(), text, charset, StandardOpenOption.APPEND)
 
+  fun void leftShift(byte[] bytes) -> appendBytes(bytes)
+
   fun void writeBytes(byte[] bytes) -> JavaFiles.write(toPath(), bytes)
 
-  fun void appendBytes(byte[] bytes) -> JavaFiles.write(toPath(), bytes, StandardOpenOption.APPEND)
+  fun void appendBytes(byte[] bytes) -> JavaFiles.write(toPath(), bytes, StandardOpenOption.APPEND, StandardOpenOption.CREATE)
 
   fun File child(String path) -> new File(this, path)
 
