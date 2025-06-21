@@ -15,7 +15,7 @@
   <inceptionYear>2023</inceptionYear>
 
   <properties>
-    <revision>1.1-SNAPSHOT</revision>
+    <revision>1.1</revision>
     <kotlin.version>1.9.25</kotlin.version>
     <java.version>17</java.version>
     <maven.compiler.source>17</maven.compiler.source>
