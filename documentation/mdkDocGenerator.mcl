@@ -1,0 +1,83 @@
+import marcel.lang.methods.*
+import marcel.lang.extensions.*
+import java.reflect.*
+import marcel.lang.compile.ExtensionClass
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.method.*
+import com.tambapps.marcel.semantic.*
+
+private List extensionClasses = [
+  DefaultMarcelMethods.class,
+  TimeExtensions.class,
+  CharacterExtensions.class,
+  CharExtensions.class,
+  CharSequenceExtensions.class,
+  FileExtensions.class
+]
+private MarcelSymbolResolver symbolResolver = new MarcelSymbolResolver()
+
+for (Class extensionClass in extensionClasses) {
+  Map methodsPerClasses = buildMap(extensionClass)
+  for ((JavaType type, List methods) in methodsPerClasses) {
+    methods.sortBy { MarcelMethod m -> m.name + m.parameters.size() }
+    processExtensionClass(extensionClass, methodsPerClasses)
+  }
+}
+
+fun Map buildMap(Class clazz) {
+  Map methodsPerClasses = [:].withDefault(true) { [] as List }
+  for (MarcelMethod m in symbolResolver.getMethods(symbolResolver.of(clazz.name, []))) {
+    if (!m.isExtension()) continue
+    ExtensionMarcelMethod method = m as ExtensionMarcelMethod
+    methodsPerClasses.getAt<List>(method.marcelOwnerClass).add(method)
+  }
+  return methodsPerClasses
+}
+
+fun void processExtensionClass(Class extensionClass, Map methodsPerClasses) {
+  File directory = new File("documentation/docs/mdk/extensions")
+  if (!directory.exists()) directory.mkdir()
+  try (FileWriter writer = new FileWriter(directory.child("${extensionClass.simpleName}.md"))) {
+    writer.write("# ${extensionClass.simpleName}\nTODO description\n\n")
+    List sortedKeys = methodsPerClasses.keySet().toList()
+    sortedKeys.sortBy { JavaType t -> t.simpleName }
+    for (JavaType type in sortedKeys) {
+      writer.write("## ${type.simpleName}\n\n")
+      List methods = methodsPerClasses[type]
+      methods.sortBy { MarcelMethod m -> m.name + m.parameters.size() }
+      for (ExtensionMarcelMethod method in methods) {
+        writeMethod(writer, method as ExtensionMarcelMethod)
+      }
+    }
+  }
+}
+
+private fun void writeMethod(Writer writer, ExtensionMarcelMethod method) {
+  writer.write("### ${method.name}\n")
+  writer.write("<div style=\"background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;\">\n")
+  writer.write("<code style=\"all: unset; font-family: monospace; color: inherit;\">\n")
+
+  if (method.visibility != Visibility.PUBLIC) {
+    writer.write("<span style='opacity: 0.6;'>${method.visibility.name().toLowerCase()} </span>")
+  }
+  if (method.isMarcelStatic()) {
+    writer.write("<span style='opacity: 0.6;'>static </span>")
+  }
+
+  writer.write("<span style='color: orange;'>fun</span> ")
+  writer.write("${method.marcelOwnerClass.simpleName} ${method.name}(")
+
+  for (int i in 0..<method.parameters.size()) {
+    MethodParameter parameter = method.parameters[i]
+    writer.write("${parameter.type.simpleName} ${parameter.name}")
+    if (parameter.defaultValue != null) writer.write(" = ${parameter.defaultValue}")
+    if (i < method.parameters.size() - 1) writer.write(", ")
+  }
+  writer.write(")")
+  writer.write("</code>\n</div>\n")
+  writer.write("<p style=\"margin-top: -0.5em; margin-bottom: 2em;\">\n")
+  writer.write("TODO add description.\n")
+  writer.write("</p>\n\n")
+  writer.write("---\n\n")
+}

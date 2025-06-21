@@ -42,6 +42,11 @@ extra:
       name: GitHub
       repo: tambapps/marcel
       type: github
+
+markdown_extensions:
+  - toc:
+      permalink: true  # adds a clickable anchor icon next to each header
+
 nav:
   - Intro: index.md
   - Getting Started: getting-started.md
@@ -97,8 +102,35 @@ nav:
           - Chain operations: language-specification/iterable-operations/chain-operations.md
       - Lambdas: language-specification/lambdas.md
       - Extension Classes: language-specification/extension-classes.md
+  - Marcel Development Kit:
+      - Intro: mdk/index.md
+      - Extensions:
+          - Intro: mdk/extensions/index.md
+          - CharacterExtensions: mdk/extensions/CharacterExtensions.md
+          - CharExtensions: mdk/extensions/CharExtensions.md
+          - CharSequenceExtensions: mdk/extensions/CharSequenceExtensions.md
+          - DefaultMarcelMethods:
+              - boolean[]: mdk/extensions/DefaultMarcelMethods/boolean_array.md
+              - byte[]: mdk/extensions/DefaultMarcelMethods/byte_array.md
+              - char[]: mdk/extensions/DefaultMarcelMethods/char_array.md
+              - Collection: mdk/extensions/DefaultMarcelMethods/Collection.md
+              - Comparable[]: mdk/extensions/DefaultMarcelMethods/Comparable_array.md
+              - double[]: mdk/extensions/DefaultMarcelMethods/double_array.md
+              - float[]: mdk/extensions/DefaultMarcelMethods/float_array.md
+              - int[]: mdk/extensions/DefaultMarcelMethods/int_array.md
+              - Iterable: mdk/extensions/DefaultMarcelMethods/Iterable.md
+              - List: mdk/extensions/DefaultMarcelMethods/List.md
+              - long[]: mdk/extensions/DefaultMarcelMethods/long_array.md
+              - Map: mdk/extensions/DefaultMarcelMethods/Map.md
+              - Matcher: mdk/extensions/DefaultMarcelMethods/Matcher.md
+              - Object[]: mdk/extensions/DefaultMarcelMethods/Object_array.md
+              - Queue: mdk/extensions/DefaultMarcelMethods/Queue.md
+              - Set: mdk/extensions/DefaultMarcelMethods/Set.md
+              - short[]: mdk/extensions/DefaultMarcelMethods/short_array.md
+          - FileExtensions: mdk/extensions/FileExtensions.md
+          - TimeExtensions: mdk/extensions/TimeExtensions.md
   - Meta Programming:
-      - Intro: metaprogramming/index.md
+      - Metaprogramming in Marcel: metaprogramming/index.md
       - Meta-Annotations: metaprogramming/meta-annotations.md
   - Asynchronous Programming: asynchronous-programming.md
   - Guides:
