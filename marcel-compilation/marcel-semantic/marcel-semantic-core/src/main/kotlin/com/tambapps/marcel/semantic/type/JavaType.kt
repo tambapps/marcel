@@ -347,11 +347,11 @@ interface JavaType: JavaTyped {
      * @return the [JavaType] representing this [Class]
      */
     fun of(clazz: Class<*>, genericTypes: List<JavaType>): JavaType {
-      val t = TYPES_CACHE.computeIfAbsent(clazz, this::getOrCreate)
+      val t = TYPES_CACHE[clazz] ?: create(clazz).apply { TYPES_CACHE[clazz] = this }
       return if (genericTypes.isEmpty()) t else t.withGenericTypes(genericTypes)
     }
 
-    private fun getOrCreate(clazz: Class<*>): JavaType {
+    private fun create(clazz: Class<*>): JavaType {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
       else if (clazz.isArray)
         ARRAYS.find { it.realClazz == clazz } ?: LoadedJavaArrayType(clazz)
