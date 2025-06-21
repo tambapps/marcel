@@ -69,7 +69,7 @@ TODO add description.
 ### getAtSafe
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] getAtSafe(int index)</code>
+<span style='color: orange;'>fun</span> Object[] getAtSafe(<span style='color: orange;'>int </span>index)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -322,7 +322,7 @@ TODO add description.
 ### swap
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] swap(int i, int j)</code>
+<span style='color: orange;'>fun</span> Object[] swap(<span style='color: orange;'>int </span>i, <span style='color: orange;'>int </span>j)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.

@@ -169,7 +169,7 @@ TODO add description.
 ### getDays
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> int getDays()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int </span>getDays()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -180,7 +180,7 @@ TODO add description.
 ### getHours
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> int getHours()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int </span>getHours()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -191,7 +191,7 @@ TODO add description.
 ### getMillis
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> int getMillis()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int </span>getMillis()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -202,7 +202,7 @@ TODO add description.
 ### getMinutes
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> int getMinutes()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int </span>getMinutes()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -213,7 +213,7 @@ TODO add description.
 ### getNanos
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> int getNanos()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int </span>getNanos()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -224,7 +224,7 @@ TODO add description.
 ### getSeconds
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> int getSeconds()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int </span>getSeconds()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -237,7 +237,7 @@ TODO add description.
 ### getDays
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> long getDays()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long </span>getDays()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -248,7 +248,7 @@ TODO add description.
 ### getHours
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> long getHours()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long </span>getHours()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -259,7 +259,7 @@ TODO add description.
 ### getMillis
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> long getMillis()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long </span>getMillis()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -270,7 +270,7 @@ TODO add description.
 ### getMinutes
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> long getMinutes()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long </span>getMinutes()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -281,7 +281,7 @@ TODO add description.
 ### getNanos
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> long getNanos()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long </span>getNanos()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -292,7 +292,7 @@ TODO add description.
 ### getSeconds
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> long getSeconds()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long </span>getSeconds()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.

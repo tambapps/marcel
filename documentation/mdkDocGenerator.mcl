@@ -59,10 +59,10 @@ private fun void writeMethod(Writer writer, ExtensionMarcelMethod method) {
   writer.write("<code style=\"all: unset; font-family: monospace; color: inherit;\">\n")
 
   if (method.visibility != Visibility.PUBLIC) {
-    writer.write("<span style='opacity: 0.6;'>${method.visibility.name().toLowerCase()} </span>")
+    writer.write("<span style='color: orange;'>${method.visibility.name().toLowerCase()} </span>")
   }
   if (method.isMarcelStatic()) {
-    writer.write("<span style='opacity: 0.6;'>static </span>")
+    writer.write("<span style='color: orange;'>static </span>")
   }
 
   writer.write("<span style='color: orange;'>fun</span> ")
