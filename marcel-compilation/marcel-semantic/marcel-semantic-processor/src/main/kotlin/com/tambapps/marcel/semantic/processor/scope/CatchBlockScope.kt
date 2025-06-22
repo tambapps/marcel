@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.processor.scope
 
-import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 
 /**
  * Scope for a catch/finally block

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.processor.scope
 
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 
 /**
  * A pool allowing to keep record of local variable slots

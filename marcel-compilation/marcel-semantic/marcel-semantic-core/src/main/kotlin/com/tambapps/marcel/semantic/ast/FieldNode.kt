@@ -2,8 +2,8 @@ package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.field.JavaClassField
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.field.JavaClassField
 
 class FieldNode constructor(
   type: JavaType, name: String, owner: JavaType,

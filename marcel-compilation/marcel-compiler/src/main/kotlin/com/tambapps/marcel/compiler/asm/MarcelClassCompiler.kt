@@ -12,7 +12,7 @@ import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import marcel.lang.Script
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter

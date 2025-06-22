@@ -4,7 +4,7 @@ import com.tambapps.marcel.compiler.util.ReflectUtils
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
-import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.symbol.method.MethodParameter
 
 
 val ClassNode.access: Int get() = ReflectUtils.computeAccess(

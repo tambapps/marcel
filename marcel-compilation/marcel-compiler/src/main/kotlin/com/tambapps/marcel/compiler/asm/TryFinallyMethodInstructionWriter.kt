@@ -5,8 +5,8 @@ import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.TryNode
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes

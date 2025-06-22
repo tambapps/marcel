@@ -21,7 +21,7 @@ import com.tambapps.marcel.semantic.processor.MarcelSemantic
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import marcel.lang.Script
 import org.junit.jupiter.api.Assertions.assertEquals

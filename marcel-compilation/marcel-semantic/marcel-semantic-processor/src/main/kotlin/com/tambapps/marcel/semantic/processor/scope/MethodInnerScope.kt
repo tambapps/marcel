@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.processor.scope
 
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
-import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 
 /**
  * An inner scope inside a method. E.g. in a if/else, in a switch, ...

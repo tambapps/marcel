@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.processor.imprt
 
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 class MutableImportResolver internal constructor(
   override val typeImports: MutableMap<String, JavaType>,

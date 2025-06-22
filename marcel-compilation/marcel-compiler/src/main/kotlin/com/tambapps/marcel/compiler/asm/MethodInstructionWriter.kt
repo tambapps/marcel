@@ -56,9 +56,9 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
-import com.tambapps.marcel.semantic.method.ReflectJavaMethod
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.method.ReflectJavaMethod
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes

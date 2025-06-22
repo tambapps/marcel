@@ -6,8 +6,8 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransformationException
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.type.SourceJavaType
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 
 /**
  * Base class for AST transformations adding methods to classes

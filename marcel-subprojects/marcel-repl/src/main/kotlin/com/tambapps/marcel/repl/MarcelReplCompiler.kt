@@ -17,7 +17,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.processor.imprt.MutableImportResolver
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
 

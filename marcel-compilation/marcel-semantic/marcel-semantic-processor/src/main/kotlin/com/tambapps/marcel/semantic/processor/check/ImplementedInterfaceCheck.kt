@@ -14,7 +14,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.processor.visitor.ClassNodeVisitor
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 /**
  * Check that all implemented interfaces methods are defined.

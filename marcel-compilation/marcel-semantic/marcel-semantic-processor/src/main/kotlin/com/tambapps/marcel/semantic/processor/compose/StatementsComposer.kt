@@ -29,17 +29,17 @@ import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MethodParameter
 import com.tambapps.marcel.semantic.processor.cast.ExpressionCaster
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaArrayType
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.LocalVariable
-import com.tambapps.marcel.semantic.variable.Variable
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.variable.Variable
+import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 import java.util.*
 
 /**

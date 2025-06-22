@@ -1,10 +1,10 @@
 package com.tambapps.marcel.repl
 
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.variable.field.BoundField
-import com.tambapps.marcel.semantic.variable.field.CompositeField
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.symbol.variable.field.BoundField
+import com.tambapps.marcel.semantic.symbol.variable.field.CompositeField
+import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 import marcel.lang.MarcelClassLoader
 
 open class ReplMarcelSymbolResolver constructor(

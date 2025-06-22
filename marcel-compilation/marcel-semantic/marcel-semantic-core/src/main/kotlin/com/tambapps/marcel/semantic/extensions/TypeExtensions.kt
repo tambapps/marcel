@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.extensions
 
-import com.tambapps.marcel.semantic.type.JavaAnnotationType
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import kotlin.reflect.KClass
 
 

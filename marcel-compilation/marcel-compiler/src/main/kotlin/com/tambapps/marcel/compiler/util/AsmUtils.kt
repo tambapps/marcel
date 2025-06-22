@@ -2,8 +2,8 @@ package com.tambapps.marcel.compiler.util
 
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.semantic.ast.MethodNode
-import com.tambapps.marcel.semantic.method.MethodParameter
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.method.MethodParameter
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import org.objectweb.asm.Type
 import java.lang.reflect.Method
 

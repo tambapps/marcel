@@ -12,9 +12,9 @@ import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.processor.extensions.forEachNode
-import com.tambapps.marcel.semantic.variable.Variable
-import com.tambapps.marcel.semantic.variable.field.MarcelField
-import com.tambapps.marcel.semantic.variable.field.MethodField
+import com.tambapps.marcel.semantic.symbol.variable.Variable
+import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
+import com.tambapps.marcel.semantic.symbol.variable.field.MethodField
 
 abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructor(
   private val replCompiler: MarcelReplCompiler,

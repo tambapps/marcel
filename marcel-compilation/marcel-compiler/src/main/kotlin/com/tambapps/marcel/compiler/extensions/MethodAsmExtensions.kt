@@ -1,7 +1,7 @@
 package com.tambapps.marcel.compiler.extensions
 
 import com.tambapps.marcel.compiler.util.AsmUtils
-import com.tambapps.marcel.semantic.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import org.objectweb.asm.Opcodes
 
 

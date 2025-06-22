@@ -12,7 +12,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 fun JavaType.getDefaultValueExpression(it: LexToken): ExpressionNode {
   if (!primitive) return NullValueNode(it)

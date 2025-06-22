@@ -18,15 +18,15 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.processor.compose.StatementsComposer
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.MarcelMethodImpl
-import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethodImpl
+import com.tambapps.marcel.semantic.symbol.method.MethodParameter
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.scope.Scope
-import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
-import com.tambapps.marcel.semantic.type.JavaAnnotationType
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
+import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.visitor.AllPathsReturnVisitor
 import java.util.*
 

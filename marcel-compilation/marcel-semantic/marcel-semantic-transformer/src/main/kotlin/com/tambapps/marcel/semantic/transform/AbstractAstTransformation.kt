@@ -9,9 +9,9 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaPrimitiveType
+import com.tambapps.marcel.semantic.symbol.type.JavaPrimitiveType
 
 /**
  * Base class for AST transformations providing handy methods to handle/generate AST nodes

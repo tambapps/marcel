@@ -3,7 +3,7 @@ package com.tambapps.marcel.marshell.command
 import com.tambapps.marcel.marshell.Marshell
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.semantic.processor.imprt.MutableImportResolver
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import marcel.lang.Binding
 import java.io.PrintStream
 

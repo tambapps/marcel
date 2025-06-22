@@ -1,26 +1,26 @@
 package com.tambapps.marcel.compiler.extensions
 
 import com.tambapps.marcel.compiler.util.AsmUtils
-import com.tambapps.marcel.semantic.type.JavaArrayType
-import com.tambapps.marcel.semantic.type.JavaPrimitiveType
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
-import com.tambapps.marcel.semantic.type.JavaType.Companion.booleanArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.byte
-import com.tambapps.marcel.semantic.type.JavaType.Companion.byteArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.char
-import com.tambapps.marcel.semantic.type.JavaType.Companion.charArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.double
-import com.tambapps.marcel.semantic.type.JavaType.Companion.doubleArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.float
-import com.tambapps.marcel.semantic.type.JavaType.Companion.floatArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.int
-import com.tambapps.marcel.semantic.type.JavaType.Companion.intArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.long
-import com.tambapps.marcel.semantic.type.JavaType.Companion.longArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.short
-import com.tambapps.marcel.semantic.type.JavaType.Companion.shortArray
-import com.tambapps.marcel.semantic.type.JavaType.Companion.void
+import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
+import com.tambapps.marcel.semantic.symbol.type.JavaPrimitiveType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.boolean
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.booleanArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.byte
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.byteArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.char
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.charArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.double
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.doubleArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.float
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.floatArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.int
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.intArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.long
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.longArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.short
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.shortArray
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.void
 import org.objectweb.asm.Opcodes
 
 val JavaType.internalName: String get() = AsmUtils.getInternalName(type)

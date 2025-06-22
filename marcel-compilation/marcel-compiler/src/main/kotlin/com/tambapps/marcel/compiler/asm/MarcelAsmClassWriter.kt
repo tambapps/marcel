@@ -2,7 +2,7 @@ package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import org.objectweb.asm.ClassWriter
 

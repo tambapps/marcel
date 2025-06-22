@@ -1,8 +1,8 @@
 package com.tambapps.marcel.semantic.processor.cast
 
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.type.JavaPrimitiveType
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaPrimitiveType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 interface ExpressionCaster {
 

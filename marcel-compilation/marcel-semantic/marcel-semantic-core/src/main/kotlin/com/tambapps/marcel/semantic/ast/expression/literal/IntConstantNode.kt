@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.ast.expression.literal
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 class IntConstantNode(token: LexToken, override val value: Int) :
   AbstractExpressionNode(JavaType.int, token), JavaConstantExpression {

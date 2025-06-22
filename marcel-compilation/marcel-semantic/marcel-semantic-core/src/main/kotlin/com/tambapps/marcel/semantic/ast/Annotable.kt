@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.ast
 
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 /**
  * An object that can be annotated

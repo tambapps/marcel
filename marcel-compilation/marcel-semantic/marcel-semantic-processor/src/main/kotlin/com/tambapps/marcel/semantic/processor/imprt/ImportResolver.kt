@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.processor.imprt
 
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 /**
  * Class allowing to resolve types from imports

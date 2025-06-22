@@ -9,8 +9,8 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.SourceJavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import java.lang.Enum
 
 /**

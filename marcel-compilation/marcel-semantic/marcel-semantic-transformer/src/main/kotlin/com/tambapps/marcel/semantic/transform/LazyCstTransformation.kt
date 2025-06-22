@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransformationException
-import com.tambapps.marcel.semantic.type.SourceJavaType
+import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 
 /**
  * CST Transformation making a field lazy to only compute its value when it is requesting. In order to implement the behaviour

@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.cst.imprt.*
 import com.tambapps.marcel.parser.cst.visitor.ImportCstNodeVisitor
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 object ImportResolverGenerator {
 

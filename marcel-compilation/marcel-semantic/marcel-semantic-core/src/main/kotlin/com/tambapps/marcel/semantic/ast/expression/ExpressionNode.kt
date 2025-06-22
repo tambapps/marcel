@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.semantic.ast.AstNode
-import com.tambapps.marcel.semantic.type.JavaTyped
+import com.tambapps.marcel.semantic.symbol.type.JavaTyped
 
 interface ExpressionNode : AstNode, JavaTyped {
 

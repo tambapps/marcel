@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.SourceJavaType
+import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 
 /**
  * Syntax tree transformation
@@ -21,7 +21,7 @@ interface SyntaxTreeTransformation {
   fun init(symbolResolver: MarcelSymbolResolver, purpose: SemanticPurpose)
 
   /**
-   * Transform the [JavaType][com.tambapps.marcel.semantic.type.JavaType] and/or the Concrete Syntax Tree
+   * Transform the [JavaType][com.tambapps.marcel.semantic.symbol.type.JavaType] and/or the Concrete Syntax Tree
    * BEFORE having performed the semantic analysis
    *
    * @param javaType the type of the class containing the annotated node

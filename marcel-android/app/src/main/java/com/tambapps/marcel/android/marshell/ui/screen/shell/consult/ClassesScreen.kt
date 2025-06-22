@@ -17,8 +17,8 @@ import com.tambapps.marcel.android.marshell.repl.MarshellSymbolResolver
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 @Composable
 internal fun ClassesScreen(shellViewModel: ShellViewModel) {

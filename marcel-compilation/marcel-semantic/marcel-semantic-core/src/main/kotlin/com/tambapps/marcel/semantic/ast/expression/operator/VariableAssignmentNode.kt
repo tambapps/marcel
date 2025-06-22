@@ -6,8 +6,8 @@ import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
-import com.tambapps.marcel.semantic.variable.LocalVariable
-import com.tambapps.marcel.semantic.variable.Variable
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.variable.Variable
 
 class VariableAssignmentNode(
   override var variable: Variable,

@@ -3,10 +3,10 @@ package com.tambapps.marcel.semantic.ast
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
-import com.tambapps.marcel.semantic.method.AbstractMethod
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.MethodParameter
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.method.AbstractMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MethodParameter
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 class MethodNode constructor(
   override val name: String,

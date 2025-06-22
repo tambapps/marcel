@@ -8,8 +8,8 @@ import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
-import com.tambapps.marcel.semantic.type.JavaType.Companion.Object
-import com.tambapps.marcel.semantic.type.JavaType.Companion.int
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.Object
+import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse

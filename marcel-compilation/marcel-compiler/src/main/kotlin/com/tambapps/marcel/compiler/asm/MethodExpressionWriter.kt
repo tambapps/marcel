@@ -21,10 +21,10 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.ReflectJavaConstructor
-import com.tambapps.marcel.semantic.method.ReflectJavaMethod
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.ReflectJavaConstructor
+import com.tambapps.marcel.semantic.symbol.method.ReflectJavaMethod
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes

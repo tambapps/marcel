@@ -3,9 +3,9 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.invokeCode
-import com.tambapps.marcel.semantic.method.CastMethod
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.MarcelMethodVisitor
+import com.tambapps.marcel.semantic.symbol.method.CastMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethodVisitor
 import org.objectweb.asm.MethodVisitor
 
 class MethodCallWriter(

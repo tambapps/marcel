@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import java.lang.reflect.Modifier
 
 enum class Visibility {

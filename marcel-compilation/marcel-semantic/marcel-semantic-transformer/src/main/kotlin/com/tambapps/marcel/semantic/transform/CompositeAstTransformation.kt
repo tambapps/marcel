@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.SourceJavaType
+import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 
 abstract class CompositeAstTransformation(
   private val transformations: List<SyntaxTreeTransformation>

@@ -14,9 +14,9 @@ import com.tambapps.marcel.semantic.processor.compose.StatementsComposer
 import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.SourceJavaType
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Function
 

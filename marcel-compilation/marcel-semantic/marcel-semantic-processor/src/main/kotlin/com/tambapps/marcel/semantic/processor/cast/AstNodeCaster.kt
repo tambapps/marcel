@@ -9,8 +9,8 @@ import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.exception.TypeCastException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.Nullness
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper

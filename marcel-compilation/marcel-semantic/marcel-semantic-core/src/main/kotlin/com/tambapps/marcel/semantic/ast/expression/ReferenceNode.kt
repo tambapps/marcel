@@ -2,8 +2,8 @@ package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AstVariableNode
-import com.tambapps.marcel.semantic.variable.Variable
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.symbol.variable.Variable
+import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 
 class ReferenceNode(
   override val owner: ExpressionNode? = null,

@@ -1,10 +1,10 @@
 package com.tambapps.marcel.semantic.processor.scope
 
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.variable.LocalVariable
-import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.variable.field.JavaClassFieldImpl
+import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 
 /**
  * Lambda method scope using local variables of where the lambda is called as immutable fields

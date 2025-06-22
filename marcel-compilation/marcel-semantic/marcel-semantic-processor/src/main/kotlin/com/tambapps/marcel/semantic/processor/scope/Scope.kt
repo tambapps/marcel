@@ -1,9 +1,9 @@
 package com.tambapps.marcel.semantic.processor.scope
 
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.LocalVariable
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 
 /**
  * The scope of a given node, holding data about variables and methods it can access

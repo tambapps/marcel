@@ -2,8 +2,8 @@ package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTyped
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaTyped
 
 open class ClassNode(
   override val type: JavaType,

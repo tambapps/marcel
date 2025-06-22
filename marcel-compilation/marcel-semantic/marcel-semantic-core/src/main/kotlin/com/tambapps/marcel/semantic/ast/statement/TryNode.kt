@@ -1,8 +1,8 @@
 package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 
 class TryNode(
   node: CstNode,

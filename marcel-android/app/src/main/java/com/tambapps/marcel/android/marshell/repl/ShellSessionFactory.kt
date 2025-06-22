@@ -13,7 +13,7 @@ import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.dumbbell.DumbbellEngine
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.variable.field.BoundField
+import com.tambapps.marcel.semantic.symbol.variable.field.BoundField
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import marcel.lang.android.AndroidSystem

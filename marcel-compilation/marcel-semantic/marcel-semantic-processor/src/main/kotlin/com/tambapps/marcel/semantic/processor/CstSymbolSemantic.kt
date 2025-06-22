@@ -6,13 +6,13 @@ import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.method.JavaConstructorImpl
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.MarcelMethodImpl
-import com.tambapps.marcel.semantic.method.MethodParameter
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.symbol.method.JavaConstructorImpl
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethodImpl
+import com.tambapps.marcel.semantic.symbol.method.MethodParameter
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.variable.field.JavaClassFieldImpl
+import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 
 /**
  * Interface providing util methods to generate semantic objects from CST members

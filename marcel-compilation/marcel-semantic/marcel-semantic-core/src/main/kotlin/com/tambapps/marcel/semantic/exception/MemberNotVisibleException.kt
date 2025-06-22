@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.exception
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 class MemberNotVisibleException constructor(
   token: LexToken,

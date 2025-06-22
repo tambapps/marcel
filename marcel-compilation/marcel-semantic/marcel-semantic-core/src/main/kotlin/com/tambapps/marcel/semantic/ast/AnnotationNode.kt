@@ -1,8 +1,8 @@
 package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
-import com.tambapps.marcel.semantic.type.JavaAnnotationType
+import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
+import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 
 class AnnotationNode constructor(
   override val type: JavaAnnotationType,

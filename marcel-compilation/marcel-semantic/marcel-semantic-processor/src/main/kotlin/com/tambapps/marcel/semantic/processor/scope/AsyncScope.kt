@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.processor.scope
 
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import marcel.util.concurrent.Threadmill
 

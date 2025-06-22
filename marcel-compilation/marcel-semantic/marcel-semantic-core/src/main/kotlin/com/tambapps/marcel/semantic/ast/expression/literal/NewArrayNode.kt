@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
-import com.tambapps.marcel.semantic.type.JavaArrayType
+import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
 
 class NewArrayNode(
   type: JavaArrayType,

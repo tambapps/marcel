@@ -2,14 +2,14 @@ package com.tambapps.marcel.semantic.symbol
 
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.CastMethod
-import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
-import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.MarcelMethodImpl
-import com.tambapps.marcel.semantic.method.MethodParameter
-import com.tambapps.marcel.semantic.method.ReflectJavaMethod
+import com.tambapps.marcel.semantic.symbol.method.CastMethod
+import com.tambapps.marcel.semantic.symbol.method.ExtensionMarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.method.MarcelMethodImpl
+import com.tambapps.marcel.semantic.symbol.method.MethodParameter
+import com.tambapps.marcel.semantic.symbol.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import marcel.lang.lambda.Lambda
 import marcel.lang.methods.DefaultMarcelMethods
 import marcel.util.primitives.collections.IntCollection

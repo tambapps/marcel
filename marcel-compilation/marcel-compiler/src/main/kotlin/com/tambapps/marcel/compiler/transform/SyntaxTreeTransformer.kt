@@ -12,9 +12,9 @@ import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
-import com.tambapps.marcel.semantic.type.JavaAnnotationType
+import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.SourceJavaType
+import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import marcel.transform.MarcelSyntaxTreeTransformationClass
 import java.lang.Exception
 import java.lang.annotation.ElementType

@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.ast.statement
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 
 class ForInIteratorStatementNode constructor(
   tokenStart: LexToken,

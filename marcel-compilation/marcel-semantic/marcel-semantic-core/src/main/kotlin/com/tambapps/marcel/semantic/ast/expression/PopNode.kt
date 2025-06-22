@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 /**
  * Node for a POP asm instruction.

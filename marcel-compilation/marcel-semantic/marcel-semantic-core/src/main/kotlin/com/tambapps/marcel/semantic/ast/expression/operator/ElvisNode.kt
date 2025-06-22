@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.ast.expression.operator
 
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 /**
  * Elvis node. The left operand SHOULD be a truthyCast of a DupNode of an Expression.
