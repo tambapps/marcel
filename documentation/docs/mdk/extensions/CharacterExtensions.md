@@ -1,5 +1,5 @@
 # CharacterExtensions
-You can find here all methods added to the `Character` class.
+TODO description
 
 ## Character
 

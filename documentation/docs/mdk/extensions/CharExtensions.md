@@ -1,15 +1,12 @@
 # CharExtensions
-
-You can find here all methods added to the `char` class.
-
-Yes, in Marcel you can call methods on primitive types.
+TODO description
 
 ## char
 
 ### isDefined
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isDefined()</code>
+<span style='color: orange;'>fun</span> char isDefined()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -20,7 +17,7 @@ TODO add description.
 ### isDigit
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isDigit()</code>
+<span style='color: orange;'>fun</span> char isDigit()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -31,7 +28,7 @@ TODO add description.
 ### isHighSurrogate
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isHighSurrogate()</code>
+<span style='color: orange;'>fun</span> char isHighSurrogate()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -42,7 +39,7 @@ TODO add description.
 ### isISOControl
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isISOControl()</code>
+<span style='color: orange;'>fun</span> char isISOControl()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -53,7 +50,7 @@ TODO add description.
 ### isLetter
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isLetter()</code>
+<span style='color: orange;'>fun</span> char isLetter()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -64,7 +61,7 @@ TODO add description.
 ### isLetterOrDigit
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isLetterOrDigit()</code>
+<span style='color: orange;'>fun</span> char isLetterOrDigit()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -75,7 +72,7 @@ TODO add description.
 ### isLowSurrogate
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isLowSurrogate()</code>
+<span style='color: orange;'>fun</span> char isLowSurrogate()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -86,7 +83,7 @@ TODO add description.
 ### isLowerCase
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isLowerCase()</code>
+<span style='color: orange;'>fun</span> char isLowerCase()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -97,7 +94,7 @@ TODO add description.
 ### isSpaceChar
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isSpaceChar()</code>
+<span style='color: orange;'>fun</span> char isSpaceChar()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -108,7 +105,7 @@ TODO add description.
 ### isSurrogate
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isSurrogate()</code>
+<span style='color: orange;'>fun</span> char isSurrogate()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -119,7 +116,7 @@ TODO add description.
 ### isTitleCase
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isTitleCase()</code>
+<span style='color: orange;'>fun</span> char isTitleCase()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -130,7 +127,7 @@ TODO add description.
 ### isUpperCase
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isUpperCase()</code>
+<span style='color: orange;'>fun</span> char isUpperCase()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -141,7 +138,7 @@ TODO add description.
 ### isWhitespace
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>isWhitespace()</code>
+<span style='color: orange;'>fun</span> char isWhitespace()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -152,7 +149,7 @@ TODO add description.
 ### toDouble
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toDouble()</code>
+<span style='color: orange;'>fun</span> char toDouble()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -163,7 +160,7 @@ TODO add description.
 ### toFloat
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toFloat()</code>
+<span style='color: orange;'>fun</span> char toFloat()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -174,7 +171,7 @@ TODO add description.
 ### toInt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toInt()</code>
+<span style='color: orange;'>fun</span> char toInt()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -185,7 +182,7 @@ TODO add description.
 ### toLong
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toLong()</code>
+<span style='color: orange;'>fun</span> char toLong()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -196,7 +193,7 @@ TODO add description.
 ### toLowerCase
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toLowerCase()</code>
+<span style='color: orange;'>fun</span> char toLowerCase()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -207,7 +204,7 @@ TODO add description.
 ### toString
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toString()</code>
+<span style='color: orange;'>fun</span> char toString()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -218,7 +215,7 @@ TODO add description.
 ### toTitleCase
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toTitleCase()</code>
+<span style='color: orange;'>fun</span> char toTitleCase()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -229,7 +226,7 @@ TODO add description.
 ### toUpperCase
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> <span style='color: orange;'>char </span>toUpperCase()</code>
+<span style='color: orange;'>fun</span> char toUpperCase()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.

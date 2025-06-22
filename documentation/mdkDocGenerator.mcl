@@ -3,8 +3,8 @@ import marcel.lang.extensions.*
 import java.reflect.*
 import marcel.lang.compile.ExtensionClass
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.method.*
+import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.method.*
 import com.tambapps.marcel.semantic.*
 
 private List extensionClasses = [

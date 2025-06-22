@@ -1,7 +1,5 @@
 # CharSequenceExtensions
-
-You can find here all methods added to the `CharSequence` class.
-Note that these methods also work on `String` as it implements `CharSequence`.
+TODO description
 
 ## CharSequence
 
@@ -30,7 +28,7 @@ TODO add description.
 ### contains
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence contains(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> CharSequence contains(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -52,7 +50,7 @@ TODO add description.
 ### count
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence count(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> CharSequence count(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -107,7 +105,7 @@ TODO add description.
 ### getAt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAt(<span style='color: orange;'>int </span>i)</code>
+<span style='color: orange;'>fun</span> CharSequence getAt(IntRange r)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -118,7 +116,7 @@ TODO add description.
 ### getAt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAt(IntRange r)</code>
+<span style='color: orange;'>fun</span> CharSequence getAt(int i)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -129,7 +127,7 @@ TODO add description.
 ### getAtSafe
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAtSafe(<span style='color: orange;'>int </span>i)</code>
+<span style='color: orange;'>fun</span> CharSequence getAtSafe(int i)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -151,7 +149,7 @@ TODO add description.
 ### indexOf
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence indexOf(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> CharSequence indexOf(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -184,7 +182,7 @@ TODO add description.
 ### lastIndexOf
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence lastIndexOf(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> CharSequence lastIndexOf(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.

@@ -1,13 +1,12 @@
 # FileExtensions
-
-You can find here all methods added to the `File` class.
+TODO description
 
 ## File
 
 ### appendBytes
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File appendBytes(<span style='color: orange;'>byte</span>[] bytes)</code>
+<span style='color: orange;'>fun</span> File appendBytes(byte[] bytes)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -62,7 +61,7 @@ TODO add description.
 ### leftShift
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File leftShift(<span style='color: orange;'>byte</span>[] bytes)</code>
+<span style='color: orange;'>fun</span> File leftShift(CharSequence text)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -73,7 +72,7 @@ TODO add description.
 ### leftShift
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File leftShift(CharSequence text)</code>
+<span style='color: orange;'>fun</span> File leftShift(byte[] bytes)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -106,7 +105,7 @@ TODO add description.
 ### readLines
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readLines(Charset charset)</code>
+<span style='color: orange;'>fun</span> File readLines(String charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -117,7 +116,7 @@ TODO add description.
 ### readLines
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readLines(String charset)</code>
+<span style='color: orange;'>fun</span> File readLines(Charset charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -161,7 +160,7 @@ TODO add description.
 ### writeBytes
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File writeBytes(<span style='color: orange;'>byte</span>[] bytes)</code>
+<span style='color: orange;'>fun</span> File writeBytes(byte[] bytes)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
