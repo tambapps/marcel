@@ -22,7 +22,10 @@ class MethodNode constructor(
   val identifierToken: LexToken? = null,
 ) : AstNode, AbstractMethod(), Annotable {
 
-  // constructor for non async functions
+  override val isFinal: Boolean
+    get() = false
+
+  // constructor for non-async functions
   constructor(
     name: String,
     parameters: MutableList<MethodParameter>,

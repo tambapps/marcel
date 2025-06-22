@@ -64,6 +64,7 @@ class ExtensionMarcelMethod constructor(
   override val isDefault = false
   override val isExtension = true
   override val isSynthetic = false
+  override val isFinal = false
   override val isVarArgs = actualMethod.isVarArgs
 
   override val visibility = actualMethod.visibility

@@ -1,12 +1,13 @@
 package com.tambapps.marcel.semantic.symbol.variable
 
+import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.JavaTyped
 
 /**
  * A Marcel Variable. It can be a local variable, a getter/setter, a field
  */
-interface Variable : JavaTyped {
+interface Variable : Symbol {
   enum class Access {
     GET, SET, ANY
   }
@@ -16,8 +17,8 @@ interface Variable : JavaTyped {
   fun isVisibleFrom(javaType: JavaType, access: Access): Boolean
 
   override val type: JavaType
-  val name: String
-  val isFinal: Boolean
+  override val name: String
+  override val isFinal: Boolean
 
   val isGettable: Boolean
   val isSettable: Boolean

@@ -1,12 +1,13 @@
 package com.tambapps.marcel.semantic.symbol.method
 
+import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.JavaTyped
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 
-interface MarcelMethod: JavaTyped {
+interface MarcelMethod: Symbol {
 
   companion object {
     const val CONSTRUCTOR_NAME = "<init>"
@@ -24,7 +25,7 @@ interface MarcelMethod: JavaTyped {
     get() = returnType
   val ownerClass: JavaType
   val visibility: Visibility
-  val name: String
+  override val name: String
   val parameters: List<MethodParameter>
   // to handle extension methods when writing them
   val actualParameters: List<MethodParameter> get() = parameters

@@ -2,14 +2,16 @@ package com.tambapps.marcel.semantic.symbol.method
 
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.JavaTyped
 
-open class MethodParameter constructor(override val type: JavaType, val rawType: JavaType, val name: String,
-                                       val isFinal: Boolean = false,
+open class MethodParameter constructor(override val type: JavaType, val rawType: JavaType,
+                                       override val name: String,
+                                       override val isFinal: Boolean = false,
                                        val isSynthetic: Boolean = false,
                                        val annotations: List<AnnotationNode>,
-                                       val defaultValue: ExpressionNode? = null): JavaTyped {
+                                       val defaultValue: ExpressionNode? = null): Symbol {
   constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, defaultValue: ExpressionNode?, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, type, name, isFinal, isSynthetic, annotations, defaultValue)
   constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, name, annotations, null, isFinal, isSynthetic)
   constructor(type: JavaType, name: String, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, name, emptyList(), isFinal, isSynthetic)

@@ -11,4 +11,6 @@ class JavaConstructorImpl(
   override val isVarArgs: Boolean,
   override val isSynthetic: Boolean,
   ownerClass: JavaType, parameters: List<MethodParameter>
-) : AbstractConstructor(ownerClass, parameters)
+) : AbstractConstructor(ownerClass, parameters) {
+  override val isFinal: Boolean get() = false
+}

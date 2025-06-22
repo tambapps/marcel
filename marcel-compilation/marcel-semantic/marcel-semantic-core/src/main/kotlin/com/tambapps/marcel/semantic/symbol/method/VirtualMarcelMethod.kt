@@ -10,6 +10,7 @@ abstract class VirtualMarcelMethod: AbstractMethod() {
   override val isAbstract = false
   override val isDefault = false
   override val isAsync = false
+  override val isFinal = true
   override val asyncReturnType = null
   override val isExtension = false
   override val isGetter = false

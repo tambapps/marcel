@@ -41,6 +41,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val parameters = method.parameters.map { methodParameter(method.name, ownerClass, fromType, it) }
   override val returnType = JavaType.of(method.returnType)
   override val isConstructor = false
+  override val isFinal = (method.modifiers and Modifier.FINAL) != 0
   override val isAbstract = (method.modifiers and Modifier.ABSTRACT) != 0
   override val isDefault = method.isDefault
   override val isStatic = (method.modifiers and Modifier.STATIC) != 0

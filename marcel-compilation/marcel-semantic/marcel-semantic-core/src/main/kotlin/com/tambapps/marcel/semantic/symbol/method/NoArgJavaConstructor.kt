@@ -7,5 +7,6 @@ class NoArgJavaConstructor(ownerClass: JavaType, override val isSynthetic: Boole
   AbstractConstructor(ownerClass, emptyList()) {
   override val visibility = Visibility.PUBLIC
   override val isVarArgs = false
+  override val isFinal = false
 
 }

@@ -19,6 +19,7 @@ class MarcelMethodImpl constructor(
   override val isVarArgs: Boolean = false,
   override val isAsync: Boolean = false,
   override val isSynthetic: Boolean = false,
+  override val isFinal: Boolean = false,
   override val asyncReturnType: JavaType? = null
 ) : AbstractMethod() {
 
