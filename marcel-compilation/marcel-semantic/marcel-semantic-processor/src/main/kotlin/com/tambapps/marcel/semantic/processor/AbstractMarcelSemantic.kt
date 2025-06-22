@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.processor
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode

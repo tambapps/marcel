@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.symbol.type
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import kotlin.reflect.KClass
 

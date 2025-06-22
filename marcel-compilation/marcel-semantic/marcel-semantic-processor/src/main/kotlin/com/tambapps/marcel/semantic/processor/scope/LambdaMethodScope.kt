@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.processor.scope
 
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import com.tambapps.marcel.semantic.symbol.variable.field.JavaClassFieldImpl

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.symbol.method.AbstractMethod
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod

@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.symbol.type
 
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
 
 /**

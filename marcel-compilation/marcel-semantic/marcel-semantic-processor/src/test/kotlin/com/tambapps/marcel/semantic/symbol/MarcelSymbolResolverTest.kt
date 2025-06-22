@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.symbol
 
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.method.CastMethod
 import com.tambapps.marcel.semantic.symbol.method.ExtensionMarcelMethod

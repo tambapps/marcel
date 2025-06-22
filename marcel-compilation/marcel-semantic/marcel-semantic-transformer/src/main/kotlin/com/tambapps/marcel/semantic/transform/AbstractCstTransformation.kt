@@ -9,7 +9,7 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.transform.compose.CstNodeComposer
 import com.tambapps.marcel.semantic.processor.CstSymbolSemantic
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode

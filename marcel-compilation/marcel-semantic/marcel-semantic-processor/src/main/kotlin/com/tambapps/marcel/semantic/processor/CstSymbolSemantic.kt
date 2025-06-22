@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.symbol.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethodImpl

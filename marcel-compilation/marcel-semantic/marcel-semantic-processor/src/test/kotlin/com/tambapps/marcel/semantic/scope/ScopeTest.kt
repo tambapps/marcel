@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver

@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.symbol.method
 
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import java.util.*
 
 abstract class AbstractMethod: MarcelMethod {

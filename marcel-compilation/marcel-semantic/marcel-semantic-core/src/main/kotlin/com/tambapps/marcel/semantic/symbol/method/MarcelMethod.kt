@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.symbol.method
 
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.JavaTyped

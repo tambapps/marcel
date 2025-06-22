@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic
+package com.tambapps.marcel.semantic.symbol
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.semantic.symbol.type.JavaType

@@ -64,7 +64,7 @@ import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode

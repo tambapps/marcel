@@ -1,6 +1,6 @@
 package com.tambapps.marcel.compiler.util
 
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Modifier
 

@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.EnumCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.semantic.processor.MarcelSemantic
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.extensions.javaType

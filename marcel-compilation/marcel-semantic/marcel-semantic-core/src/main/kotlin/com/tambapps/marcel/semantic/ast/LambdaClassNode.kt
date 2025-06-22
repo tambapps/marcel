@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.symbol.type.JavaType
