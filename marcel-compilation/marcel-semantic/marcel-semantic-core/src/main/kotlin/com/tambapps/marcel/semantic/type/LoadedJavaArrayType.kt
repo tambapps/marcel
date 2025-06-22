@@ -10,7 +10,8 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 class LoadedJavaArrayType internal constructor(
   realClazz: Class<*>,
   override val elementsType: JavaType,
-): LoadedJavaType(realClazz, emptyList()), JavaArrayType {
+  nullness: Nullness = Nullness.NOT_NULL
+): LoadedObjectType(realClazz, emptyList(), nullness), JavaArrayType {
 
 
   // constructor for non-primitive arrays

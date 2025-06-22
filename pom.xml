@@ -39,6 +39,7 @@
     <mockito.version>5.5.0</mockito.version>
     <mvn-dep-resolver.version>3.3</mvn-dep-resolver.version>
     <okhttp.version>4.12.0</okhttp.version>
+    <jspecify.version>1.0.0</jspecify.version>
   </properties>
 
   <modules>
@@ -72,6 +73,11 @@
         <artifactId>lombok</artifactId>
           <version>${lombok.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jspecify</groupId>
+        <artifactId>jspecify</artifactId>
+        <version>${jspecify.version}</version>
       </dependency>
 
       <!-- for dumbbell -->

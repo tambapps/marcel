@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 open class LoadedObjectType(
   realClazz: Class<*>,
   genericTypes: List<JavaType>,
+  override val nullness: Nullness = Nullness.NOT_NULL
 ): LoadedJavaType(realClazz, genericTypes) {
 
   override val packageName: String? = realClazz.`package`?.name

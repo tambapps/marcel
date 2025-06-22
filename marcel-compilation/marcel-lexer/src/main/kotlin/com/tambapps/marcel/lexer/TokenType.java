@@ -26,7 +26,7 @@ public enum TokenType {
   // operators
   PLUS("+"), MINUS("-"), DIV("/"), MUL("*"), COMMA(","), QUESTION_MARK("?"), INCR("++"), DECR("--"), FIND("=~"), ELVIS("?:"),
   PLUS_ASSIGNMENT("+="), MINUS_ASSIGNMENT("-="), MUL_ASSIGNMENT("*="), DIV_ASSIGNMENT("/="), MODULO_ASSIGNMENT("%="), TWO_DOTS(".."), TWO_DOTS_END_EXCLUSIVE("..<"), QUESTION_DOT("?."), THREE_DOTS("..."),
-  POWER("**"), NOT("!"), MODULO("%"), AND("&&"), EQUAL("=="), NOT_EQUAL("!="), GT(">"), LT("<"), GOE(">="), LOE("<="), OR("||"), ASSIGNMENT("="),
+  POWER("**"), NOT("!"), NON_NULL("!!"), MODULO("%"), AND("&&"), EQUAL("=="), NOT_EQUAL("!="), GT(">"), LT("<"), GOE(">="), LOE("<="), OR("||"), ASSIGNMENT("="),
   IS("==="), IS_NOT("!=="), LEFT_SHIFT("<<"), RIGHT_SHIFT(">>"), // IS and IS_NOT are === and !==
 
 

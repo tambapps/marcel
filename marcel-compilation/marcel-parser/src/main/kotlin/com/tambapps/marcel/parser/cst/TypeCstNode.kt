@@ -13,16 +13,17 @@ import com.tambapps.marcel.lexer.LexToken
  * @param tokenStart the token start
  * @param tokenEnd the token end
  */
-class TypeCstNode(
+class TypeCstNode constructor(
   parent: CstNode?,
   override val value: String, // the type
   val genericTypes: List<TypeCstNode>,
   val arrayDimensions: Int,
+  val nullable: Boolean,
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) : AbstractCstNode(parent, tokenStart, tokenEnd) {
 
-    fun withDimensions(arrayDimensions: Int) = TypeCstNode(parent, value, genericTypes, arrayDimensions, tokenStart, tokenEnd)
+    fun withDimensions(arrayDimensions: Int) = TypeCstNode(parent, value, genericTypes, arrayDimensions, nullable, tokenStart, tokenEnd)
 
     override fun toString(): String {
         val builder = StringBuilder()

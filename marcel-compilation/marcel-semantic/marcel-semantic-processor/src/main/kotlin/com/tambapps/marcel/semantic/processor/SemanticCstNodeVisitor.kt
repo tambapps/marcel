@@ -165,6 +165,7 @@ import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.Nullness
 import com.tambapps.marcel.semantic.type.PrimitiveCollectionTypes
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
@@ -873,10 +874,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
       TokenType.QUESTION_DOT -> {
         val left = leftOperand.accept(this)
-        if (left.type.primitive) return exprError(
-          node,
-          "Cannot use safe access operator on primitive type as it cannot be null", smartCastType
-        )
+        if (left.type.primitive) error(node, "Cannot use safe access operator on primitive type as it cannot be null")
 
         currentMethodScope.useTempLocalVariable(left.type) { lv ->
           var dotNode = dotOperator(node, ReferenceNode(variable = lv, token = node.token), rightOperand, smartCastType = smartCastType)
@@ -915,6 +913,7 @@ abstract class SemanticCstNodeVisitor constructor(
                   leftOperand.value,
                   emptyList(),
                   0,
+                  false,
                   leftOperand.tokenStart,
                   leftOperand.tokenEnd
                 )
@@ -1135,6 +1134,9 @@ abstract class SemanticCstNodeVisitor constructor(
     discardOwnerInReturned: Boolean = false,
     smartCastType: JavaType? = null
   ): ExpressionNode {
+    if (owner.type.nullness == Nullness.NULLABLE) {
+      error(node, "Cannot use dot operator on nullable type")
+    }
     return when (rightOperand) {
       is FunctionCallCstNode -> {
         val positionalArguments = rightOperand.positionalArgumentNodes.map { it.accept(this) }

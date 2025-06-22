@@ -384,7 +384,7 @@ class MarcelParserTest {
     private fun stmt(expr: ExpressionCstNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun returnNode(expr: ExpressionCstNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun nullValue() = NullCstNode(token = token())
-    private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
+    private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0, nullable: Boolean = false) = TypeCstNode(null, value, genericTypes, arrayDimensions, nullable, token(), token())
     private fun int(value: Int) = IntCstNode(value = value, token = token())
     private fun string(value: Any) = StringCstNode(value = value.toString(), token = token())
     private fun templateSting(value: Any) = TemplateStringCstNode(expressions = listOf(string(value)), tokenStart = token(), tokenEnd = token(), parent = null)

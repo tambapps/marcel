@@ -77,6 +77,9 @@ interface JavaType: JavaTyped {
   val isTopLevel get() = !className.contains("$")
   val isExtensionType: Boolean
   val globalExtendedType: JavaType?
+  // TODO add a withNullness or something
+  val nullness: Nullness
+  val isNullable: Boolean get() = nullness != Nullness.NOT_NULL
 
   val hasGenericTypes: Boolean get() = genericTypes.isNotEmpty()
   val innerName: String? get() {

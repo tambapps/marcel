@@ -366,6 +366,7 @@ LONG_TEMPLATE_ENTRY_START=\$\{
 "<<"          { return token(LEFT_SHIFT); }
 ">>"          { return token(RIGHT_SHIFT); }
 "&&"          { return token(AND); }
+"!!"          { return token(NON_NULL); }
 "||"          { return token(OR); }
 "|"          { return token(PIPE); }
 ">="          { return token(GOE); }

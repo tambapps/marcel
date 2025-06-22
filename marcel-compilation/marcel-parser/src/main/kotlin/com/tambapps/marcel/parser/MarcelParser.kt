@@ -241,7 +241,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         skip(2)
         val tokenStart = current
         extensionTypes.add(
-          TypeCstNode(parentNode, importExtensionType(), emptyList(), 0, tokenStart, previous)
+          TypeCstNode(parentNode, importExtensionType(), emptyList(), 0, false, tokenStart, previous)
         )
       } else {
         imports.add(import(parentNode))
@@ -438,7 +438,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       val isThisParameter = acceptOptional(TokenType.THIS) != null && acceptOptional(TokenType.DOT) != null
       val type =
         if (!isThisParameter) parseType(parentNode)
-        else TypeCstNode(parentNode, "", emptyList(), 0, previous, previous)
+        // dummy type that will not be used as we will just use the type of the field
+        else TypeCstNode(parentNode, "", emptyList(), 0, false, previous, previous)
       if (isVarArgs) {
         // if it is true, and we went there, it means the three dots were not on the last parameter
         throw MarcelParserException(parameters.last().token, "Vararg parameter can only be the last parameter")
@@ -525,9 +526,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       accept(TokenType.GT)
     }
 
+    val nullable = acceptOptional(TokenType.QUESTION_MARK) != null
     // array dimensions
     val arrayDimension = parseArrayDimensions()
-    return TypeCstNode(parentNode, typeFragments.joinToString(separator = "$"), genericTypes, arrayDimension, tokenStart, previous)
+    return TypeCstNode(parentNode, typeFragments.joinToString(separator = "$"), genericTypes, arrayDimension, nullable, tokenStart, previous)
   }
 
   private fun parseArrayDimensions(): Int {
@@ -894,7 +896,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           val arrayDimensions = parseArrayDimensions()
           accept(TokenType.DOT)
           accept(TokenType.CLASS)
-          ClassReferenceCstNode(parentNode, TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
+          ClassReferenceCstNode(parentNode, TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, false, token, previous), token, previous)
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
           indexAccessCstNode(parentNode, ReferenceCstNode(parentNode, token.value, token))
         } else {
@@ -1037,7 +1039,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         accept(TokenType.CLASS)
         ClassReferenceCstNode(parentNode,
           TypeCstNode(parentNode,
-            if (token.type == DYNOBJ) DynamicObject::class.java.name else token.value, emptyList(), arrayDimensions, token, previous), token, previous)
+            if (token.type == DYNOBJ) DynamicObject::class.java.name else token.value, emptyList(), arrayDimensions, false, token, previous), token, previous)
       }
       TokenType.WHEN, TokenType.SWITCH -> {
         if (token.type == TokenType.WHEN && current.type != TokenType.BRACKETS_OPEN) {

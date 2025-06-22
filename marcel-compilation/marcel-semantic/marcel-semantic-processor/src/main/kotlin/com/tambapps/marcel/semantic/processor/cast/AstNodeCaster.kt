@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.exception.TypeCastException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.Nullness
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper
@@ -24,7 +25,9 @@ class AstNodeCaster(
   override fun truthyCast(node: ExpressionNode): ExpressionNode {
     return when (node.type) {
       JavaType.boolean -> node
-      JavaType.Boolean -> javaCast(JavaType.boolean, node)
+      JavaType.Boolean ->
+        if (node.type.nullness == Nullness.NOT_NULL) javaCast(JavaType.boolean, node)
+        else functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
       else -> {
         if (node.type.primitive) throw TypeCastException(node.token, "Cannot cast primitive into boolean")
         functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
@@ -36,7 +39,11 @@ class AstNodeCaster(
    * Cast the provided node (if necessary) so that it fits the expected type.
    * Throws a MarcelSemanticException in case of casting failure
    */
-  override fun cast(
+  override fun cast(expectedType: JavaType, node: ExpressionNode) = doCast(expectedType, node).apply {
+    checkNullness(expectedType, this)
+  }
+
+  private fun doCast(
     expectedType: JavaType,
     node: ExpressionNode
   ): ExpressionNode {
@@ -89,7 +96,11 @@ class AstNodeCaster(
     }
   }
 
-  override fun javaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
+  override fun javaCast(expectedType: JavaType, node: ExpressionNode) = doJavaCast(expectedType, node).apply {
+    checkNullness(expectedType, this)
+  }
+
+  private fun doJavaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
     val actualType = node.type
     return when {
       actualType.primitive && expectedType.primitive -> primitiveToPrimitiveJavaCast(expectedType, node, actualType)
@@ -214,5 +225,11 @@ class AstNodeCaster(
       // passing dummy to inform code highlight that this is not a fCall from the real marcel source code
       LexToken.DUMMY
     )
+  }
+
+  private fun checkNullness(expectedType: JavaType, node: ExpressionNode) {
+    if (expectedType.nullness == Nullness.NOT_NULL && node.type.nullness == Nullness.NULLABLE) {
+      throw TypeCastException(node.token, "Expected non-null value but $node is nullable")
+    }
   }
 }
