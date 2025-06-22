@@ -31,7 +31,6 @@ open class ImportResolver internal constructor(
   }
 
   fun resolveType(symbolResolver: MarcelSymbolResolver, classSimpleName: String): JavaType? {
-    typeImports[classSimpleName]
     return typeImports[classSimpleName]
       ?: wildcardTypeImportPrefixes.firstNotNullOfOrNull {
         try { symbolResolver.of("${it}.$classSimpleName") }
