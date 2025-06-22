@@ -19,7 +19,6 @@ class JavaPrimitiveType internal constructor(
   val objectClass = objectKlazz.java
   override val objectType: JavaType
     get() = JavaType.of(objectClass)
-  override val nullness get() = Nullness.NOT_NULL
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaPrimitiveType {
     if (genericTypes.isNotEmpty()) throw MarcelSemanticException(LexToken.DUMMY, "Cannot have primitive type with generic types")
     return this

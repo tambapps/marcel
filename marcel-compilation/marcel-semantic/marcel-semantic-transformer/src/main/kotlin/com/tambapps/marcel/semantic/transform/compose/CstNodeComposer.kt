@@ -88,7 +88,7 @@ open class CstNodeComposer {
   // TODO review use of these to ensure the nullable parameter should be passed or not
   protected fun type(type: KClass<*>): TypeCstNode = type(type.javaType)
   protected fun type(type: JavaType): TypeCstNode =
-    TypeCstNode(null, type.className, emptyList(), 0, type.isNullable, LexToken.DUMMY, LexToken.DUMMY)
+    TypeCstNode(null, type.className, emptyList(), 0, false, LexToken.DUMMY, LexToken.DUMMY)
 
   protected fun ref(name: String) = ReferenceCstNode(null, name, LexToken.DUMMY)
   protected fun directFieldRef(name: String) = DirectFieldReferenceCstNode(null, name, LexToken.DUMMY)

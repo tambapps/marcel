@@ -25,9 +25,7 @@ class AstNodeCaster(
   override fun truthyCast(node: ExpressionNode): ExpressionNode {
     return when (node.type) {
       JavaType.boolean -> node
-      JavaType.Boolean ->
-        if (node.type.nullness == Nullness.NOT_NULL) javaCast(JavaType.boolean, node)
-        else functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
+      JavaType.Boolean -> javaCast(JavaType.boolean, node)
       else -> {
         if (node.type.primitive) throw TypeCastException(node.token, "Cannot cast primitive into boolean")
         functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
@@ -228,8 +226,11 @@ class AstNodeCaster(
   }
 
   private fun checkNullness(expectedType: JavaType, node: ExpressionNode) {
+    /* TODO
     if (expectedType.nullness == Nullness.NOT_NULL && node.type.nullness == Nullness.NULLABLE) {
       throw TypeCastException(node.token, "Expected non-null value but $node is nullable")
     }
+
+     */
   }
 }

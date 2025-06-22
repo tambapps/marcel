@@ -22,7 +22,6 @@ open class SourceJavaType constructor(
   override val isAnnotation: Boolean,
   override val isExtensionType: Boolean,
   override var globalExtendedType: JavaType?,
-  override val nullness: Nullness = Nullness.NOT_NULL
 ): AbstractJavaType() {
 
   private val annotations = mutableListOf<JavaAnnotation>()

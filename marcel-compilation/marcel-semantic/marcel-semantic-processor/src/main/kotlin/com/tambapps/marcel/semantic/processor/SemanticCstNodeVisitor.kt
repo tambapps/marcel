@@ -1134,9 +1134,6 @@ abstract class SemanticCstNodeVisitor constructor(
     discardOwnerInReturned: Boolean = false,
     smartCastType: JavaType? = null
   ): ExpressionNode {
-    if (owner.type.nullness == Nullness.NULLABLE) {
-      error(node, "Cannot use dot operator on nullable type")
-    }
     return when (rightOperand) {
       is FunctionCallCstNode -> {
         val positionalArguments = rightOperand.positionalArgumentNodes.map { it.accept(this) }
