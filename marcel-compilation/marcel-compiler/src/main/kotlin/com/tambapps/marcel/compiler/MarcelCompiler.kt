@@ -72,10 +72,10 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
 
       handleDumbbells(marcelClassLoader, cst)
 
-      SourceFileSemanticProcessor(symbolResolver, configuration.scriptClass.javaType, cst, sourceFile.fileName)
+      SourceFileSemanticProcessor(symbolResolver, configuration.semanticConfiguration.scriptClass.javaType, cst, sourceFile.fileName)
     }
 
-    val asts = MarcelSemanticAnalysis.apply(configuration, symbolResolver, semantics)
+    val asts = MarcelSemanticAnalysis.apply(configuration.semanticConfiguration, symbolResolver, semantics)
 
     val classWriter = MarcelClassCompiler(configuration, symbolResolver)
 

@@ -12,8 +12,8 @@ import marcel.lang.Script
 abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfiguration) {
 
   init {
-    if (!Script::class.java.isAssignableFrom(configuration.scriptClass)) {
-      throw MarcelSemanticException(LexToken.DUMMY, "Invalid compiler configuration: Class ${configuration.scriptClass} does not extends marcel.lang.Script")
+    if (!Script::class.java.isAssignableFrom(configuration.semanticConfiguration.scriptClass)) {
+      throw MarcelSemanticException(LexToken.DUMMY, "Invalid compiler configuration: Class ${configuration.semanticConfiguration.scriptClass} does not extends marcel.lang.Script")
     }
   }
 

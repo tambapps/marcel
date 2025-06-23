@@ -4,14 +4,11 @@ import com.tambapps.marcel.semantic.analysis.SemanticConfiguration
 import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import marcel.lang.Script
 
-class CompilerConfiguration(
-  scriptClass: Class<*> = Script::class.java,
-  purpose: SemanticPurpose = SemanticPurpose.COMPILATION,
+data class CompilerConfiguration(
+  val semanticConfiguration: SemanticConfiguration = SemanticConfiguration(),
   val classVersion: Int = computeClassVersion(),
   val dumbbellEnabled: Boolean = false,
-): SemanticConfiguration(scriptClass, purpose) {
-
-  constructor(classVersion: Int, dumbbellEnabled: Boolean): this(classVersion = classVersion, dumbbellEnabled = dumbbellEnabled, scriptClass = Script::class.java)
+) {
 
   companion object {
     @JvmStatic
@@ -47,24 +44,8 @@ class CompilerConfiguration(
     }
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is CompilerConfiguration) return false
-    if (!super.equals(other)) return false
 
-    if (classVersion != other.classVersion) return false
-    if (dumbbellEnabled != other.dumbbellEnabled) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + classVersion
-    return result
-  }
-
-  fun withPurpose(purpose: SemanticPurpose): CompilerConfiguration {
-    return CompilerConfiguration(scriptClass, purpose, classVersion, dumbbellEnabled)
-  }
+  fun withPurpose(purpose: SemanticPurpose) = copy(
+    semanticConfiguration.copy(purpose = purpose)
+  )
 }

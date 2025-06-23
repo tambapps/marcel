@@ -26,7 +26,7 @@ class MarcelReplCompiler constructor(
   internal val marcelClassLoader: MarcelClassLoader,
   internal val symbolResolver: ReplMarcelSymbolResolver,
 ): AbstractMarcelCompiler(
-  if (compilerConfiguration.purpose == SemanticPurpose.REPL) compilerConfiguration
+  if (compilerConfiguration.semanticConfiguration.purpose == SemanticPurpose.REPL) compilerConfiguration
   else compilerConfiguration.withPurpose(purpose = SemanticPurpose.REPL)
 ) {
 
@@ -167,7 +167,7 @@ class MarcelReplCompiler constructor(
     }
 
     val semantic = SourceFileReplSemanticProcessor(symbolResolver, cst, "prompt.mcl", imports)
-    val ast = MarcelSemanticAnalysis.apply(configuration, symbolResolver, semantic)
+    val ast = MarcelSemanticAnalysis.apply(configuration.semanticConfiguration, symbolResolver, semantic)
 
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     return r

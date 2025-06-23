@@ -5,6 +5,7 @@ import com.tambapps.marcel.compiler.MarcelCompiler;
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException;
 import com.tambapps.marcel.lexer.MarcelLexerException;
 import com.tambapps.marcel.parser.MarcelParserException;
+import com.tambapps.marcel.semantic.analysis.SemanticConfiguration;
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException;
 import marcel.lang.MarcelClassLoader;
 import marcel.lang.URLMarcelClassLoader;
@@ -62,7 +63,7 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
             }
             classVersion = version;
         }
-        CompilerConfiguration configuration = new CompilerConfiguration(classVersion, false);
+        CompilerConfiguration configuration = new CompilerConfiguration(new SemanticConfiguration(), classVersion, false);
         MarcelCompiler compiler = new MarcelCompiler(configuration);
 
         AtomicInteger classesCount = new AtomicInteger();
