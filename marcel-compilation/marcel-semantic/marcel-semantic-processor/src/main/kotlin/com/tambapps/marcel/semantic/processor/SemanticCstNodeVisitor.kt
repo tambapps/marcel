@@ -1085,22 +1085,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
   private fun assignment(left: ExpressionNode, right: ExpressionNode, node: CstNode): ExpressionNode {
     return when (left) {
-      is ReferenceNode -> {
-        if (left.nullness == Nullness.NOT_NULL && right.nullness == Nullness.NULLABLE) {
-          error(node, "Cannot assign nullable value $right to a non null variable")
-        }
-        val variable = left.variable
-        try {
-          checkVariableAccess(variable, node, checkSet = true)
-        } catch (e: VariableAccessException) {
-          error(left, e.message)
-        }
-        VariableAssignmentNode(
-          variable,
-          cast(variable.type, right), left.owner, node
-        )
-      }
-
+      is ReferenceNode -> assignment(variable = left.variable, owner = left.owner, expression = right, node = node)
       is GetAtFunctionCallNode -> {
         val owner = left.ownerNode
         val arguments = left.arguments + right
@@ -1126,6 +1111,21 @@ abstract class SemanticCstNodeVisitor constructor(
       }
       else -> return exprError(node, "Invalid assignment operator use", left.type)
     }
+  }
+
+  private fun assignment(variable: Variable, owner: ExpressionNode?, expression: ExpressionNode, node: CstNode): ExpressionNode {
+    if (variable.nullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
+      error(node, "Cannot assign nullable value to non null variable ${variable.name}")
+    }
+    try {
+      checkVariableAccess(variable, node, checkSet = true)
+    } catch (e: VariableAccessException) {
+      error(node, e.message)
+    }
+    return VariableAssignmentNode(
+      variable,
+      cast(variable.type, expression), owner, node
+    )
   }
 
   private fun dotOperator(
@@ -1693,16 +1693,16 @@ abstract class SemanticCstNodeVisitor constructor(
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
     val variableType = resolve(node.type)
     // need to visit the expression BEFORE declaring the variable because the variable is not supposed to exist yet when evaluating the expression
-    val expression = node.expressionNode?.accept(this, variableType)?.let { cast(variableType, it) }
+    val expression = node.expressionNode?.accept(this, variableType)
     val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, Nullness.of(node.isNullable), token = node.token)
-    try {
-      checkVariableAccess(variable, node, checkSet = true)
-    } catch (e: VariableAccessException) {
-      error(node, e.message)
-    }
     return ExpressionStatementNode(
-      VariableAssignmentNode(variable, expression
-          ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd, node.variableToken)
+      assignment(
+        variable = variable,
+        owner = null,
+        // "assignment" method will take care of casting, that needs to be done AFTER having checked nullness compatibility
+        expression = expression ?: variable.type.getDefaultValueExpression(node.token),
+        node = node
+      )
     )
   }
 
