@@ -9,7 +9,7 @@ import com.tambapps.marcel.semantic.symbol.variable.field.JavaClassField
 class FieldNode constructor(
   type: JavaType, name: String, owner: JavaType,
   override val nullness: Nullness,
-  override val annotations: List<AnnotationNode>,
+  override val annotations: MutableList<AnnotationNode>,
   override val isFinal: Boolean,
   override val visibility: Visibility,
   override val isStatic: Boolean,

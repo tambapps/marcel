@@ -12,6 +12,8 @@ class AnnotationNode constructor(
   val identifierToken: LexToken? = null
 ) : JavaAnnotation, AstNode {
 
+  constructor(type: JavaAnnotationType, attributes: List<JavaAnnotation.Attribute>, node: AstNode)
+      : this(type, attributes, node.tokenStart, node.tokenEnd)
   override fun getAttribute(name: String): JavaAnnotation.Attribute? {
     type.attributes.find { it.name == name }
     return attributes.find { it.name == name }

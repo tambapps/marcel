@@ -501,7 +501,7 @@ abstract class AbstractMarcelSemantic(
           name = outerFieldName,
           owner = classNode.type,
           nullness = Nullness.NOT_NULL,
-          annotations = emptyList(),
+          annotations = mutableListOf(),
           isFinal = true,
           visibility = Visibility.INTERNAL,
           isStatic = false,
@@ -673,7 +673,7 @@ abstract class AbstractMarcelSemantic(
       for (reference in references) {
         // add field node
         val fieldNode = FieldNode(
-          reference.type, reference.variable.name, lambdaType, reference.nullness, emptyList(), true, Visibility.PRIVATE,
+          reference.type, reference.variable.name, lambdaType, reference.nullness, mutableListOf(), true, Visibility.PRIVATE,
           isStatic = false, tokenStart, tokenEnd
         )
         symbolResolver.defineField(lambdaType, fieldNode)

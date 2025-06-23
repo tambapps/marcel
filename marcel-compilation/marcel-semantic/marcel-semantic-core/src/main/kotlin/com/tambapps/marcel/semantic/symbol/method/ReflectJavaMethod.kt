@@ -99,7 +99,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       }
 
       val nullness = Nullness.of(parameter, declaringClass)
-      return MethodParameter(type, rawType, nullness, parameter.name, isFinal = (parameter.modifiers and Modifier.FINAL) != 0, isSynthetic = parameter.isSynthetic, emptyList(),  defaultValue)
+      return MethodParameter(type, rawType, nullness, parameter.name, isFinal = (parameter.modifiers and Modifier.FINAL) != 0, isSynthetic = parameter.isSynthetic, mutableListOf(),  defaultValue)
     }
 
     private fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {

@@ -170,7 +170,7 @@ abstract class AstNodeComposer(
     isFinal: Boolean = false,
     isStatic: Boolean = false
   ): FieldNode {
-    return FieldNode(type, name, owner, nullness, annotations, isFinal, visibility, isStatic, tokenStart, tokenEnd)
+    return FieldNode(type, name, owner, nullness, annotations.toMutableList(), isFinal, visibility, isStatic, tokenStart, tokenEnd)
   }
 
   fun newLambda(

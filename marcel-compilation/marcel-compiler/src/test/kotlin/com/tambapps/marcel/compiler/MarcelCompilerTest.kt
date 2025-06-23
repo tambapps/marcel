@@ -38,6 +38,9 @@ class MarcelCompilerTest: FunSpec({
     eval("/tests/$manualScriptTest")
   }
 
+  // TODO test
+  //  - annotations async are added for async functions.
+  //  - nullable annotations are added
   /* compiled class tests */
   test("compiled class default parameters") {
     // compile the class defining method with default parameters

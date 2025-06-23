@@ -4,7 +4,6 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.type.JavaType
-import com.tambapps.marcel.semantic.symbol.type.JavaTyped
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 open class MethodParameter constructor(override val type: JavaType,
@@ -13,10 +12,10 @@ open class MethodParameter constructor(override val type: JavaType,
                                        override val name: String,
                                        override val isFinal: Boolean = false,
                                        val isSynthetic: Boolean = false,
-                                       val annotations: List<AnnotationNode>,
+                                       val annotations: MutableList<AnnotationNode>,
                                        val defaultValue: ExpressionNode? = null): Symbol {
   constructor(type: JavaType, nullness: Nullness, name: String, annotations: List<AnnotationNode>, defaultValue: ExpressionNode?, isFinal: Boolean = false, isSynthetic: Boolean = false):
-      this(type, type, nullness, name, isFinal, isSynthetic, annotations, defaultValue)
+      this(type, type, nullness, name, isFinal, isSynthetic, annotations.toMutableList(), defaultValue)
   constructor(type: JavaType, nullness: Nullness, name: String, isFinal: Boolean = false, isSynthetic: Boolean = false):
       this(type, nullness, name, emptyList(), null, isFinal, isSynthetic)
   constructor(type: JavaType, nullness: Nullness, name: String, defaultValue: ExpressionNode?): this(type, nullness, name, emptyList(), defaultValue)

@@ -6,6 +6,11 @@ package com.tambapps.marcel.semantic.processor.check
  */
 object ClassNodePostSemanticChecks {
 
-  val ALL get() = listOf(ExtendingClassCheck(), RecursiveConstructorCheck(), ImplementedInterfaceCheck())
+  val ALL get() = listOf(
+    ExtendingClassCheck(),
+    RecursiveConstructorCheck(),
+    ImplementedInterfaceCheck(),
+    AnnotationDecoratorCheck()
+  )
 
 }

@@ -9,7 +9,6 @@ import com.tambapps.marcel.semantic.symbol.method.MethodParameter
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
-// TODO take care of adding jspecify annotation. Same for field, method parameters,
 class MethodNode constructor(
   override val name: String,
   // var because sometimes it needs to be re-set after-hand

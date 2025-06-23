@@ -294,7 +294,7 @@ open class SourceFileSemanticProcessor(
         val fieldNode = FieldNode(
           resolve(cstFieldNode.type), cstFieldNode.name, classType,
           Nullness.of(cstFieldNode.isNullable),
-          cstFieldNode.annotations.map { visit(it, ElementType.FIELD) },
+          cstFieldNode.annotations.map { visit(it, ElementType.FIELD) }.toMutableList(),
           cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
           cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd, identifierToken = cstFieldNode.identifierToken
         )
@@ -381,7 +381,7 @@ open class SourceFileSemanticProcessor(
     private val valuesField = FieldNode(
       type = classType.arrayType,
       name = ENUM_VALUES_FIELD_NAME,
-      owner = classType, annotations = emptyList(),
+      owner = classType, annotations = mutableListOf(),
       isFinal = true,
       visibility = Visibility.PRIVATE,
       isStatic = true,
@@ -427,7 +427,7 @@ open class SourceFileSemanticProcessor(
           type = classType,
           name = name,
           nullness = Nullness.NOT_NULL,
-          owner = classType, annotations = emptyList(),
+          owner = classType, annotations = mutableListOf(),
           isFinal = true,
           isStatic = true,
           isEnum = true,
@@ -750,9 +750,6 @@ open class SourceFileSemanticProcessor(
 
     // filling annotations
     annotations.forEach { methodeNode.annotations.add(visit(it, ElementType.METHOD)) }
-    if (isAsync) {
-      addAsyncAnnotation(methodeNode)
-    }
 
     val statements = if (isSingleStatementMethod && cstStatements.size == 1
       && methodeNode.returnType != JavaType.void

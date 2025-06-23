@@ -185,7 +185,6 @@ import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import marcel.lang.lambda.Lambda
 import marcel.lang.runtime.BytecodeHelper
-import marcel.util.concurrent.Async
 import marcel.util.concurrent.Threadmill
 import java.io.Closeable
 import java.lang.annotation.ElementType
@@ -2052,7 +2051,7 @@ abstract class SemanticCstNodeVisitor constructor(
             lv.name,
             lambdaNode.type,
             lv.nullness,
-            emptyList(),
+            mutableListOf(),
             true,
             Visibility.PRIVATE,
             false,
@@ -2397,24 +2396,9 @@ abstract class SemanticCstNodeVisitor constructor(
       methodName, nullness, parameters, Visibility.PRIVATE, returnType,
       currentMethodScope.staticContext, asyncReturnType, node.tokenStart, node.tokenEnd, classType
     )
-    if (methodNode.isAsync) {
-      addAsyncAnnotation(methodNode)
-    }
     symbolResolver.defineMethod(classType, methodNode)
     classNode.methods.add(methodNode)
     return methodNode
-  }
-
-  protected fun addAsyncAnnotation(methodeNode: MethodNode) {
-    val annotation = AnnotationNode(
-      type = Async::class.javaAnnotationType,
-      tokenStart = methodeNode.tokenStart,
-      tokenEnd = methodeNode.tokenEnd,
-      attributes = listOf(
-        JavaAnnotation.Attribute("returnType", JavaType.Clazz, methodeNode.returnType.genericTypes.first().objectType)
-      ),
-    )
-    methodeNode.annotations.add(annotation)
   }
 
   private fun toIf(
