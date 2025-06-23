@@ -1,9 +1,5 @@
 package com.tambapps.marcel.semantic.symbol.type
 
-import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.ast.AnnotationNode
-import com.tambapps.marcel.semantic.ast.AstNode
-import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.symbol.NullAware
 import org.jspecify.annotations.NonNull
 import org.jspecify.annotations.NullMarked
@@ -39,6 +35,7 @@ enum class Nullness {
     }
 
     fun of(field: Field) = when {
+      field.type.isPrimitive -> NOT_NULL
       field.getAnnotation(Nullable::class.java) != null -> NULLABLE
       field.getAnnotation(NonNull::class.java) != null -> NOT_NULL
       field.getAnnotation(NullMarked::class.java) != null
@@ -49,6 +46,7 @@ enum class Nullness {
     }
 
     fun of(method: Method) = when {
+      method.returnType.isPrimitive -> NOT_NULL
       method.getAnnotation(Nullable::class.java) != null -> NULLABLE
       method.getAnnotation(NonNull::class.java) != null -> NOT_NULL
       method.getAnnotation(NullMarked::class.java) != null
@@ -59,6 +57,7 @@ enum class Nullness {
     }
 
     fun of(parameter: Parameter, declaringClass: Class<*>) = when {
+      parameter.type.isPrimitive -> NOT_NULL
       parameter.getAnnotation(Nullable::class.java) != null -> NULLABLE
       parameter.getAnnotation(NonNull::class.java) != null -> NOT_NULL
       declaringClass.getAnnotation(NullMarked::class.java) != null
@@ -67,16 +66,5 @@ enum class Nullness {
         -> if (parameter.getAnnotation(Nullable::class.java) != null) NULLABLE else NOT_NULL
       else -> UNKNOWN
     }
-    fun nullableAnnotation(node: AstNode) = nullableAnnotation(node.tokenStart, node.tokenEnd)
-    fun nullableAnnotation(tokenStart: LexToken, tokenEnd: LexToken) = annotation(Nullable::class.javaAnnotationType, tokenStart, tokenEnd)
-
-    fun nonNullAnnotation(node: AstNode) = nonNullAnnotation(node.tokenStart, node.tokenEnd)
-    fun nonNullAnnotation(tokenStart: LexToken, tokenEnd: LexToken) = annotation(NonNull::class.javaAnnotationType, tokenStart, tokenEnd)
-
-    private fun annotation(annotationType: JavaAnnotationType, tokenStart: LexToken, tokenEnd: LexToken) = AnnotationNode(
-      annotationType,
-      emptyList(),
-      tokenStart, tokenEnd
-    )
   }
 }
