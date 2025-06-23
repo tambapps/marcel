@@ -38,6 +38,19 @@ import java.util.function.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+/**
+ * This class contains methods that are considered as extension methods.
+ * Extension methods are methods that can be called as if they were instance methods
+ * of the class of their first parameter.
+ * 
+ * For example, a method:
+ * String foo(Integer bar, String zoo)
+ * 
+ * Can be called like:
+ * Integer.foo(zoo) -> String
+ * 
+ * The first parameter MUST be named "$self" to be considered as an extension method.
+ */
 @NullMarked
 @ExtensionClass
 @SuppressWarnings({"unused"})
@@ -2224,6 +2237,795 @@ public final class DefaultMarcelMethods {
         .collect(Collectors.groupingBy(keyExtractor));
   }
 
+  /**
+   * Groups elements of an array by a key extractor function
+   * 
+   * @param $self the array to group
+   * @param keyExtractor the function extracting the key
+   * @param <T> the type of array elements
+   * @param <U> the type of the keys
+   * @return a map where keys are the extracted values and values are lists of elements
+   */
+  public static <T, U> Map<U, List<T>> groupBy(T[] $self, Function<T, U> keyExtractor) {
+    return Arrays.stream($self)
+        .collect(Collectors.groupingBy(keyExtractor));
+  }
+  
+  /**
+   * Applies a function to each element in a collection and sums the results
+   * 
+   * @param $self the collection
+   * @param mapper the function to apply to each element
+   * @param <T> the type of elements in the collection
+   * @return the sum of all mapped values
+   */
+  public static <T> int sumBy(Collection<T> $self, ToIntFunction<T> mapper) {
+    int sum = 0;
+    for (T item : $self) {
+      sum += mapper.applyAsInt(item);
+    }
+    return sum;
+  }
+  
+  /**
+   * Applies a function to each element in an array and sums the results
+   * 
+   * @param $self the array
+   * @param mapper the function to apply to each element
+   * @param <T> the type of elements in the array
+   * @return the sum of all mapped values
+   */
+  public static <T> int sumBy(T[] $self, ToIntFunction<T> mapper) {
+    int sum = 0;
+    for (T item : $self) {
+      sum += mapper.applyAsInt(item);
+    }
+    return sum;
+  }
+  
+  /**
+   * Applies a function to each element in a collection and sums the results as long values
+   * 
+   * @param $self the collection
+   * @param mapper the function to apply to each element
+   * @param <T> the type of elements in the collection
+   * @return the sum of all mapped values
+   */
+  public static <T> long sumByLong(Collection<T> $self, ToLongFunction<T> mapper) {
+    long sum = 0;
+    for (T item : $self) {
+      sum += mapper.applyAsLong(item);
+    }
+    return sum;
+  }
+  
+  /**
+   * Applies a function to each element in an array and sums the results as long values
+   * 
+   * @param $self the array
+   * @param mapper the function to apply to each element
+   * @param <T> the type of elements in the array
+   * @return the sum of all mapped values
+   */
+  public static <T> long sumByLong(T[] $self, ToLongFunction<T> mapper) {
+    long sum = 0;
+    for (T item : $self) {
+      sum += mapper.applyAsLong(item);
+    }
+    return sum;
+  }
+  
+  /**
+   * Applies a function to each element in a collection and sums the results as double values
+   * 
+   * @param $self the collection
+   * @param mapper the function to apply to each element
+   * @param <T> the type of elements in the collection
+   * @return the sum of all mapped values
+   */
+  public static <T> double sumByDouble(Collection<T> $self, ToDoubleFunction<T> mapper) {
+    double sum = 0;
+    for (T item : $self) {
+      sum += mapper.applyAsDouble(item);
+    }
+    return sum;
+  }
+  
+  /**
+   * Applies a function to each element in an array and sums the results as double values
+   * 
+   * @param $self the array
+   * @param mapper the function to apply to each element
+   * @param <T> the type of elements in the array
+   * @return the sum of all mapped values
+   */
+  public static <T> double sumByDouble(T[] $self, ToDoubleFunction<T> mapper) {
+    double sum = 0;
+    for (T item : $self) {
+      sum += mapper.applyAsDouble(item);
+    }
+    return sum;
+  }
+  
+  /**
+   * Executes the given action on each element
+   * 
+   * @param $self the collection
+   * @param action the action to execute on each element
+   * @param <T> the type of elements in the collection
+   * @return the collection itself, allowing for method chaining
+   */
+  public static <T> Collection<T> each(Collection<T> $self, Consumer<T> action) {
+    for (T item : $self) {
+      action.accept(item);
+    }
+    return $self;
+  }
+  
+  /**
+   * Executes the given action on each element
+   * 
+   * @param $self the array
+   * @param action the action to execute on each element
+   * @param <T> the type of elements in the array
+   * @return the array itself, allowing for method chaining
+   */
+  public static <T> T[] each(T[] $self, Consumer<T> action) {
+    for (T item : $self) {
+      action.accept(item);
+    }
+    return $self;
+  }
+  
+  /**
+   * Executes the given action on each element with its index
+   * 
+   * @param $self the collection
+   * @param action the action to execute on each element with its index
+   * @param <T> the type of elements in the collection
+   * @return the collection itself, allowing for method chaining
+   */
+  public static <T> Collection<T> eachWithIndex(Collection<T> $self, BiConsumer<T, Integer> action) {
+    int index = 0;
+    for (T item : $self) {
+      action.accept(item, index++);
+    }
+    return $self;
+  }
+  
+  /**
+   * Executes the given action on each element with its index
+   * 
+   * @param $self the array
+   * @param action the action to execute on each element with its index
+   * @param <T> the type of elements in the array
+   * @return the array itself, allowing for method chaining
+   */
+  public static <T> T[] eachWithIndex(T[] $self, BiConsumer<T, Integer> action) {
+    for (int i = 0; i < $self.length; i++) {
+      action.accept($self[i], i);
+    }
+    return $self;
+  }
+  
+  /**
+   * Executes the given action on each element
+   * 
+   * @param $self the array
+   * @param action the action to execute on each element
+   * @return the array itself, allowing for method chaining
+   */
+  public static int[] each(int[] $self, IntConsumer action) {
+    for (int item : $self) {
+      action.accept(item);
+    }
+    return $self;
+  }
+  
+  /**
+   * Executes the given action on each element with its index
+   * 
+   * @param $self the array
+   * @param action the action to execute on each element with its index
+   * @return the array itself, allowing for method chaining
+   */
+  public static int[] eachWithIndex(int[] $self, ObjIntConsumer<Integer> action) {
+    for (int i = 0; i < $self.length; i++) {
+      action.accept($self[i], i);
+    }
+    return $self;
+  }
+  
+  /**
+   * Takes the first n elements from the collection
+   * 
+   * @param $self the collection
+   * @param n the number of elements to take
+   * @param <T> the type of elements in the collection
+   * @return a new list containing the first n elements
+   */
+  public static <T> List<T> take(Collection<T> $self, int n) {
+    if (n <= 0) return new ArrayList<>();
+    List<T> result = new ArrayList<>(Math.min(n, $self.size()));
+    int count = 0;
+    for (T item : $self) {
+      result.add(item);
+      if (++count >= n) break;
+    }
+    return result;
+  }
+  
+  /**
+   * Takes the first n elements from the array
+   * 
+   * @param $self the array
+   * @param n the number of elements to take
+   * @param <T> the type of elements in the array
+   * @return a new list containing the first n elements
+   */
+  public static <T> List<T> take(T[] $self, int n) {
+    if (n <= 0) return new ArrayList<>();
+    List<T> result = new ArrayList<>(Math.min(n, $self.length));
+    for (int i = 0; i < Math.min(n, $self.length); i++) {
+      result.add($self[i]);
+    }
+    return result;
+  }
+  
+  /**
+   * Takes the last n elements from the collection
+   * 
+   * @param $self the collection
+   * @param n the number of elements to take
+   * @param <T> the type of elements in the collection
+   * @return a new list containing the last n elements
+   */
+  public static <T> List<T> takeLast(List<T> $self, int n) {
+    if (n <= 0) return new ArrayList<>();
+    int start = Math.max(0, $self.size() - n);
+    return new ArrayList<>($self.subList(start, $self.size()));
+  }
+  
+  /**
+   * Takes the last n elements from the array
+   * 
+   * @param $self the array
+   * @param n the number of elements to take
+   * @param <T> the type of elements in the array
+   * @return a new list containing the last n elements
+   */
+  public static <T> List<T> takeLast(T[] $self, int n) {
+    if (n <= 0) return new ArrayList<>();
+    int start = Math.max(0, $self.length - n);
+    List<T> result = new ArrayList<>(Math.min(n, $self.length));
+    for (int i = start; i < $self.length; i++) {
+      result.add($self[i]);
+    }
+    return result;
+  }
+  
+  /**
+   * Takes elements from the collection while the predicate returns true
+   * 
+   * @param $self the collection
+   * @param predicate the predicate to test elements
+   * @param <T> the type of elements in the collection
+   * @return a new list containing elements until the first element that doesn't satisfy the predicate
+   */
+  public static <T> List<T> takeWhile(Collection<T> $self, Predicate<T> predicate) {
+    List<T> result = new ArrayList<>();
+    for (T item : $self) {
+      if (!predicate.test(item)) break;
+      result.add(item);
+    }
+    return result;
+  }
+  
+  /**
+   * Takes elements from the array while the predicate returns true
+   * 
+   * @param $self the array
+   * @param predicate the predicate to test elements
+   * @param <T> the type of elements in the array
+   * @return a new list containing elements until the first element that doesn't satisfy the predicate
+   */
+  public static <T> List<T> takeWhile(T[] $self, Predicate<T> predicate) {
+    List<T> result = new ArrayList<>();
+    for (T item : $self) {
+      if (!predicate.test(item)) break;
+      result.add(item);
+    }
+    return result;
+  }
+  
+  /**
+   * Drops the first n elements from the collection
+   * 
+   * @param $self the collection
+   * @param n the number of elements to drop
+   * @param <T> the type of elements in the collection
+   * @return a new list containing the remaining elements after dropping n elements
+   */
+  public static <T> List<T> drop(Collection<T> $self, int n) {
+    if (n <= 0) return new ArrayList<>($self);
+    List<T> result = new ArrayList<>(Math.max(0, $self.size() - n));
+    int count = 0;
+    for (T item : $self) {
+      if (count++ >= n) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Drops the first n elements from the array
+   * 
+   * @param $self the array
+   * @param n the number of elements to drop
+   * @param <T> the type of elements in the array
+   * @return a new list containing the remaining elements after dropping n elements
+   */
+  public static <T> List<T> drop(T[] $self, int n) {
+    if (n <= 0) return Arrays.asList($self);
+    List<T> result = new ArrayList<>(Math.max(0, $self.length - n));
+    for (int i = n; i < $self.length; i++) {
+      result.add($self[i]);
+    }
+    return result;
+  }
+  
+  /**
+   * Drops the last n elements from the collection
+   * 
+   * @param $self the collection
+   * @param n the number of elements to drop
+   * @param <T> the type of elements in the collection
+   * @return a new list containing the remaining elements after dropping the last n elements
+   */
+  public static <T> List<T> dropLast(List<T> $self, int n) {
+    if (n <= 0) return new ArrayList<>($self);
+    int newSize = Math.max(0, $self.size() - n);
+    return new ArrayList<>($self.subList(0, newSize));
+  }
+  
+  /**
+   * Drops the last n elements from the array
+   * 
+   * @param $self the array
+   * @param n the number of elements to drop
+   * @param <T> the type of elements in the array
+   * @return a new list containing the remaining elements after dropping the last n elements
+   */
+  public static <T> List<T> dropLast(T[] $self, int n) {
+    if (n <= 0) return Arrays.asList($self);
+    int newSize = Math.max(0, $self.length - n);
+    List<T> result = new ArrayList<>(newSize);
+    for (int i = 0; i < newSize; i++) {
+      result.add($self[i]);
+    }
+    return result;
+  }
+  
+  /**
+   * Drops elements from the collection while the predicate returns true
+   * 
+   * @param $self the collection
+   * @param predicate the predicate to test elements
+   * @param <T> the type of elements in the collection
+   * @return a new list containing elements after the first element that doesn't satisfy the predicate
+   */
+  public static <T> List<T> dropWhile(Collection<T> $self, Predicate<T> predicate) {
+    List<T> result = new ArrayList<>();
+    boolean dropping = true;
+    for (T item : $self) {
+      if (dropping && !predicate.test(item)) {
+        dropping = false;
+      }
+      if (!dropping) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Drops elements from the array while the predicate returns true
+   * 
+   * @param $self the array
+   * @param predicate the predicate to test elements
+   * @param <T> the type of elements in the array
+   * @return a new list containing elements after the first element that doesn't satisfy the predicate
+   */
+  public static <T> List<T> dropWhile(T[] $self, Predicate<T> predicate) {
+    List<T> result = new ArrayList<>();
+    boolean dropping = true;
+    for (T item : $self) {
+      if (dropping && !predicate.test(item)) {
+        dropping = false;
+      }
+      if (!dropping) {
+        result.add(item);
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the collection
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @param <T> the type of elements in the collection
+   * @param <R> the type of the accumulated result
+   * @return the accumulated result
+   */
+  public static <T, R> R fold(Collection<T> $self, R initial, BiFunction<R, T, R> operation) {
+    R result = initial;
+    for (T item : $self) {
+      result = operation.apply(result, item);
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the array
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @param <T> the type of elements in the array
+   * @param <R> the type of the accumulated result
+   * @return the accumulated result
+   */
+  public static <T, R> R fold(T[] $self, R initial, BiFunction<R, T, R> operation) {
+    R result = initial;
+    for (T item : $self) {
+      result = operation.apply(result, item);
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the array
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @return the accumulated result
+   */
+  public static int fold(int[] $self, int initial, IntBinaryOperator operation) {
+    int result = initial;
+    for (int item : $self) {
+      result = operation.applyAsInt(result, item);
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the array
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @return the accumulated result
+   */
+  public static long fold(long[] $self, long initial, LongBinaryOperator operation) {
+    long result = initial;
+    for (long item : $self) {
+      result = operation.applyAsLong(result, item);
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the array
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @return the accumulated result
+   */
+  public static double fold(double[] $self, double initial, DoubleBinaryOperator operation) {
+    double result = initial;
+    for (double item : $self) {
+      result = operation.applyAsDouble(result, item);
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the IntList
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @return the accumulated result
+   */
+  public static int fold(IntList $self, int initial, IntBinaryOperator operation) {
+    int result = initial;
+    IntIterator iterator = $self.iterator();
+    while (iterator.hasNext()) {
+      result = operation.applyAsInt(result, iterator.nextInt());
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the LongList
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @return the accumulated result
+   */
+  public static long fold(LongList $self, long initial, LongBinaryOperator operation) {
+    long result = initial;
+    for (int i = 0; i < $self.size(); i++) {
+      result = operation.applyAsLong(result, $self.getAt(i));
+    }
+    return result;
+  }
+  
+  /**
+   * Accumulates value starting with an initial value and applying an operation from left to right
+   * 
+   * @param $self the DoubleList
+   * @param initial the initial value
+   * @param operation the operation to apply
+   * @return the accumulated result
+   */
+  public static double fold(DoubleList $self, double initial, DoubleBinaryOperator operation) {
+    double result = initial;
+    for (int i = 0; i < $self.size(); i++) {
+      result = operation.applyAsDouble(result, $self.getAt(i));
+    }
+    return result;
+  }
+  
+  /**
+   * Find the first element that matches the predicate
+   * 
+   * @param $self the collection
+   * @param predicate the predicate to match
+   * @param <T> the type of elements in the collection
+   * @return the first element that matches the predicate or null if none found
+   */
+  @Nullable
+  public static <T> T findFirst(Collection<T> $self, Predicate<T> predicate) {
+    for (T item : $self) {
+      if (predicate.test(item)) {
+        return item;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Find the first element that matches the predicate
+   * 
+   * @param $self the array
+   * @param predicate the predicate to match
+   * @param <T> the type of elements in the array
+   * @return the first element that matches the predicate or null if none found
+   */
+  @Nullable
+  public static <T> T findFirst(T[] $self, Predicate<T> predicate) {
+    for (T item : $self) {
+      if (predicate.test(item)) {
+        return item;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Find the last element that matches the predicate
+   * 
+   * @param $self the collection
+   * @param predicate the predicate to match
+   * @param <T> the type of elements in the collection
+   * @return the last element that matches the predicate or null if none found
+   */
+  @Nullable
+  public static <T> T findLast(Collection<T> $self, Predicate<T> predicate) {
+    if ($self instanceof List) {
+      List<T> list = (List<T>) $self;
+      for (int i = list.size() - 1; i >= 0; i--) {
+        T item = list.get(i);
+        if (predicate.test(item)) {
+          return item;
+        }
+      }
+    } else {
+      T result = null;
+      for (T item : $self) {
+        if (predicate.test(item)) {
+          result = item;
+        }
+      }
+      return result;
+    }
+    return null;
+  }
+  
+  /**
+   * Find the last element that matches the predicate
+   * 
+   * @param $self the array
+   * @param predicate the predicate to match
+   * @param <T> the type of elements in the array
+   * @return the last element that matches the predicate or null if none found
+   */
+  @Nullable
+  public static <T> T findLast(T[] $self, Predicate<T> predicate) {
+    for (int i = $self.length - 1; i >= 0; i--) {
+      if (predicate.test($self[i])) {
+        return $self[i];
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Partitions a collection into two collections based on a predicate
+   * The first collection contains elements that satisfy the predicate
+   * The second collection contains elements that don't satisfy the predicate
+   * 
+   * @param $self the collection
+   * @param predicate the predicate to test elements
+   * @param <T> the type of elements in the collection
+   * @return a pair of lists containing the partitioned elements
+   */
+  public static <T> List<List<T>> partition(Collection<T> $self, Predicate<T> predicate) {
+    List<T> trueList = new ArrayList<>();
+    List<T> falseList = new ArrayList<>();
+    
+    for (T item : $self) {
+      if (predicate.test(item)) {
+        trueList.add(item);
+      } else {
+        falseList.add(item);
+      }
+    }
+    
+    List<List<T>> result = new ArrayList<>(2);
+    result.add(trueList);
+    result.add(falseList);
+    return result;
+  }
+  
+  /**
+   * Partitions an array into two collections based on a predicate
+   * The first collection contains elements that satisfy the predicate
+   * The second collection contains elements that don't satisfy the predicate
+   * 
+   * @param $self the array
+   * @param predicate the predicate to test elements
+   * @param <T> the type of elements in the array
+   * @return a pair of lists containing the partitioned elements
+   */
+  public static <T> List<List<T>> partition(T[] $self, Predicate<T> predicate) {
+    List<T> trueList = new ArrayList<>();
+    List<T> falseList = new ArrayList<>();
+    
+    for (T item : $self) {
+      if (predicate.test(item)) {
+        trueList.add(item);
+      } else {
+        falseList.add(item);
+      }
+    }
+    
+    List<List<T>> result = new ArrayList<>(2);
+    result.add(trueList);
+    result.add(falseList);
+    return result;
+  }
+  
+  /**
+   * Calculates the average of a collection of numbers
+   * 
+   * @param $self the collection
+   * @return the average as a double
+   */
+  public static double average(Collection<? extends Number> $self) {
+    if ($self.isEmpty()) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (Number number : $self) {
+      sum += number.doubleValue();
+    }
+    return sum / $self.size();
+  }
+  
+  /**
+   * Calculates the average of an array of numbers
+   * 
+   * @param $self the array
+   * @return the average as a double
+   */
+  public static <T extends Number> double average(T[] $self) {
+    if ($self.length == 0) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (T number : $self) {
+      sum += number.doubleValue();
+    }
+    return sum / $self.length;
+  }
+  
+  /**
+   * Calculates the average of an array of integers
+   * 
+   * @param $self the array
+   * @return the average as a double
+   */
+  public static double average(int[] $self) {
+    if ($self.length == 0) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (int number : $self) {
+      sum += number;
+    }
+    return sum / $self.length;
+  }
+  
+  /**
+   * Calculates the average of an array of longs
+   * 
+   * @param $self the array
+   * @return the average as a double
+   */
+  public static double average(long[] $self) {
+    if ($self.length == 0) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (long number : $self) {
+      sum += number;
+    }
+    return sum / $self.length;
+  }
+  
+  /**
+   * Calculates the average of an array of doubles
+   * 
+   * @param $self the array
+   * @return the average as a double
+   */
+  public static double average(double[] $self) {
+    if ($self.length == 0) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (double number : $self) {
+      sum += number;
+    }
+    return sum / $self.length;
+  }
+  
+  /**
+   * Calculates the average of an array of floats
+   * 
+   * @param $self the array
+   * @return the average as a double
+   */
+  public static double average(float[] $self) {
+    if ($self.length == 0) {
+      return 0.0;
+    }
+    double sum = 0.0;
+    for (float number : $self) {
+      sum += number;
+    }
+    return sum / $self.length;
+  }
+  
   /**
    * Collates this iterable into sub-lists of length <code>size</code>.
    * Example:
