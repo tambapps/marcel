@@ -521,4 +521,38 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		}
 		add(i, element);
 	}
+	
+	/**
+	 * Returns a list containing the last n elements.
+	 * @param n the number of elements to take from the end
+	 * @return a list containing at most the last n elements
+	 */
+	default IntList takeLast(int n) {
+		if (n <= 0) return new IntArrayList(0);
+		if (n >= size()) return new IntArrayList(this);
+		
+		IntList result = new IntArrayList(n);
+		int startIndex = size() - n;
+		for (int i = startIndex; i < size(); i++) {
+			result.add(getAt(i));
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns a list containing all elements except the last n elements.
+	 * @param n the number of elements to drop from the end
+	 * @return a list containing elements after dropping the last n elements
+	 */
+	default IntList dropLast(int n) {
+		if (n <= 0) return new IntArrayList(this);
+		if (n >= size()) return new IntArrayList(0);
+		
+		int newSize = size() - n;
+		IntList result = new IntArrayList(newSize);
+		for (int i = 0; i < newSize; i++) {
+			result.add(getAt(i));
+		}
+		return result;
+	}
 }

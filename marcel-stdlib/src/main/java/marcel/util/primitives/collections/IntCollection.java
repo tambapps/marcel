@@ -32,11 +32,16 @@ import marcel.util.primitives.iterators.IntIterator;
 import marcel.util.primitives.spliterators.IntSpliterator;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
+import java.util.function.IntUnaryOperator;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntBinaryOperator;
 
 /** A type-specific Collection; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -362,4 +367,137 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     return new IntOpenHashSet(this);
   }
 
+  /**
+   * Calculates the arithmetic mean of all elements in the collection.
+   * @return the average of all elements, or 0 if the collection is empty
+   */
+  default double average() {
+    if (isEmpty()) return 0d;
+    double sum = 0d;
+    int count = 0;
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      sum += iterator.nextInt();
+      count++;
+    }
+    return sum / count;
+  }
+  
+  /**
+   * Groups the elements in the collection by a key produced by the provided function.
+   * @param keyExtractor function to extract the key to group by
+   * @param <K> the type of key
+   * @return a map containing the grouped elements
+   */
+  default <K> Map<K, IntList> groupBy(IntFunction<K> keyExtractor) {
+    Map<K, IntList> map = new HashMap<>();
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      int element = iterator.nextInt();
+      K key = keyExtractor.apply(element);
+      map.computeIfAbsent(key, k -> new IntArrayList()).add(element);
+    }
+    return map;
+  }
+  
+  /**
+   * Returns a list containing the first n elements.
+   * @param n the number of elements to take
+   * @return a list containing at most n elements
+   */
+  default IntList take(int n) {
+    if (n <= 0) return new IntArrayList(0);
+    IntList result = new IntArrayList(Math.min(n, size()));
+    IntIterator iterator = iterator();
+    int count = 0;
+    while (iterator.hasNext() && count < n) {
+      result.add(iterator.nextInt());
+      count++;
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing elements from this collection as long as the predicate is true.
+   * @param predicate a function that returns true for elements to include
+   * @return a list containing elements while predicate returns true
+   */
+  default IntList takeWhile(IntPredicate predicate) {
+    IntList result = new IntArrayList();
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      int element = iterator.nextInt();
+      if (!predicate.test(element)) break;
+      result.add(element);
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing all elements except the first n elements.
+   * @param n the number of elements to drop
+   * @return a list containing elements after skipping n elements
+   */
+  default IntList drop(int n) {
+    if (n <= 0) return new IntArrayList(this);
+    if (n >= size()) return new IntArrayList(0);
+    
+    IntList result = new IntArrayList(size() - n);
+    IntIterator iterator = iterator();
+    int count = 0;
+    
+    // Skip n elements
+    while (iterator.hasNext() && count < n) {
+      iterator.nextInt();
+      count++;
+    }
+    
+    // Collect the rest
+    while (iterator.hasNext()) {
+      result.add(iterator.nextInt());
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Returns a list containing all elements except those at the beginning
+   * that satisfy the given predicate.
+   * @param predicate a function that returns true for elements to skip
+   * @return a list containing elements after the predicate returns false
+   */
+  default IntList dropWhile(IntPredicate predicate) {
+    IntList result = new IntArrayList();
+    IntIterator iterator = iterator();
+    boolean dropping = true;
+    
+    while (iterator.hasNext()) {
+      int element = iterator.nextInt();
+      if (dropping && !predicate.test(element)) {
+        dropping = false;
+      }
+      
+      if (!dropping) {
+        result.add(element);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Folds the collection to a single value by applying the operation to
+   * the accumulated value and each element.
+   * @param initial the initial value
+   * @param operator the binary operation to apply
+   * @return the final accumulated value
+   */
+  default int fold(int initial, IntBinaryOperator operator) {
+    int result = initial;
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      result = operator.applyAsInt(result, iterator.nextInt());
+    }
+    return result;
+  }
 }

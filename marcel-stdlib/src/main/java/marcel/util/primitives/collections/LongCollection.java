@@ -32,9 +32,12 @@ import marcel.util.primitives.iterators.LongIterator;
 import marcel.util.primitives.spliterators.LongSpliterator;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.LongBinaryOperator;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 
@@ -358,5 +361,139 @@ public interface LongCollection extends Collection<Long>, LongIterable {
 
   default LongSet toSet() {
     return new LongOpenHashSet(this);
+  }
+  
+  /**
+   * Calculates the arithmetic mean of all elements in the collection.
+   * @return the average of all elements, or 0 if the collection is empty
+   */
+  default double average() {
+    if (isEmpty()) return 0d;
+    double sum = 0d;
+    int count = 0;
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      sum += iterator.nextLong();
+      count++;
+    }
+    return sum / count;
+  }
+  
+  /**
+   * Groups the elements in the collection by a key produced by the provided function.
+   * @param keyExtractor function to extract the key to group by
+   * @param <K> the type of key
+   * @return a map containing the grouped elements
+   */
+  default <K> Map<K, LongList> groupBy(LongFunction<K> keyExtractor) {
+    Map<K, LongList> map = new HashMap<>();
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      long element = iterator.nextLong();
+      K key = keyExtractor.apply(element);
+      map.computeIfAbsent(key, k -> new LongArrayList()).add(element);
+    }
+    return map;
+  }
+  
+  /**
+   * Returns a list containing the first n elements.
+   * @param n the number of elements to take
+   * @return a list containing at most n elements
+   */
+  default LongList take(int n) {
+    if (n <= 0) return new LongArrayList(0);
+    LongList result = new LongArrayList(Math.min(n, size()));
+    LongIterator iterator = iterator();
+    int count = 0;
+    while (iterator.hasNext() && count < n) {
+      result.add(iterator.nextLong());
+      count++;
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing elements from this collection as long as the predicate is true.
+   * @param predicate a function that returns true for elements to include
+   * @return a list containing elements while predicate returns true
+   */
+  default LongList takeWhile(LongPredicate predicate) {
+    LongList result = new LongArrayList();
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      long element = iterator.nextLong();
+      if (!predicate.test(element)) break;
+      result.add(element);
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing all elements except the first n elements.
+   * @param n the number of elements to drop
+   * @return a list containing elements after skipping n elements
+   */
+  default LongList drop(int n) {
+    if (n <= 0) return new LongArrayList(this);
+    if (n >= size()) return new LongArrayList(0);
+    
+    LongList result = new LongArrayList(size() - n);
+    LongIterator iterator = iterator();
+    int count = 0;
+    
+    // Skip n elements
+    while (iterator.hasNext() && count < n) {
+      iterator.nextLong();
+      count++;
+    }
+    
+    // Collect the rest
+    while (iterator.hasNext()) {
+      result.add(iterator.nextLong());
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Returns a list containing all elements except those at the beginning
+   * that satisfy the given predicate.
+   * @param predicate a function that returns true for elements to skip
+   * @return a list containing elements after the predicate returns false
+   */
+  default LongList dropWhile(LongPredicate predicate) {
+    LongList result = new LongArrayList();
+    LongIterator iterator = iterator();
+    boolean dropping = true;
+    
+    while (iterator.hasNext()) {
+      long element = iterator.nextLong();
+      if (dropping && !predicate.test(element)) {
+        dropping = false;
+      }
+      
+      if (!dropping) {
+        result.add(element);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Folds the collection to a single value by applying the operation to
+   * the accumulated value and each element.
+   * @param initial the initial value
+   * @param operator the binary operation to apply
+   * @return the final accumulated value
+   */
+  default long fold(long initial, LongBinaryOperator operator) {
+    long result = initial;
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      result = operator.applyAsLong(result, iterator.nextLong());
+    }
+    return result;
   }
 }

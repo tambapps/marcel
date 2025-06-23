@@ -531,4 +531,38 @@ public interface CharList extends List<Character>, Comparable<List<? extends Cha
 		}
 		add(i, element);
 	}
+	
+	/**
+	 * Returns a list containing the last n elements.
+	 * @param n the number of elements to take from the end
+	 * @return a list containing at most the last n elements
+	 */
+	default CharList takeLast(int n) {
+		if (n <= 0) return new CharArrayList(0);
+		if (n >= size()) return new CharArrayList(this);
+		
+		CharList result = new CharArrayList(n);
+		int startIndex = size() - n;
+		for (int i = startIndex; i < size(); i++) {
+			result.add(getAt(i));
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns a list containing all elements except the last n elements.
+	 * @param n the number of elements to drop from the end
+	 * @return a list containing elements after dropping the last n elements
+	 */
+	default CharList dropLast(int n) {
+		if (n <= 0) return new CharArrayList(this);
+		if (n >= size()) return new CharArrayList(0);
+		
+		int newSize = size() - n;
+		CharList result = new CharArrayList(newSize);
+		for (int i = 0; i < newSize; i++) {
+			result.add(getAt(i));
+		}
+		return result;
+	}
 }

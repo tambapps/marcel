@@ -2830,42 +2830,6 @@ public final class DefaultMarcelMethods {
   }
 
   /**
-   * Find the first element that matches the predicate
-   * 
-   * @param $self the collection
-   * @param predicate the predicate to match
-   * @param <T> the type of elements in the collection
-   * @return the first element that matches the predicate or null if none found
-   */
-  @Nullable
-  public static <T> T findFirst(Collection<T> $self, Predicate<T> predicate) {
-    for (T item : $self) {
-      if (predicate.test(item)) {
-        return item;
-      }
-    }
-    return null;
-  }
-  
-  /**
-   * Find the first element that matches the predicate
-   * 
-   * @param $self the array
-   * @param predicate the predicate to match
-   * @param <T> the type of elements in the array
-   * @return the first element that matches the predicate or null if none found
-   */
-  @Nullable
-  public static <T> T findFirst(T[] $self, Predicate<T> predicate) {
-    for (T item : $self) {
-      if (predicate.test(item)) {
-        return item;
-      }
-    }
-    return null;
-  }
-  
-  /**
    * Find the last element that matches the predicate
    * 
    * @param $self the collection

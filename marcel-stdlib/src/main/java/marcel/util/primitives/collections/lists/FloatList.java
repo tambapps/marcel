@@ -545,4 +545,38 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 		}
 		add(i, element);
 	}
+	
+	/**
+	 * Returns a list containing the last n elements.
+	 * @param n the number of elements to take from the end
+	 * @return a list containing at most the last n elements
+	 */
+	default FloatList takeLast(int n) {
+		if (n <= 0) return new FloatArrayList(0);
+		if (n >= size()) return new FloatArrayList(this);
+		
+		FloatList result = new FloatArrayList(n);
+		int startIndex = size() - n;
+		for (int i = startIndex; i < size(); i++) {
+			result.add(getAt(i));
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns a list containing all elements except the last n elements.
+	 * @param n the number of elements to drop from the end
+	 * @return a list containing elements after dropping the last n elements
+	 */
+	default FloatList dropLast(int n) {
+		if (n <= 0) return new FloatArrayList(this);
+		if (n >= size()) return new FloatArrayList(0);
+		
+		int newSize = size() - n;
+		FloatList result = new FloatArrayList(newSize);
+		for (int i = 0; i < newSize; i++) {
+			result.add(getAt(i));
+		}
+		return result;
+	}
 }

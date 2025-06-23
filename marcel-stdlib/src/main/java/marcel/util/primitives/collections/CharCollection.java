@@ -16,6 +16,7 @@
 package marcel.util.primitives.collections;
 
 
+import marcel.util.function.CharBinaryOperator;
 import marcel.util.primitives.collections.lists.CharArrayList;
 import marcel.util.primitives.collections.lists.CharList;
 import marcel.util.primitives.collections.lists.DoubleArrayList;
@@ -35,7 +36,9 @@ import marcel.util.function.CharFunction;
 import marcel.util.function.CharPredicate;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -350,6 +353,156 @@ public interface CharCollection extends Collection<Character>, CharIterable {
     return new CharArrayList(this);
   }
 
+  /**
+   * Calculates the arithmetic mean of all character values in the collection.
+   * @return the average of all character values, or 0 if the collection is empty
+   */
+  default double average() {
+    if (isEmpty()) return 0d;
+    double sum = 0d;
+    int count = 0;
+    CharIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      sum += iterator.nextChar();
+      count++;
+    }
+    return sum / count;
+  }
+  
+  /**
+   * Groups the elements in the collection by a key produced by the provided function.
+   * @param keyExtractor function to extract the key to group by
+   * @param <K> the type of key
+   * @return a map containing the grouped elements
+   */
+  default <K> Map<K, CharList> groupBy(CharFunction<K> keyExtractor) {
+    Map<K, CharList> map = new HashMap<>();
+    CharIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      char element = iterator.nextChar();
+      K key = keyExtractor.apply(element);
+      map.computeIfAbsent(key, k -> new CharArrayList()).add(element);
+    }
+    return map;
+  }
+  
+  /**
+   * Returns a list containing the first n elements.
+   * @param n the number of elements to take
+   * @return a list containing at most n elements
+   */
+  default CharList take(int n) {
+    if (n <= 0) return new CharArrayList(0);
+    CharList result = new CharArrayList(Math.min(n, size()));
+    CharIterator iterator = iterator();
+    int count = 0;
+    while (iterator.hasNext() && count < n) {
+      result.add(iterator.nextChar());
+      count++;
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing elements from this collection as long as the predicate is true.
+   * @param predicate a function that returns true for elements to include
+   * @return a list containing elements while predicate returns true
+   */
+  default CharList takeWhile(CharPredicate predicate) {
+    CharList result = new CharArrayList();
+    CharIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      char element = iterator.nextChar();
+      if (!predicate.test(element)) break;
+      result.add(element);
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing all elements except the first n elements.
+   * @param n the number of elements to drop
+   * @return a list containing elements after skipping n elements
+   */
+  default CharList drop(int n) {
+    if (n <= 0) return new CharArrayList(this);
+    if (n >= size()) return new CharArrayList(0);
+    
+    CharList result = new CharArrayList(size() - n);
+    CharIterator iterator = iterator();
+    int count = 0;
+    
+    // Skip n elements
+    while (iterator.hasNext() && count < n) {
+      iterator.nextChar();
+      count++;
+    }
+    
+    // Collect the rest
+    while (iterator.hasNext()) {
+      result.add(iterator.nextChar());
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Returns the first element matching the given predicate, or null if no element matches.
+   * @param predicate a function that returns true for the element to find
+   * @return the first matching element, or null if none found
+   */
+  default Character findFirst(CharPredicate predicate) {
+    CharIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      char element = iterator.nextChar();
+      if (predicate.test(element)) {
+        return element;
+      }
+    }
+    return null;
+  }
+  
+  /**
+   * Returns a list containing all elements except those at the beginning
+   * that satisfy the given predicate.
+   * @param predicate a function that returns true for elements to skip
+   * @return a list containing elements after the predicate returns false
+   */
+  default CharList dropWhile(CharPredicate predicate) {
+    CharList result = new CharArrayList();
+    CharIterator iterator = iterator();
+    boolean dropping = true;
+    
+    while (iterator.hasNext()) {
+      char element = iterator.nextChar();
+      if (dropping && !predicate.test(element)) {
+        dropping = false;
+      }
+      
+      if (!dropping) {
+        result.add(element);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Folds the collection to a single value by applying the operation to
+   * the accumulated value and each element.
+   * @param initial the initial value
+   * @param operator the binary operation to apply
+   * @return the final accumulated value
+   */
+  default char fold(char initial, CharBinaryOperator operator) {
+    char result = initial;
+    CharIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      result = operator.applyAsChar(result, iterator.nextChar());
+    }
+    return result;
+  }
+  
   default CharSet toSet() {
     return new CharOpenHashSet(this);
   }

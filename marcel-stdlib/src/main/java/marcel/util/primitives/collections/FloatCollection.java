@@ -15,6 +15,8 @@
  */
 package marcel.util.primitives.collections;
 
+import marcel.util.function.Float2ObjectFunction;
+import marcel.util.function.FloatBinaryOperator;
 import marcel.util.primitives.collections.lists.CharArrayList;
 import marcel.util.primitives.collections.lists.CharList;
 import marcel.util.primitives.collections.lists.DoubleArrayList;
@@ -34,7 +36,9 @@ import marcel.util.function.FloatFunction;
 import marcel.util.function.FloatPredicate;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
@@ -362,4 +366,137 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
     return new FloatOpenHashSet(this);
   }
 
+  /**
+   * Calculates the arithmetic mean of all elements in the collection.
+   * @return the average of all elements, or 0 if the collection is empty
+   */
+  default double average() {
+    if (isEmpty()) return 0d;
+    double sum = 0d;
+    int count = 0;
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      sum += iterator.nextFloat();
+      count++;
+    }
+    return sum / count;
+  }
+  
+  /**
+   * Groups the elements in the collection by a key produced by the provided function.
+   * @param keyExtractor function to extract the key to group by
+   * @param <K> the type of key
+   * @return a map containing the grouped elements
+   */
+  default <K> Map<K, FloatList> groupBy(Float2ObjectFunction<K> keyExtractor) {
+    Map<K, FloatList> map = new HashMap<>();
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      float element = iterator.nextFloat();
+      K key = keyExtractor.apply(element);
+      map.computeIfAbsent(key, k -> new FloatArrayList()).add(element);
+    }
+    return map;
+  }
+  
+  /**
+   * Returns a list containing the first n elements.
+   * @param n the number of elements to take
+   * @return a list containing at most n elements
+   */
+  default FloatList take(int n) {
+    if (n <= 0) return new FloatArrayList(0);
+    FloatList result = new FloatArrayList(Math.min(n, size()));
+    FloatIterator iterator = iterator();
+    int count = 0;
+    while (iterator.hasNext() && count < n) {
+      result.add(iterator.nextFloat());
+      count++;
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing elements from this collection as long as the predicate is true.
+   * @param predicate a function that returns true for elements to include
+   * @return a list containing elements while predicate returns true
+   */
+  default FloatList takeWhile(FloatPredicate predicate) {
+    FloatList result = new FloatArrayList();
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      float element = iterator.nextFloat();
+      if (!predicate.test(element)) break;
+      result.add(element);
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a list containing all elements except the first n elements.
+   * @param n the number of elements to drop
+   * @return a list containing elements after skipping n elements
+   */
+  default FloatList drop(int n) {
+    if (n <= 0) return new FloatArrayList(this);
+    if (n >= size()) return new FloatArrayList(0);
+    
+    FloatList result = new FloatArrayList(size() - n);
+    FloatIterator iterator = iterator();
+    int count = 0;
+    
+    // Skip n elements
+    while (iterator.hasNext() && count < n) {
+      iterator.nextFloat();
+      count++;
+    }
+    
+    // Collect the rest
+    while (iterator.hasNext()) {
+      result.add(iterator.nextFloat());
+    }
+    
+    return result;
+  }
+
+  /**
+   * Returns a list containing all elements except those at the beginning
+   * that satisfy the given predicate.
+   * @param predicate a function that returns true for elements to skip
+   * @return a list containing elements after the predicate returns false
+   */
+  default FloatList dropWhile(FloatPredicate predicate) {
+    FloatList result = new FloatArrayList();
+    FloatIterator iterator = iterator();
+    boolean dropping = true;
+    
+    while (iterator.hasNext()) {
+      float element = iterator.nextFloat();
+      if (dropping && !predicate.test(element)) {
+        dropping = false;
+      }
+      
+      if (!dropping) {
+        result.add(element);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Folds the collection to a single value by applying the operation to
+   * the accumulated value and each element.
+   * @param initial the initial value
+   * @param operator the binary operation to apply
+   * @return the final accumulated value
+   */
+  default float fold(float initial, FloatBinaryOperator operator) {
+    float result = initial;
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      result = operator.applyAsFloat(result, iterator.nextFloat());
+    }
+    return result;
+  }
 }
