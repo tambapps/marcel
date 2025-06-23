@@ -1691,6 +1691,9 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
+    val variableType = resolve(node.type)
+    // need to visit the expression BEFORE declaring the variable because the variable is not supposed to exist yet when evaluating the expression
+    val expression = node.expressionNode?.accept(this, variableType)?.let { cast(variableType, it) }
     val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, Nullness.of(node.isNullable), token = node.token)
     try {
       checkVariableAccess(variable, node, checkSet = true)
@@ -1698,8 +1701,7 @@ abstract class SemanticCstNodeVisitor constructor(
       error(node, e.message)
     }
     return ExpressionStatementNode(
-      VariableAssignmentNode(variable,
-        node.expressionNode?.accept(this, variable.type)?.let { cast(variable.type, it) }
+      VariableAssignmentNode(variable, expression
           ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd, node.variableToken)
     )
   }
