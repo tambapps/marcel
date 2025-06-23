@@ -1,5 +1,8 @@
 package marcel.util.concurrent;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public interface AwaitProgressListener {
 
   /**

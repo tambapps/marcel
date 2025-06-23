@@ -29,7 +29,8 @@ import marcel.util.primitives.collections.sets.LongSet;
 import java.util.*;
 
 /**
- * Interface providing dynamic features to an object
+ * Interface providing dynamic features to an object.
+ * Not null-annotated on purpose, because this API is wild.
  */
 public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
 

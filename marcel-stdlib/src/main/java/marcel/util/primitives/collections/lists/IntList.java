@@ -24,6 +24,8 @@ import marcel.util.primitives.iterators.IntIterator;
 import marcel.util.primitives.iterators.list.IntListIterator;
 import marcel.util.primitives.spliterators.IntSpliterator;
 import marcel.util.primitives.Arrays;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,6 +49,7 @@ import java.util.function.IntPredicate;
 	*
 	* @see List
 	*/
+@NullMarked
 public interface IntList extends List<Integer>, Comparable<List<? extends Integer>>, IntCollection {
 	/** Returns a type-specific iterator on the elements of this list.
 	 *
@@ -277,7 +280,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 */
 	@Deprecated
 	@Override
-	default boolean contains(final Object key) {
+	default boolean contains(@Nullable final Object key) {
 	 return IntCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
@@ -319,7 +322,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 */
 	@Deprecated
 	@Override
-	default boolean remove(final Object key) {
+	default boolean remove(@Nullable final Object key) {
 	 return IntCollection.super.remove(key);
 	}
 	/** {@inheritDoc}

@@ -7,9 +7,11 @@ import marcel.util.primitives.collections.lists.LongList;
 import marcel.util.primitives.iterators.AbstractLongIterator;
 import marcel.util.primitives.iterators.LongIterator;
 import marcel.util.primitives.iterators.LongIterators;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.NoSuchElementException;
 
+@NullMarked
 public class LongRanges {
 
   public static LongRange ofExclusive(long from, long to) {

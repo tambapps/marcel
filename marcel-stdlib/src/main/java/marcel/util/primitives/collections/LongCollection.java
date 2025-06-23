@@ -30,6 +30,8 @@ import marcel.util.primitives.collections.sets.LongSet;
 import marcel.util.primitives.iterable.LongIterable;
 import marcel.util.primitives.iterators.LongIterator;
 import marcel.util.primitives.spliterators.LongSpliterator;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,6 +57,7 @@ import java.util.function.LongPredicate;
  *
  * @see Collection
  */
+@NullMarked
 public interface LongCollection extends Collection<Long>, LongIterable {
 
   boolean add(long key);
@@ -92,7 +95,7 @@ public interface LongCollection extends Collection<Long>, LongIterable {
    * @deprecated Please use the corresponding type-specific method instead.
    */
   @Override
-  default boolean contains(final Object key) {
+  default boolean contains(@Nullable final Object key) {
     if (key == null) return false;
     return contains(((Long)(key)).longValue());
   }
@@ -100,7 +103,7 @@ public interface LongCollection extends Collection<Long>, LongIterable {
    * @deprecated Please use (and implement) the {@code rem()} method instead.
    */
   @Override
-  default boolean remove(final Object key) {
+  default boolean remove(@Nullable final Object key) {
     if (key == null) return false;
     return remove(((Long)(key)).longValue());
   }
@@ -234,6 +237,7 @@ public interface LongCollection extends Collection<Long>, LongIterable {
     return intList;
   }
 
+  @Nullable
   default Long find(LongPredicate predicate)  {
     LongIterator iterator = iterator();
     long e;

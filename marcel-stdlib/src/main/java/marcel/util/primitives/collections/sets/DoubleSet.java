@@ -4,9 +4,12 @@ import marcel.util.primitives.collections.DoubleCollection;
 import marcel.util.primitives.iterators.DoubleIterator;
 import marcel.util.primitives.spliterators.DoubleSpliterator;
 import marcel.util.primitives.spliterators.DoubleSpliterators;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
+@NullMarked
 public interface DoubleSet extends DoubleCollection, Set<Double> {
 	/** Returns a type-specific iterator on the elements of this set.
 	 *
@@ -69,7 +72,7 @@ public interface DoubleSet extends DoubleCollection, Set<Double> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean remove(final Object o) {
+	default boolean remove(@Nullable final Object o) {
 	 return DoubleCollection.super.remove(o);
 	}
 	/** {@inheritDoc}
@@ -87,7 +90,7 @@ public interface DoubleSet extends DoubleCollection, Set<Double> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean contains(final Object o) {
+	default boolean contains(@Nullable final Object o) {
 	 return DoubleCollection.super.contains(o);
 	}
 

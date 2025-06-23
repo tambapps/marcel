@@ -4,9 +4,12 @@ import marcel.util.primitives.collections.IntCollection;
 import marcel.util.primitives.iterators.IntIterator;
 import marcel.util.primitives.spliterators.IntSpliterator;
 import marcel.util.primitives.spliterators.IntSpliterators;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
+@NullMarked
 public interface IntSet extends IntCollection, Set<Integer> {
 	/** Returns a type-specific iterator on the elements of this set.
 	 *
@@ -69,7 +72,7 @@ public interface IntSet extends IntCollection, Set<Integer> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean remove(final Object o) {
+	default boolean remove(@Nullable final Object o) {
 	 return IntCollection.super.remove(o);
 	}
 	/** {@inheritDoc}
@@ -87,7 +90,7 @@ public interface IntSet extends IntCollection, Set<Integer> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean contains(final Object o) {
+	default boolean contains(@Nullable final Object o) {
 	 return IntCollection.super.contains(o);
 	}
 

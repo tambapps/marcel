@@ -34,6 +34,8 @@ import marcel.util.primitives.iterators.CharIterator;
 import marcel.util.primitives.spliterators.CharSpliterator;
 import marcel.util.function.CharFunction;
 import marcel.util.function.CharPredicate;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ import java.util.Set;
  *
  * @see Collection
  */
+@NullMarked
 public interface CharCollection extends Collection<Character>, CharIterable {
 
   boolean add(char key);
@@ -94,7 +97,7 @@ public interface CharCollection extends Collection<Character>, CharIterable {
    * @deprecated Please use the corresponding type-specific method instead.
    */
   @Override
-  default boolean contains(final Object key) {
+  default boolean contains(@Nullable final Object key) {
     if (key == null) return false;
     return contains(((Character)(key)).charValue());
   }
@@ -102,7 +105,7 @@ public interface CharCollection extends Collection<Character>, CharIterable {
    * @deprecated Please use (and implement) the {@code rem()} method instead.
    */
   @Override
-  default boolean remove(final Object key) {
+  default boolean remove(@Nullable final Object key) {
     if (key == null) return false;
     return remove(((Character)(key)).charValue());
   }
@@ -245,6 +248,7 @@ public interface CharCollection extends Collection<Character>, CharIterable {
     return stream().mapToInt(Character::charValue);
   }
 
+  @Nullable
   default Character find(CharPredicate predicate)  {
     CharIterator iterator = iterator();
     char c;
@@ -444,22 +448,6 @@ public interface CharCollection extends Collection<Character>, CharIterable {
     }
     
     return result;
-  }
-  
-  /**
-   * Returns the first element matching the given predicate, or null if no element matches.
-   * @param predicate a function that returns true for the element to find
-   * @return the first matching element, or null if none found
-   */
-  default Character findFirst(CharPredicate predicate) {
-    CharIterator iterator = iterator();
-    while (iterator.hasNext()) {
-      char element = iterator.nextChar();
-      if (predicate.test(element)) {
-        return element;
-      }
-    }
-    return null;
   }
   
   /**

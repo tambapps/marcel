@@ -7,9 +7,11 @@ import marcel.util.primitives.collections.lists.IntLists;
 import marcel.util.primitives.iterators.AbstractIntIterator;
 import marcel.util.primitives.iterators.IntIterator;
 import marcel.util.primitives.iterators.IntIterators;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.NoSuchElementException;
 
+@NullMarked
 public class IntRanges {
 
   public static IntRange ofExclusive(int from, int to) {

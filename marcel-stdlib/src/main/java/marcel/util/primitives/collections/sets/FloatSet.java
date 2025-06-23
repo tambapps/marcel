@@ -4,9 +4,12 @@ import marcel.util.primitives.collections.FloatCollection;
 import marcel.util.primitives.iterators.FloatIterator;
 import marcel.util.primitives.spliterators.FloatSpliterator;
 import marcel.util.primitives.spliterators.FloatSpliterators;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
+@NullMarked
 public interface FloatSet extends FloatCollection, Set<Float> {
 	/** Returns a type-specific iterator on the elements of this set.
 	 *
@@ -72,7 +75,7 @@ public interface FloatSet extends FloatCollection, Set<Float> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean remove(final Object o) {
+	default boolean remove(@Nullable final Object o) {
 	 return FloatCollection.super.remove(o);
 	}
 	/** {@inheritDoc}
@@ -90,7 +93,7 @@ public interface FloatSet extends FloatCollection, Set<Float> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean contains(final Object o) {
+	default boolean contains(@Nullable final Object o) {
 	 return FloatCollection.super.contains(o);
 	}
 

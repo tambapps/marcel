@@ -30,6 +30,8 @@ import marcel.util.primitives.collections.sets.IntSet;
 import marcel.util.primitives.iterable.IntIterable;
 import marcel.util.primitives.iterators.IntIterator;
 import marcel.util.primitives.spliterators.IntSpliterator;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Map;
@@ -57,6 +59,7 @@ import java.util.function.IntBinaryOperator;
  *
  * @see Collection
  */
+@NullMarked
 public interface IntCollection extends Collection<Integer>, IntIterable {
 
   boolean add(int key);
@@ -94,7 +97,7 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
    * @deprecated Please use the corresponding type-specific method instead.
    */
   @Override
-  default boolean contains(final Object key) {
+  default boolean contains(@Nullable final Object key) {
     if (key == null) return false;
     return contains(((Integer)(key)).intValue());
   }
@@ -102,7 +105,7 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
    * @deprecated Please use (and implement) the {@code rem()} method instead.
    */
   @Override
-  default boolean remove(final Object key) {
+  default boolean remove(@Nullable final Object key) {
     if (key == null) return false;
     return remove(((Integer)(key)).intValue());
   }
@@ -236,6 +239,7 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     return intList;
   }
 
+  @Nullable
   default Integer find(IntPredicate predicate)  {
     IntIterator iterator = iterator();
     int e;

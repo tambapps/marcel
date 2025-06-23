@@ -2,6 +2,7 @@ package marcel.lang;
 
 import marcel.util.Result;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -26,7 +27,7 @@ public interface MarcelTruth {
    */
   boolean isTruthy();
 
-  public static boolean isTruthy(Object o) {
+  public static boolean isTruthy(@Nullable Object o) {
     if (o == null) {
       return false;
     }
@@ -60,48 +61,48 @@ public interface MarcelTruth {
     }
   }
 
-  public static boolean isTruthy(String s) {
+  public static boolean isTruthy(@Nullable String s) {
     return s != null && !s.isEmpty();
   }
 
-  public static boolean isTruthy(Result<?> r) {
+  public static boolean isTruthy(@Nullable Result<?> r) {
     return r != null && !r.isSuccess();
   }
 
-  public static boolean isTruthy(File file) {
+  public static boolean isTruthy(@Nullable File file) {
     return file != null && file.exists();
   }
 
-  public static boolean isTruthy(Boolean b) {
+  public static boolean isTruthy(@Nullable Boolean b) {
     return b != null && b;
   }
 
-  public static boolean isTruthy(MarcelTruth object) {
+  public static boolean isTruthy(@Nullable MarcelTruth object) {
     return object != null && object.isTruthy();
   }
 
-  public static boolean isTruthy(Matcher matcher) {
+  public static boolean isTruthy(@Nullable Matcher matcher) {
     return matcher != null && matcher.find();
   }
 
-  public static boolean isTruthy(Collection<?> collection) {
+  public static boolean isTruthy(@Nullable Collection<?> collection) {
     return collection != null && !collection.isEmpty();
   }
 
-  public static boolean isTruthy(Map<?, ?> map) {
+  public static boolean isTruthy(@Nullable Map<?, ?> map) {
     return map != null && !map.isEmpty();
   }
 
-  public static boolean isTruthy(Optional<?> optional) {
+  public static boolean isTruthy(@Nullable Optional<?> optional) {
     return optional != null && optional.isPresent();
   }
-  public static boolean isTruthy(OptionalInt optional) {
+  public static boolean isTruthy(@Nullable OptionalInt optional) {
     return optional != null && optional.isPresent();
   }
-  public static boolean isTruthy(OptionalDouble optional) {
+  public static boolean isTruthy(@Nullable OptionalDouble optional) {
     return optional != null && optional.isPresent();
   }
-  public static boolean isTruthy(OptionalLong optional) {
+  public static boolean isTruthy(@Nullable OptionalLong optional) {
     return optional != null && optional.isPresent();
   }
   public static boolean isTruthy(int value) {

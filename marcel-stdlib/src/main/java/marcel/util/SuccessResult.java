@@ -50,7 +50,7 @@ final class SuccessResult<T> implements Result<T> {
     @Override
     public <U> Result<U> map(Function<? super T, ? extends U> transform) {
         try {
-            return new SuccessResult<>(transform.apply(result));
+            return new SuccessResult<>(Objects.requireNonNull(transform.apply(result), "The transform function returned a null value"));
         } catch (Exception e) {
             return new FailureResult<>(e);
         }

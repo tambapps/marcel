@@ -31,6 +31,8 @@ import marcel.util.primitives.collections.sets.DoubleSet;
 import marcel.util.primitives.iterable.DoubleIterable;
 import marcel.util.primitives.iterators.DoubleIterator;
 import marcel.util.primitives.spliterators.DoubleSpliterator;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ import java.util.function.DoublePredicate;
  *
  * @see Collection
  */
+@NullMarked
 public interface DoubleCollection extends Collection<Double>, DoubleIterable {
 
   boolean add(double key);
@@ -93,7 +96,7 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
    * @deprecated Please use the corresponding type-specific method instead.
    */
   @Override
-  default boolean contains(final Object key) {
+  default boolean contains(@Nullable final Object key) {
     if (key == null) return false;
     return contains(((Double)(key)).doubleValue());
   }
@@ -101,7 +104,7 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
    * @deprecated Please use (and implement) the {@code rem()} method instead.
    */
   @Override
-  default boolean remove(final Object key) {
+  default boolean remove(@Nullable final Object key) {
     if (key == null) return false;
     return remove(((Double)(key)).doubleValue());
   }
@@ -235,6 +238,7 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
     return java.util.stream.StreamSupport.doubleStream(spliterator(), false);
   }
 
+  @Nullable
   default Double find(DoublePredicate predicate)  {
     DoubleIterator iterator = iterator();
     double e;

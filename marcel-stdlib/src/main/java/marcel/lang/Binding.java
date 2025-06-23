@@ -33,7 +33,7 @@ public class Binding {
     return (T) variables.get(name);
   }
 
-  public void setVariable(String name, Object newValue) {
+  public void setVariable(String name, @Nullable Object newValue) {
     if (variables.containsKey(name)) {
       Object value = getVariable(name);
       if (value != null && newValue != null && !value.getClass().isAssignableFrom(newValue.getClass())) {

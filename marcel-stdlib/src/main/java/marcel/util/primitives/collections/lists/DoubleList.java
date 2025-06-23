@@ -24,6 +24,8 @@ import marcel.util.primitives.iterators.IntIterator;
 import marcel.util.primitives.iterators.list.DoubleListIterator;
 import marcel.util.primitives.spliterators.DoubleSpliterator;
 import marcel.util.primitives.Arrays;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +51,7 @@ import java.util.function.DoublePredicate;
 	*
 	* @see List
 	*/
+@NullMarked
 public interface DoubleList extends List<Double>, Comparable<List<? extends Double>>, DoubleCollection {
 	/** Returns a type-specific iterator on the elements of this list.
 	 *
@@ -279,7 +282,7 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	 */
 	@Deprecated
 	@Override
-	default boolean contains(final Object key) {
+	default boolean contains(@Nullable final Object key) {
 	 return DoubleCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
@@ -321,7 +324,7 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	 */
 	@Deprecated
 	@Override
-	default boolean remove(final Object key) {
+	default boolean remove(@Nullable final Object key) {
 	 return DoubleCollection.super.remove(key);
 	}
 	/** {@inheritDoc}

@@ -23,8 +23,10 @@ public abstract class Script {
     this(new Binding());
   }
 
+  @Nullable
   public abstract Object run(String[] args);
 
+  @Nullable
   public Object run() {
     return run(new String[0]);
   }
@@ -42,83 +44,83 @@ public abstract class Script {
     System.out.println();
   }
 
-  public void println(Object o) {
+  public void println(@Nullable Object o) {
     System.out.println(o);
   }
 
-  public void println(Object[] o) {
+  public void println(@Nullable Object[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(int[] o) {
+  public void println(@Nullable int[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(long[] o) {
+  public void println(@Nullable long[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(float[] o) {
+  public void println(@Nullable float[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(double[] o) {
+  public void println(@Nullable double[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(short[] o) {
+  public void println(@Nullable short[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(byte[] o) {
+  public void println(@Nullable byte[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(boolean[] o) {
+  public void println(@Nullable boolean[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void println(char[] o) {
+  public void println(@Nullable char[] o) {
     System.out.println(Arrays.toString(o));
   }
 
-  public void print(Object o) {
+  public void print(@Nullable Object o) {
     System.out.print(o);
   }
 
-  public void print(Object[] o) {
+  public void print(@Nullable Object[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(int[] o) {
+  public void print(@Nullable int[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(long[] o) {
+  public void print(@Nullable long[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(float[] o) {
+  public void print(@Nullable float[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(double[] o) {
+  public void print(@Nullable double[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(short[] o) {
+  public void print(@Nullable short[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(byte[] o) {
+  public void print(@Nullable byte[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(boolean[] o) {
+  public void print(@Nullable boolean[] o) {
     System.out.print(Arrays.toString(o));
   }
 
-  public void print(char[] o) {
+  public void print(@Nullable char[] o) {
     System.out.print(Arrays.toString(o));
   }
 

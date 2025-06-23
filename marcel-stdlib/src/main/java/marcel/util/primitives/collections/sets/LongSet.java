@@ -4,9 +4,12 @@ import marcel.util.primitives.collections.LongCollection;
 import marcel.util.primitives.iterators.LongIterator;
 import marcel.util.primitives.spliterators.LongSpliterator;
 import marcel.util.primitives.spliterators.LongSpliterators;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
+@NullMarked
 public interface LongSet extends LongCollection, Set<Long> {
 	/** Returns a type-specific iterator on the elements of this set.
 	 *
@@ -72,7 +75,7 @@ public interface LongSet extends LongCollection, Set<Long> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean remove(final Object o) {
+	default boolean remove(@Nullable final Object o) {
 	 return LongCollection.super.remove(o);
 	}
 	/** {@inheritDoc}
@@ -90,7 +93,7 @@ public interface LongSet extends LongCollection, Set<Long> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean contains(final Object o) {
+	default boolean contains(@Nullable final Object o) {
 	 return LongCollection.super.contains(o);
 	}
 

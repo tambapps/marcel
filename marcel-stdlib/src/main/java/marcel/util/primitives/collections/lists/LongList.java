@@ -24,6 +24,8 @@ import marcel.util.primitives.iterators.LongIterator;
 import marcel.util.primitives.iterators.list.LongListIterator;
 import marcel.util.primitives.spliterators.LongSpliterator;
 import marcel.util.primitives.Arrays;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +51,7 @@ import java.util.function.LongUnaryOperator;
 	*
 	* @see List
 	*/
+@NullMarked
 public interface LongList extends List<Long>, Comparable<List<? extends Long>>, LongCollection {
 	/** Returns a type-specific iterator on the elements of this list.
 	 *
@@ -279,7 +282,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	 */
 	@Deprecated
 	@Override
-	default boolean contains(final Object key) {
+	default boolean contains(@Nullable final Object key) {
 	 return LongCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
@@ -321,7 +324,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	 */
 	@Deprecated
 	@Override
-	default boolean remove(final Object key) {
+	default boolean remove(@Nullable final Object key) {
 	 return LongCollection.super.remove(key);
 	}
 	/** {@inheritDoc}

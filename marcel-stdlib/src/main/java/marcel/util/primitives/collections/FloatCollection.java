@@ -34,6 +34,8 @@ import marcel.util.primitives.iterators.FloatIterator;
 import marcel.util.primitives.spliterators.FloatSpliterator;
 import marcel.util.function.FloatFunction;
 import marcel.util.function.FloatPredicate;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ import java.util.Set;
  *
  * @see Collection
  */
+@NullMarked
 public interface FloatCollection extends Collection<Float>, FloatIterable {
 
   boolean add(float key);
@@ -93,7 +96,7 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
    * @deprecated Please use the corresponding type-specific method instead.
    */
   @Override
-  default boolean contains(final Object key) {
+  default boolean contains(@Nullable final Object key) {
     if (key == null) return false;
     return contains(((Float)(key)).floatValue());
   }
@@ -101,7 +104,7 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
    * @deprecated Please use (and implement) the {@code rem()} method instead.
    */
   @Override
-  default boolean remove(final Object key) {
+  default boolean remove(@Nullable final Object key) {
     if (key == null) return false;
     return remove(((Float)(key)).floatValue());
   }
@@ -235,7 +238,7 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
     return stream().mapToDouble(Float::doubleValue);
   }
 
-
+  @Nullable
   default Float find(FloatPredicate predicate)  {
     FloatIterator iterator = iterator();
     float e;

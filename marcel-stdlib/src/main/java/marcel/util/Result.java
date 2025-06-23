@@ -1,5 +1,6 @@
 package marcel.util;
 
+import lombok.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public interface Result<T> {
      * @param <U>   the type of the success value
      * @return an instance that encapsulates the given value as successful value.
      */
-    static <U> Result<U> success(U value) {
+    static <U> Result<U> success(@NonNull U value) {
         return new SuccessResult<>(value);
     }
 
@@ -34,7 +35,7 @@ public interface Result<T> {
      * @param <U>       the type of the success value if it were a success
      * @return an instance that encapsulates the given Throwable as failure.
      */
-    static <U> Result<U> failure(Throwable throwable) {
+    static <U> Result<U> failure(@NonNull Throwable throwable) {
         return new FailureResult<>(throwable);
     }
 
@@ -83,7 +84,6 @@ public interface Result<T> {
      * @param fallback the fallback function
      * @return the encapsulated value if this instance represents success or the result of fallback function for the encapsulated Throwable exception if it is failure.
      */
-    @Nullable
     T getOrElse(Function<Throwable, ? extends T> fallback);
 
     /**
@@ -99,7 +99,6 @@ public interface Result<T> {
      *
      * @return the encapsulated value if this instance represents success or throws the encapsulated Throwable exception if it is failure.
      */
-    @Nullable
     T getOrThrow();
 
     /**

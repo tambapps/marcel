@@ -1,5 +1,7 @@
 package marcel.io;
 
+import org.jspecify.annotations.NullMarked;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 /**
  * Class providing util methods to handle files
  */
+@NullMarked
 public class Files {
 
   public static String readText(String path) throws IOException {

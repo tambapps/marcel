@@ -4,9 +4,12 @@ import marcel.util.primitives.collections.CharCollection;
 import marcel.util.primitives.iterators.CharIterator;
 import marcel.util.primitives.spliterators.CharSpliterator;
 import marcel.util.primitives.spliterators.CharSpliterators;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
+@NullMarked
 public interface CharSet extends CharCollection, Set<Character> {
 	/** Returns a type-specific iterator on the elements of this set.
 	 *
@@ -72,7 +75,7 @@ public interface CharSet extends CharCollection, Set<Character> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean remove(final Object o) {
+	default boolean remove(@Nullable final Object o) {
 	 return CharCollection.super.remove(o);
 	}
 	/** {@inheritDoc}
@@ -90,7 +93,7 @@ public interface CharSet extends CharCollection, Set<Character> {
 	@SuppressWarnings("deprecation")
 	@Deprecated
 	@Override
-	default boolean contains(final Object o) {
+	default boolean contains(@Nullable final Object o) {
 	 return CharCollection.super.contains(o);
 	}
 

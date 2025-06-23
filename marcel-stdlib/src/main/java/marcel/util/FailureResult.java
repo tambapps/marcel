@@ -71,7 +71,7 @@ final class FailureResult<T> implements Result<T> {
 
     @Override
     public Result<T> recover(Class<? extends Throwable> type, Supplier<T> fallback) {
-        return type.isInstance(exception) ? new SuccessResult<>(fallback.get()) : this;
+        return type.isInstance(exception) ? new SuccessResult<>(Objects.requireNonNull(fallback.get(), "fallback function returned null value")) : this;
     }
 
     @Override

@@ -26,6 +26,8 @@ import marcel.util.primitives.spliterators.CharSpliterator;
 import marcel.util.primitives.Arrays;
 import marcel.util.function.CharPredicate;
 import marcel.util.function.CharUnaryOperator;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +51,7 @@ import java.util.Spliterator;
 	*
 	* @see List
 	*/
+@NullMarked
 public interface CharList extends List<Character>, Comparable<List<? extends Character>>, CharCollection, CharSequence {
 
 	@Override
@@ -301,7 +304,7 @@ public interface CharList extends List<Character>, Comparable<List<? extends Cha
 	 */
 	@Deprecated
 	@Override
-	default boolean contains(final Object key) {
+	default boolean contains(@Nullable final Object key) {
 	 return CharCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
@@ -343,7 +346,7 @@ public interface CharList extends List<Character>, Comparable<List<? extends Cha
 	 */
 	@Deprecated
 	@Override
-	default boolean remove(final Object key) {
+	default boolean remove(@Nullable final Object key) {
 	 return CharCollection.super.remove(key);
 	}
 	/** {@inheritDoc}

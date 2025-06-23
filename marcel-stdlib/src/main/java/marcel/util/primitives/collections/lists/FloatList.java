@@ -26,6 +26,8 @@ import marcel.util.primitives.spliterators.FloatSpliterator;
 import marcel.util.primitives.Arrays;
 import marcel.util.function.FloatPredicate;
 import marcel.util.function.FloatUnaryOperator;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +51,7 @@ import java.util.Spliterator;
 	*
 	* @see List
 	*/
+@NullMarked
 public interface FloatList extends List<Float>, Comparable<List<? extends Float>>, FloatCollection {
 	/** Returns a type-specific iterator on the elements of this list.
 	 *
@@ -279,7 +282,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	 */
 	@Deprecated
 	@Override
-	default boolean contains(final Object key) {
+	default boolean contains(@Nullable final Object key) {
 	 return FloatCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
@@ -321,7 +324,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	 */
 	@Deprecated
 	@Override
-	default boolean remove(final Object key) {
+	default boolean remove(@Nullable final Object key) {
 	 return FloatCollection.super.remove(key);
 	}
 	/** {@inheritDoc}
