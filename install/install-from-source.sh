@@ -41,6 +41,7 @@ cp marcel-compilation/marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/l
 cp marcel-compilation/marcel-semantic/marcel-semantic-core/target/marcel-semantic-core-$version.jar $marcelDir/lib/marcel-semantic-core.jar
 cp marcel-compilation/marcel-semantic/marcel-semantic-processor/target/marcel-semantic-processor-$version.jar $marcelDir/lib/marcel-semantic-processor.jar
 cp marcel-compilation/marcel-semantic/marcel-semantic-transformer/target/marcel-semantic-transformer-$version.jar $marcelDir/lib/marcel-semantic-transformer.jar
+cp marcel-compilation/marcel-semantic/marcel-semantic-analysis/target/marcel-semantic-analysis-$version.jar $marcelDir/lib/marcel-semantic-analysis.jar
 cp marcel-compilation/marcel-parser/target/marcel-parser-$version.jar $marcelDir/lib/marcel-parser.jar
 cp marcel-compilation/marcel-compiler/target/marcel-compiler-$version.jar $marcelDir/lib/marcel-compiler.jar
 

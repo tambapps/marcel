@@ -20,6 +20,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.tambapps.maven</groupId>
       <artifactId>maven-dependency-resolver</artifactId>
     </dependency>
