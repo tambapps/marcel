@@ -2489,96 +2489,7 @@ public final class DefaultMarcelMethods {
     }
     return sum;
   }
-  
-  /**
-   * Executes the given action on each element
-   * 
-   * @param $self the collection
-   * @param action the action to execute on each element
-   * @param <T> the type of elements in the collection
-   * @return the collection itself, allowing for method chaining
-   */
-  public static <T> Collection<T> each(Collection<T> $self, Consumer<T> action) {
-    for (T item : $self) {
-      action.accept(item);
-    }
-    return $self;
-  }
-  
-  /**
-   * Executes the given action on each element
-   * 
-   * @param $self the array
-   * @param action the action to execute on each element
-   * @param <T> the type of elements in the array
-   * @return the array itself, allowing for method chaining
-   */
-  public static <T> T[] each(T[] $self, Consumer<T> action) {
-    for (T item : $self) {
-      action.accept(item);
-    }
-    return $self;
-  }
-  
-  /**
-   * Executes the given action on each element with its index
-   * 
-   * @param $self the collection
-   * @param action the action to execute on each element with its index
-   * @param <T> the type of elements in the collection
-   * @return the collection itself, allowing for method chaining
-   */
-  public static <T> Collection<T> eachWithIndex(Collection<T> $self, BiConsumer<T, Integer> action) {
-    int index = 0;
-    for (T item : $self) {
-      action.accept(item, index++);
-    }
-    return $self;
-  }
-  
-  /**
-   * Executes the given action on each element with its index
-   * 
-   * @param $self the array
-   * @param action the action to execute on each element with its index
-   * @param <T> the type of elements in the array
-   * @return the array itself, allowing for method chaining
-   */
-  public static <T> T[] eachWithIndex(T[] $self, BiConsumer<T, Integer> action) {
-    for (int i = 0; i < $self.length; i++) {
-      action.accept($self[i], i);
-    }
-    return $self;
-  }
-  
-  /**
-   * Executes the given action on each element
-   * 
-   * @param $self the array
-   * @param action the action to execute on each element
-   * @return the array itself, allowing for method chaining
-   */
-  public static int[] each(int[] $self, IntConsumer action) {
-    for (int item : $self) {
-      action.accept(item);
-    }
-    return $self;
-  }
-  
-  /**
-   * Executes the given action on each element with its index
-   * 
-   * @param $self the array
-   * @param action the action to execute on each element with its index
-   * @return the array itself, allowing for method chaining
-   */
-  public static int[] eachWithIndex(int[] $self, ObjIntConsumer<Integer> action) {
-    for (int i = 0; i < $self.length; i++) {
-      action.accept($self[i], i);
-    }
-    return $self;
-  }
-  
+
   /**
    * Takes the first n elements from the collection
    * 
@@ -2888,7 +2799,7 @@ public final class DefaultMarcelMethods {
   
   /**
    * Accumulates value starting with an initial value and applying an operation from left to right
-   * 
+   *
    * @param $self the array
    * @param initial the initial value
    * @param operation the operation to apply
@@ -2901,10 +2812,10 @@ public final class DefaultMarcelMethods {
     }
     return result;
   }
-  
+
   /**
    * Accumulates value starting with an initial value and applying an operation from left to right
-   * 
+   *
    * @param $self the array
    * @param initial the initial value
    * @param operation the operation to apply
@@ -2917,56 +2828,7 @@ public final class DefaultMarcelMethods {
     }
     return result;
   }
-  
-  /**
-   * Accumulates value starting with an initial value and applying an operation from left to right
-   * 
-   * @param $self the IntList
-   * @param initial the initial value
-   * @param operation the operation to apply
-   * @return the accumulated result
-   */
-  public static int fold(IntList $self, int initial, IntBinaryOperator operation) {
-    int result = initial;
-    IntIterator iterator = $self.iterator();
-    while (iterator.hasNext()) {
-      result = operation.applyAsInt(result, iterator.nextInt());
-    }
-    return result;
-  }
-  
-  /**
-   * Accumulates value starting with an initial value and applying an operation from left to right
-   * 
-   * @param $self the LongList
-   * @param initial the initial value
-   * @param operation the operation to apply
-   * @return the accumulated result
-   */
-  public static long fold(LongList $self, long initial, LongBinaryOperator operation) {
-    long result = initial;
-    for (int i = 0; i < $self.size(); i++) {
-      result = operation.applyAsLong(result, $self.getAt(i));
-    }
-    return result;
-  }
-  
-  /**
-   * Accumulates value starting with an initial value and applying an operation from left to right
-   * 
-   * @param $self the DoubleList
-   * @param initial the initial value
-   * @param operation the operation to apply
-   * @return the accumulated result
-   */
-  public static double fold(DoubleList $self, double initial, DoubleBinaryOperator operation) {
-    double result = initial;
-    for (int i = 0; i < $self.size(); i++) {
-      result = operation.applyAsDouble(result, $self.getAt(i));
-    }
-    return result;
-  }
-  
+
   /**
    * Find the first element that matches the predicate
    * 
@@ -3065,62 +2927,6 @@ public final class DefaultMarcelMethods {
       }
     }
     return null;
-  }
-  
-  /**
-   * Partitions a collection into two collections based on a predicate
-   * The first collection contains elements that satisfy the predicate
-   * The second collection contains elements that don't satisfy the predicate
-   * 
-   * @param $self the collection
-   * @param predicate the predicate to test elements
-   * @param <T> the type of elements in the collection
-   * @return a pair of lists containing the partitioned elements
-   */
-  public static <T> List<List<T>> partition(Collection<T> $self, Predicate<T> predicate) {
-    List<T> trueList = new ArrayList<>();
-    List<T> falseList = new ArrayList<>();
-    
-    for (T item : $self) {
-      if (predicate.test(item)) {
-        trueList.add(item);
-      } else {
-        falseList.add(item);
-      }
-    }
-    
-    List<List<T>> result = new ArrayList<>(2);
-    result.add(trueList);
-    result.add(falseList);
-    return result;
-  }
-  
-  /**
-   * Partitions an array into two collections based on a predicate
-   * The first collection contains elements that satisfy the predicate
-   * The second collection contains elements that don't satisfy the predicate
-   * 
-   * @param $self the array
-   * @param predicate the predicate to test elements
-   * @param <T> the type of elements in the array
-   * @return a pair of lists containing the partitioned elements
-   */
-  public static <T> List<List<T>> partition(T[] $self, Predicate<T> predicate) {
-    List<T> trueList = new ArrayList<>();
-    List<T> falseList = new ArrayList<>();
-    
-    for (T item : $self) {
-      if (predicate.test(item)) {
-        trueList.add(item);
-      } else {
-        falseList.add(item);
-      }
-    }
-    
-    List<List<T>> result = new ArrayList<>(2);
-    result.add(trueList);
-    result.add(falseList);
-    return result;
   }
   
   /**
