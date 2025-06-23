@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.symbol.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.Variable
 import com.tambapps.marcel.semantic.symbol.variable.VariableVisitor
 
@@ -26,6 +27,13 @@ open class MethodField constructor(override val type: JavaType, override val nam
   override val visibility = computeVisibility()
   override val isStatic = _getterMethod?.isStatic ?: _setterMethod?.isStatic ?: false
 
+  override val nullness: Nullness
+    get() = when {
+      _getterMethod != null && _setterMethod != null -> Nullness.of(_getterMethod, _setterMethod)
+      _getterMethod != null -> _getterMethod.nullness
+      _setterMethod != null -> _setterMethod.nullness
+      else -> Nullness.UNKNOWN
+    }
   override val isGettable = _getterMethod != null
   override val isSettable = _setterMethod != null
 

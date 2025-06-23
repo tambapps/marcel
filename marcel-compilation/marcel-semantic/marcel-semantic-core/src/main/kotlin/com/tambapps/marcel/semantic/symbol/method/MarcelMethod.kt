@@ -5,6 +5,7 @@ import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.JavaTyped
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 
 interface MarcelMethod: Symbol {
@@ -73,7 +74,7 @@ interface MarcelMethod: Symbol {
     while (i < parameters.size && parameters[i] != parameter) {
       index += parameters[i++].type.nbSlots
     }
-    return LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, index, parameter.isFinal)
+    return LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, index, parameter.isFinal, parameter.nullness)
   }
 
   /**

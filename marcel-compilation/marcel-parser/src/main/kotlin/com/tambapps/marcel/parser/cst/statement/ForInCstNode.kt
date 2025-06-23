@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 class ForInCstNode(
   val varType: TypeCstNode,
   val varName: String,
+  val isVarNullable: Boolean,
   val inNode: ExpressionCstNode,
   val statementNode: StatementCstNode,
   parent: CstNode?, tokenStart: LexToken, tokenEnd: LexToken) :

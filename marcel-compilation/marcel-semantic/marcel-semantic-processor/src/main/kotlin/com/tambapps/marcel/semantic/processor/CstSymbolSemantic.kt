@@ -11,6 +11,7 @@ import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.symbol.method.MethodParameter
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 
@@ -21,7 +22,7 @@ interface CstSymbolSemantic {
 
   fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
     return JavaClassFieldImpl(
-      resolve(fieldNode.type), fieldNode.name, ownerType, fieldNode.access.isFinal,
+      resolve(fieldNode.type), fieldNode.name, ownerType, Nullness.of(fieldNode.isNullable), fieldNode.access.isFinal,
       Visibility.fromTokenType(fieldNode.access.visibility), fieldNode.access.isStatic
     )
   }
@@ -32,11 +33,12 @@ interface CstSymbolSemantic {
     val (returnType, asyncReturnType) = resolveReturnType(node)
     return MarcelMethodImpl(
       ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
+      Nullness.of(node.isReturnTypeNullable),
       node.parameters.mapIndexed { index, methodParameterCstNode ->
         toMethodParameter(
           ownerType,
           forExtensionType,
-          visibility,
+          visibility, Nullness.of(methodParameterCstNode.isNullable),
           isStatic,
           index,
           node.name,
@@ -59,7 +61,7 @@ interface CstSymbolSemantic {
         toMethodParameter(
           ownerType,
           null,
-          visibility,
+          visibility, Nullness.of(methodParameterCstNode.isNullable),
           false,
           index,
           "constructor",
@@ -70,8 +72,8 @@ interface CstSymbolSemantic {
 
   fun toMethodParameter(
     ownerType: JavaType, forExtensionType: JavaType?, visibility: Visibility,
-    isStatic: Boolean, parameterIndex: Int,
-    methodName: String, node: MethodParameterCstNode
+    nullness: Nullness, isStatic: Boolean,
+    parameterIndex: Int, methodName: String, node: MethodParameterCstNode
   ): MethodParameter
 
   fun resolve(node: TypeCstNode): JavaType

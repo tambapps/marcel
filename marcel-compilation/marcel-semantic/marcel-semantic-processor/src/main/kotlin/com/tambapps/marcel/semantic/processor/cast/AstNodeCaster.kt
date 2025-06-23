@@ -10,7 +10,6 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.exception.TypeCastException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaType
-import com.tambapps.marcel.semantic.symbol.type.Nullness
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper
@@ -37,11 +36,7 @@ class AstNodeCaster(
    * Cast the provided node (if necessary) so that it fits the expected type.
    * Throws a MarcelSemanticException in case of casting failure
    */
-  override fun cast(expectedType: JavaType, node: ExpressionNode) = doCast(expectedType, node).apply {
-    checkNullness(expectedType, this)
-  }
-
-  private fun doCast(
+  override fun cast(
     expectedType: JavaType,
     node: ExpressionNode
   ): ExpressionNode {
@@ -94,11 +89,7 @@ class AstNodeCaster(
     }
   }
 
-  override fun javaCast(expectedType: JavaType, node: ExpressionNode) = doJavaCast(expectedType, node).apply {
-    checkNullness(expectedType, this)
-  }
-
-  private fun doJavaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
+  override fun javaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
     val actualType = node.type
     return when {
       actualType.primitive && expectedType.primitive -> primitiveToPrimitiveJavaCast(expectedType, node, actualType)
@@ -223,14 +214,5 @@ class AstNodeCaster(
       // passing dummy to inform code highlight that this is not a fCall from the real marcel source code
       LexToken.DUMMY
     )
-  }
-
-  private fun checkNullness(expectedType: JavaType, node: ExpressionNode) {
-    /* TODO
-    if (expectedType.nullness == Nullness.NOT_NULL && node.type.nullness == Nullness.NULLABLE) {
-      throw TypeCastException(node.token, "Expected non-null value but $node is nullable")
-    }
-
-     */
   }
 }

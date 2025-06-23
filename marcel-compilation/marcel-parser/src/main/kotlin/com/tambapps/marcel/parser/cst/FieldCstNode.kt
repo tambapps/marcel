@@ -10,6 +10,7 @@ class FieldCstNode(
   var access: AccessCstNode,
   val annotations: List<AnnotationCstNode>,
   val type: TypeCstNode,
+  val isNullable: Boolean,
   val identifierToken: LexToken,
   var initialValue: ExpressionCstNode?
 ) :

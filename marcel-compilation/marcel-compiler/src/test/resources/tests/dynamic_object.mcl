@@ -34,14 +34,14 @@ assertEquals("123", DynamicObject.of("123").toString())
 
 class DynImpl implements DynamicObject {
 
-  String name
+  String? name
 
-  override fun dynobj setProperty(String name, dynobj o) {
+  override fun dynobj? setProperty(String name, dynobj o) {
     if (name == "name") this.name = o?.value?.toString()
     return null
   }
 
-  override fun dynobj getProperty(String name) {
+  override fun dynobj? getProperty(String name) {
     return name == "name" ? DynamicObject.of(this.name) : null
   }
 

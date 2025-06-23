@@ -11,7 +11,7 @@ class MultiVarDeclarationCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   // nullable elements because we might want to skip some
-  val declarations: List<Pair<TypeCstNode, String>?>,
+  val declarations: List<Triple<TypeCstNode, String, Boolean>?>,
   val expressionNode: ExpressionCstNode
 ) : AbstractStatementCstNode(parent, tokenStart, tokenEnd) {
   override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = visitor.visit(this)

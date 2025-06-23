@@ -4,10 +4,14 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class NullValueNode(token: LexToken, type: JavaType?) :
   AbstractExpressionNode(type ?: JavaType.Anything, token),
   JavaConstantExpression {
+
+    override val nullness: Nullness
+    get() = Nullness.NULLABLE
 
   override val value = null
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =

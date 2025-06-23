@@ -10,6 +10,7 @@ class VariableDeclarationCstNode constructor(
   val type: TypeCstNode,
   val variableToken: LexToken,
   val expressionNode: ExpressionCstNode?,
+  val isNullable: Boolean,
   parent: CstNode?, tokenStart: LexToken, tokenEnd: LexToken
 ) :
   AbstractStatementCstNode(parent, tokenStart, tokenEnd) {

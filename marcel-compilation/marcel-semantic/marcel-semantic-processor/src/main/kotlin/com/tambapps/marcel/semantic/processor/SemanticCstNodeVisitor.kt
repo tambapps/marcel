@@ -402,7 +402,7 @@ abstract class SemanticCstNodeVisitor constructor(
       bodyCstNodes,
       expectedType
     ) { mapFilterMethodNode: MethodNode, methodScope: MethodScope ->
-      val collectionVar = methodScope.addLocalVariable(collectionType)
+      val collectionVar = methodScope.addLocalVariable(collectionType, Nullness.NOT_NULL)
       val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
       val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
       var expectedElementType = if (JavaType.intCollection.isAssignableFrom(collectionType)) JavaType.int
@@ -413,7 +413,7 @@ abstract class SemanticCstNodeVisitor constructor(
       else JavaType.Object
 
       useInnerScope { forScope ->
-        val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName)
+        val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName, Nullness.UNKNOWN)
         val addedExpression = node.mapExpr?.accept(this) ?: ReferenceNode(variable = forVariable, token = node.token)
         if (addedExpression.type.primitive
           && PrimitiveCollectionTypes.hasPrimitiveCollection(addedExpression.type.asPrimitiveType)
@@ -462,7 +462,7 @@ abstract class SemanticCstNodeVisitor constructor(
           )
         }
         val forStatement = if (inNodeVarRef.type.isArray) {
-          val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
+          val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
           forInArrayNode(
             node = node,
             forScope = forScope,
@@ -545,11 +545,11 @@ abstract class SemanticCstNodeVisitor constructor(
       varType.objectType
     ) { methodNode, methodScope ->
       useInnerScope { forScope ->
-        val forVariable = forScope.addLocalVariable(varType, node.varName)
+        val forVariable = forScope.addLocalVariable(varType, node.varName, Nullness.UNKNOWN)
         val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
 
         val forStatement = if (inNodeVarRef.type.isArray) {
-          val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
+          val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
           forInArrayNode(
             node = node,
             forScope = forScope,
@@ -599,11 +599,11 @@ abstract class SemanticCstNodeVisitor constructor(
     return inOperation(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean) { methodNode, methodScope ->
 
       val forStatement = useInnerScope { forScope ->
-        val forVariable = forScope.addLocalVariable(resolve(varType), varName)
+        val forVariable = forScope.addLocalVariable(resolve(varType), varName, Nullness.UNKNOWN)
         val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
 
         if (inNodeVarRef.type.isArray) {
-          val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
+          val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
           forInArrayNode(
             node = node,
             forScope = forScope,
@@ -657,9 +657,10 @@ abstract class SemanticCstNodeVisitor constructor(
     }
     bodyCstNodes.forEach { bodyCstNode -> bodyCstNode.forEach(consumer) }
 
-    val inOperatorMethodParameters = mutableListOf(MethodParameter(inNode.type, inValueName))
-    inOperatorMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.name) })
-    val inOperatorMethodNode = generateOrGetMethod(methodPrefix, inOperatorMethodParameters, methodReturnType, node)
+    val inOperatorMethodParameters = mutableListOf(MethodParameter(inNode.type,inNode.nullness,  inValueName))
+    inOperatorMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.nullness, it.name) })
+    val inOperatorMethodNode = generateOrGetMethod(methodPrefix, inOperatorMethodParameters, methodReturnType, node,
+      if (methodReturnType.primitive) Nullness.NOT_NULL else Nullness.UNKNOWN)
 
     useScope(newMethodScope(inOperatorMethodNode)) { methodScope ->
       methodFiller.invoke(inOperatorMethodNode, methodScope)
@@ -719,7 +720,7 @@ abstract class SemanticCstNodeVisitor constructor(
     // a local variable is needed when the expression needs to be pushed and owner is not null and value is returned before assignment
     val lv =
       if (owner != null && smartCastType != JavaType.void && node.returnValueBefore) currentMethodScope.addLocalVariable(
-        varType
+        varType, Nullness.NOT_NULL
       )
       else null
     val amount = castNumberConstantOrNull(node.amount, varType.asPrimitiveType)
@@ -876,7 +877,7 @@ abstract class SemanticCstNodeVisitor constructor(
         val left = leftOperand.accept(this)
         if (left.type.primitive) error(node, "Cannot use safe access operator on primitive type as it cannot be null")
 
-        currentMethodScope.useTempLocalVariable(left.type) { lv ->
+        currentMethodScope.useTempLocalVariable(left.type, left.nullness) { lv ->
           var dotNode = dotOperator(node, ReferenceNode(variable = lv, token = node.token), rightOperand, smartCastType = smartCastType)
           if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode =
             cast(dotNode.type.objectType, dotNode) // needed as the result can be null
@@ -913,7 +914,6 @@ abstract class SemanticCstNodeVisitor constructor(
                   leftOperand.value,
                   emptyList(),
                   0,
-                  false,
                   leftOperand.tokenStart,
                   leftOperand.tokenEnd
                 )
@@ -1087,6 +1087,9 @@ abstract class SemanticCstNodeVisitor constructor(
   private fun assignment(left: ExpressionNode, right: ExpressionNode, node: CstNode): ExpressionNode {
     return when (left) {
       is ReferenceNode -> {
+        if (left.nullness == Nullness.NOT_NULL && right.nullness == Nullness.NULLABLE) {
+          error(node, "Cannot assign nullable value $right to a non null variable")
+        }
         val variable = left.variable
         try {
           checkVariableAccess(variable, node, checkSet = true)
@@ -1397,7 +1400,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val right = if (left is OwnableAstNode && left.owner != null) {
       // for owned node, in order to prevent evaluating twice the owner, we have to store it into a local variable
       val owner = left.owner!!
-      val lv = it.addLocalVariable(owner.type)
+      val lv = it.addLocalVariable(owner.type, owner.nullness)
       // assign the local variable while pushing the owner for the variable store instruction
       left = left.withOwner(VariableAssignmentNode(node = leftOperand, variable = lv, owner = null, expression = owner))
       arithmeticBinaryOperator(
@@ -1689,7 +1692,7 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
-    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, token = node.token)
+    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, Nullness.of(node.isNullable), token = node.token)
     try {
       checkVariableAccess(variable, node, checkSet = true)
     } catch (e: VariableAccessException) {
@@ -1709,7 +1712,7 @@ abstract class SemanticCstNodeVisitor constructor(
     // needed for switch/whens, which need a smartCastType to work
     val expression = node.expressionNode.accept(this, List::class.javaType)
     val blockNode = BlockStatementNode(mutableListOf(), node.tokenStart, node.tokenEnd)
-    currentMethodScope.useTempLocalVariable(expression.type) { expressionVariable: LocalVariable ->
+    currentMethodScope.useTempLocalVariable(expression.type, expression.nullness) { expressionVariable: LocalVariable ->
       val expressionRef = ReferenceNode(variable = expressionVariable, token = node.token)
 
       // put the expression in a local variable
@@ -1725,9 +1728,9 @@ abstract class SemanticCstNodeVisitor constructor(
 
       // declare all variables
       val variableMap = mutableMapOf<Int, LocalVariable>()
-      node.declarations.forEachIndexed { index, pair ->
-        if (pair != null) variableMap[index] =
-          currentMethodScope.addLocalVariable(resolve(pair.first), pair.second, token = node.token)
+      node.declarations.forEachIndexed { index, triple ->
+        if (triple != null) variableMap[index] =
+          currentMethodScope.addLocalVariable(resolve(triple.first), triple.second, Nullness.of(triple.third), token = node.token)
       }
       // then assign
       when {
@@ -1905,10 +1908,13 @@ abstract class SemanticCstNodeVisitor constructor(
       tokenStart = node.tokenStart,
       tokenEnd = node.tokenEnd,
       parameters = mutableListOf(),
+      nullness = Nullness.NOT_NULL,
       ownerClass = lambdaType
     )
     val parameters =
-      node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { resolve(it) }, param.name) }
+      node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { resolve(it) },
+        if (param.type != null) Nullness.of(param.nullable) else Nullness.UNKNOWN,
+        param.name) }
 
     val lambdaNode = LambdaClassNode(
       lambdaType,
@@ -1966,10 +1972,11 @@ abstract class SemanticCstNodeVisitor constructor(
         val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, lambdaNode.token)
         val lambdaParameters = mutableListOf<MethodParameter>()
         interfaceMethod.parameters.forEachIndexed { index, _ ->
-          lambdaParameters.add(MethodParameter(methodParameters[index].type, methodParameters[index].name))
+          lambdaParameters.add(MethodParameter(methodParameters[index].type, methodParameters[index].nullness, methodParameters[index].name))
         }
         val interfaceMethodNode = MethodNode(
           interfaceMethod.name,
+          interfaceMethod.nullness,
           lambdaParameters,
           interfaceMethod.visibility,
           interfaceMethod.returnType,
@@ -2007,6 +2014,7 @@ abstract class SemanticCstNodeVisitor constructor(
         val lambdaMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(lambdaType, lambdaNode.token)
         val lambdaMethodNode = MethodNode(
           lambdaMethod.name,
+          lambdaMethod.nullness,
           methodParameters,
           lambdaMethod.visibility,
           lambdaMethod.returnType,
@@ -2043,6 +2051,7 @@ abstract class SemanticCstNodeVisitor constructor(
             lv.type,
             lv.name,
             lambdaNode.type,
+            lv.nullness,
             emptyList(),
             true,
             Visibility.PRIVATE,
@@ -2052,7 +2061,7 @@ abstract class SemanticCstNodeVisitor constructor(
           )
           lambdaNode.fields.add(field)
 
-          constructorParameters.add(MethodParameter(lv.type, lv.name))
+          constructorParameters.add(MethodParameter(lv.type, lv.nullness, lv.name))
           lambdaConstructor.blockStatement.statements.add(lambdaConstructor.blockStatement.statements.size - 1, // -1 because last is return call
             ExpressionStatementNode(
               VariableAssignmentNode(
@@ -2083,8 +2092,8 @@ abstract class SemanticCstNodeVisitor constructor(
   ): MutableList<MethodParameter> {
     if (interfaceType == null) {
       return if (lambdaNode.explicit0Parameters) mutableListOf()
-      else if (lambdaNode.lambdaMethodParameters.isEmpty()) mutableListOf(MethodParameter(JavaType.Object, "it"))
-      else lambdaNode.lambdaMethodParameters.map { MethodParameter(it.type ?: JavaType.Object, it.name) }
+      else if (lambdaNode.lambdaMethodParameters.isEmpty()) mutableListOf(MethodParameter(JavaType.Object, Nullness.UNKNOWN, "it"))
+      else lambdaNode.lambdaMethodParameters.map { MethodParameter(it.type ?: JavaType.Object, it.nullness, it.name) }
         .toMutableList()
     }
     val method = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, lambdaNode.token)
@@ -2101,7 +2110,7 @@ abstract class SemanticCstNodeVisitor constructor(
         lambdaNode.token,
         "Lambda parameters mismatch. Expected parameters ${method.parameters}"
       )
-      return method.parameters.map { MethodParameter(it.type, "it") }.toMutableList()
+      return method.parameters.map { MethodParameter(it.type, it.nullness, "it") }.toMutableList()
     }
 
     if (lambdaNode.lambdaMethodParameters.size != method.parameters.size) {
@@ -2117,7 +2126,9 @@ abstract class SemanticCstNodeVisitor constructor(
           "Type ${method.parameters[index].type} is not assignable to ${lambdaMethodParameter.type}"
         )
       }
-      MethodParameter(lambdaMethodParameter.type ?: method.parameters[index].type, lambdaMethodParameter.name)
+      MethodParameter(lambdaMethodParameter.type ?: method.parameters[index].type,
+        lambdaMethodParameter.nullness,
+        lambdaMethodParameter.name)
     }.toMutableList()
   }
 
@@ -2151,14 +2162,14 @@ abstract class SemanticCstNodeVisitor constructor(
     val asyncMethodArguments = mutableListOf<ReferenceNode>()
     for (lv in referencedLocalVariables) {
       if (asyncMethodParameters.none { it.name == lv.name }) {
-        asyncMethodParameters.add(MethodParameter(lv.type, lv.name, isFinal = true))
+        asyncMethodParameters.add(MethodParameter(lv.type, lv.nullness, lv.name, isFinal = true))
         asyncMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
       }
     }
     val asyncReturnType = smartCastType ?: JavaType.void
     val asyncMethodNode = generateOrGetMethod(
       ASYNC_METHOD_PREFIX, asyncMethodParameters,
-      returnType = if (asyncReturnType == JavaType.void) JavaType.void else asyncReturnType.objectType, node
+      returnType = if (asyncReturnType == JavaType.void) JavaType.void else asyncReturnType.objectType, node, Nullness.UNKNOWN
     )
 
     compose(
@@ -2171,10 +2182,10 @@ abstract class SemanticCstNodeVisitor constructor(
     ) { asyncScope ->
       // initializing Threadmill context. Needs to be declared BEFORE the block as we will initialize this variable
       // before running the block instructions
-      val threadmillResourceVariable = asyncScope.addLocalVariable(Closeable::class.javaType)
+      val threadmillResourceVariable = asyncScope.addLocalVariable(Closeable::class.javaType, Nullness.NOT_NULL)
 
       // store return expression in local variable to be able to execute finally block
-      val returnValueVar = if (asyncReturnType != JavaType.void) asyncScope.addLocalVariable(asyncMethodNode.returnType)
+      val returnValueVar = if (asyncReturnType != JavaType.void) asyncScope.addLocalVariable(asyncMethodNode.returnType, Nullness.UNKNOWN)
       else null
       val asyncStatementTryBlock = visit(node.block).apply {
         if (asyncReturnType != JavaType.void) {
@@ -2211,7 +2222,7 @@ abstract class SemanticCstNodeVisitor constructor(
         catchNodes = emptyList(),
         finallyNode = useInnerScope { finallyScope ->
           TryNode.FinallyNode(
-            finallyScope.addLocalVariable(Throwable::class.javaType), block(ExpressionStatementNode(
+            finallyScope.addLocalVariable(Throwable::class.javaType, Nullness.NOT_NULL), block(ExpressionStatementNode(
               fCall(
                 node = node,
                 owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
@@ -2272,7 +2283,7 @@ abstract class SemanticCstNodeVisitor constructor(
     )
     val switchExpressionLocalVariable =
       currentMethodScope.addLocalVariable(varDecl?.let { resolve(it.type) } ?: switchExpression?.type
-      ?: JavaType.Object, switchExpressionRef.value, token = node.token)
+      ?: JavaType.Object, switchExpressionRef.value, switchExpression?.nullness ?: Nullness.UNKNOWN, token = node.token)
 
     val rootIfCstNode = node.branches.first().let {
       toIf(it, switchExpression, switchExpressionRef, node)
@@ -2295,18 +2306,18 @@ abstract class SemanticCstNodeVisitor constructor(
     val whenMethodParameters = mutableListOf<MethodParameter>()
     val whenMethodArguments = mutableListOf<ExpressionNode>()
     if (switchExpression != null) {
-      whenMethodParameters.add(MethodParameter(switchExpressionLocalVariable.type, switchExpressionLocalVariable.name))
+      whenMethodParameters.add(MethodParameter(switchExpressionLocalVariable.type, switchExpressionLocalVariable.nullness, switchExpressionLocalVariable.name))
       whenMethodArguments.add(switchExpression)
     }
     for (lv in referencedLocalVariables) {
-      whenMethodParameters.add(MethodParameter(lv.type, lv.name, isFinal = true))
+      whenMethodParameters.add(MethodParameter(lv.type, lv.nullness, lv.name, isFinal = true))
       whenMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
     }
 
     /*
      * generating method
      */
-    val whenMethod = generateOrGetMethod(WHEN_METHOD_PREFIX, whenMethodParameters, whenReturnType, node)
+    val whenMethod = generateOrGetMethod(WHEN_METHOD_PREFIX, whenMethodParameters, whenReturnType, node, Nullness.UNKNOWN)
     val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode, smartCastType) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
@@ -2367,11 +2378,13 @@ abstract class SemanticCstNodeVisitor constructor(
     return@useInnerScope JavaType.commonType(branchTransformer.collectedTypes)
   }
 
+  // TODO handle nullness in when/switch, asyncFunction, lambda, ... everything that generates a function. To stop passing UNKNOWN to this function
   private fun generateOrGetMethod(
     prefix: String,
     parameters: MutableList<MethodParameter>,
     returnType: JavaType,
     node: CstNode,
+    nullness: Nullness,
     asyncReturnType: JavaType? = null
   ): MethodNode {
     val classType = currentScope.classType
@@ -2381,7 +2394,7 @@ abstract class SemanticCstNodeVisitor constructor(
     /// we don't want to define the same method twice, so we find it if we already registered it
     if (existingMethodNode != null) return existingMethodNode
     val methodNode = MethodNode(
-      methodName, parameters, Visibility.PRIVATE, returnType,
+      methodName, nullness, parameters, Visibility.PRIVATE, returnType,
       currentMethodScope.staticContext, asyncReturnType, node.tokenStart, node.tokenEnd, classType
     )
     if (methodNode.isAsync) {
@@ -2432,13 +2445,13 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val variable = it.addLocalVariable(resolve(node.varType), node.varName, token = node.token)
+    val variable = it.addLocalVariable(resolve(node.varType), node.varName, Nullness.of(node.isVarNullable), token = node.token)
 
     val inNode = node.inNode.accept(this)
 
     return@useScope if (inNode.type.isArray) forInArrayNode(
       node = node, forScope = it, inNode = inNode,
-      forVariable = variable, iVar = it.addLocalVariable(JavaType.int, token = node.token)
+      forVariable = variable, iVar = it.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
     ) { node.statementNode.accept(this) }
     else forInIteratorNode(node, it, variable, inNode) { node.statementNode.accept(this) }
   }
@@ -2447,15 +2460,15 @@ abstract class SemanticCstNodeVisitor constructor(
     return useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
       val inNode = node.inNode.accept(this)
 
-      val localVars = node.declarations.map { pair ->
-        it.addLocalVariable(resolve(pair.first), pair.second, token = node.token)
+      val localVars = node.declarations.map { triple ->
+        it.addLocalVariable(resolve(triple.first), triple.second, Nullness.of(triple.third), token = node.token)
       }
 
       if (inNode.type.implements(JavaType.Map)) {
         if (localVars.size != 2) {
           return@useScope stmtError(node, "Needs 2 variables when iterating over maps")
         }
-        val mapVar = it.addLocalVariable(Map::class.javaType)
+        val mapVar = it.addLocalVariable(Map::class.javaType, Nullness.NOT_NULL)
         val keyVar = localVars.first()
         val valueVar = localVars.last()
 
@@ -2490,7 +2503,7 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: TruthyVariableDeclarationCstNode, smartCastType: JavaType?): ExpressionNode {
-    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, token = node.token)
+    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, Nullness.UNKNOWN, token = node.token)
     var expression = node.expression.accept(this)
     /*
      * handle Optional unboxing
@@ -2570,7 +2583,7 @@ abstract class SemanticCstNodeVisitor constructor(
       if (!resourceType.implements(Closeable::class.javaType)) {
         return@useInnerScope stmtError(node, "Try resources need to implement Closeable")
       }
-      val resourceVar = resourcesScope.addLocalVariable(resourceType, it.value, token = it.token)
+      val resourceVar = resourcesScope.addLocalVariable(resourceType, it.value, Nullness.NOT_NULL, token = it.token)
 
       if (it.expressionNode == null) return@useInnerScope stmtError(it, "Resource declarations need to be initialised")
       VariableAssignmentNode(
@@ -2589,7 +2602,7 @@ abstract class SemanticCstNodeVisitor constructor(
       // yup. throw error in this case because I don't know how to properly handle 'finally' block otherwise.
       return@useInnerScope stmtError(node, "Cannot have void return statement in a try with a finally block")
     }
-    val returnValueVar = if (hasReturnStatements) resourcesScope.addLocalVariable(resourcesScope.method.returnType)
+    val returnValueVar = if (hasReturnStatements) resourcesScope.addLocalVariable(resourcesScope.method.returnType, resourcesScope.method.nullness)
     else null
 
     // handle try block
@@ -2605,7 +2618,7 @@ abstract class SemanticCstNodeVisitor constructor(
       }
 
       val (throwableVar, catchStatement) = useScope(CatchBlockScope(resourcesScope, resourceVarNames)) { catchScope ->
-        val v = catchScope.addLocalVariable(JavaType.commonType(throwableTypes), triple.second)
+        val v = catchScope.addLocalVariable(JavaType.commonType(throwableTypes), triple.second, Nullness.NOT_NULL)
         Pair(v, triple.third.accept(this))
       }
       TryNode.CatchNode(throwableTypes, throwableVar, catchStatement)
@@ -2614,8 +2627,8 @@ abstract class SemanticCstNodeVisitor constructor(
     // handle finally block
     val finallyNode = if (node.finallyNode == null && node.resources.isEmpty()) null
     else useScope(CatchBlockScope(resourcesScope, resourceVarNames)) { finallyScope ->
-      finallyScope.addLocalVariable(Throwable::class.javaType)
-      val throwableVar = finallyScope.addLocalVariable(Throwable::class.javaType)
+      finallyScope.addLocalVariable(Throwable::class.javaType, Nullness.NOT_NULL)
+      val throwableVar = finallyScope.addLocalVariable(Throwable::class.javaType, Nullness.NOT_NULL)
       val finallyBlock = BlockStatementNode(
         mutableListOf(), node.finallyNode?.tokenStart ?: node.tokenStart,
         node.finallyNode?.tokenEnd ?: node.tokenEnd
@@ -2735,24 +2748,27 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun toMethodParameter(
     ownerType: JavaType, forExtensionType: JavaType?, visibility: Visibility,
-    isStatic: Boolean, parameterIndex: Int,
-    methodName: String, node: MethodParameterCstNode
+    nullness: Nullness, isStatic: Boolean,
+    parameterIndex: Int, methodName: String, node: MethodParameterCstNode
   ): MethodParameter {
     val parameterType =
       if (node.thisParameter) symbolResolver.getClassField(ownerType, node.name, node.token).type
       else resolve(node.type)
     val defaultValue = if (node.defaultValue != null) {
       val defaultValueMethod =
-        generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
+        generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, Nullness.NULLABLE, parameterIndex)
       useScope(newMethodScope(ownerType, forExtensionType, defaultValueMethod)) {
+        val defaultValue = node.defaultValue!!.accept(this)
+        defaultValueMethod.nullness = defaultValue.nullness
         cast(
           parameterType,
-          node.defaultValue!!.accept(this)
+          defaultValue
         )
       }
     } else null
     return MethodParameter(
       parameterType,
+      nullness,
       node.name,
       node.annotations.map { visit(it, ElementType.PARAMETER) },
       defaultValue,
@@ -2767,10 +2783,11 @@ abstract class SemanticCstNodeVisitor constructor(
     isStatic: Boolean,
     methodName: String,
     type: JavaType,
+    nullness: Nullness,
     parameterIndex: Int
   ): MethodNode {
     return MethodNode(
-      "${methodName}_defaultParam${parameterIndex}", mutableListOf(), visibility, type,
+      "${methodName}_defaultParam${parameterIndex}", nullness, mutableListOf(), visibility, type,
       // always static because we don't it is painful to push the owner
       isStatic = true, node.tokenStart, node.tokenEnd, ownerClass
     )
@@ -2790,13 +2807,15 @@ abstract class SemanticCstNodeVisitor constructor(
     val parameterName = node.name
     // may be needed
     val defaultValueMethod =
-      generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
+      generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, Nullness.NULLABLE, parameterIndex)
     val defaultValue =
       if (node.defaultValue != null) {
         useScope(newMethodScope(ownerType, classNode.forExtensionType, defaultValueMethod)) {
+          val defaultValue = node.defaultValue!!.accept(this)
+          defaultValueMethod.nullness = defaultValue.nullness
           cast(
             parameterType,
-            node.defaultValue!!.accept(this)
+            defaultValue
           )
         }
       } else null
@@ -2905,7 +2924,7 @@ abstract class SemanticCstNodeVisitor constructor(
         }
       }
     }
-    return MethodParameter(parameterType, parameterName, annotations, defaultValue)
+    return MethodParameter(parameterType, Nullness.of(node.isNullable), parameterName, annotations, defaultValue)
   }
 
 

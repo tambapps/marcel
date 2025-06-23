@@ -7,6 +7,7 @@ import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import java.util.concurrent.ThreadLocalRandom
 
@@ -34,7 +35,7 @@ open class MethodScope internal constructor(
   ) {
     // method parameters are stored in local variables
     for (param in method.parameters) {
-      addLocalVariable(param.type, param.name, param.isFinal)
+      addLocalVariable(param.type, param.name, method.nullness, param.isFinal)
     }
   }
 
@@ -52,8 +53,8 @@ open class MethodScope internal constructor(
       return variables
     }
 
-  inline fun <T> useTempLocalVariable(type: JavaType, isFinal: Boolean = false, runnable: (LocalVariable) -> T): T {
-    val v = addLocalVariable(type, isFinal)
+  inline fun <T> useTempLocalVariable(type: JavaType, nullness: Nullness, isFinal: Boolean = false, runnable: (LocalVariable) -> T): T {
+    val v = addLocalVariable(type, nullness, isFinal)
     try {
       return runnable.invoke(v)
     } finally {
@@ -61,9 +62,9 @@ open class MethodScope internal constructor(
     }
   }
 
-  fun addLocalVariable(type: JavaType, isFinal: Boolean = false, token: LexToken = LexToken.DUMMY): LocalVariable {
+  fun addLocalVariable(type: JavaType, nullness: Nullness, isFinal: Boolean = false, token: LexToken = LexToken.DUMMY): LocalVariable {
     val name = generateLocalVarName()
-    return addLocalVariable(type, name, isFinal, token)
+    return addLocalVariable(type, name, nullness, isFinal, token)
   }
 
   private fun generateLocalVarName(): String {
@@ -74,13 +75,14 @@ open class MethodScope internal constructor(
   fun addLocalVariable(
     type: JavaType,
     name: String,
+    nullness: Nullness,
     isFinal: Boolean = false,
     token: LexToken = LexToken.DUMMY
   ): LocalVariable {
     if (findLocalVariable(name) != null) {
       throw MarcelSemanticException(token, "A variable with name $name is already defined")
     }
-    val v = localVariablePool.obtain(type, name, isFinal)
+    val v = localVariablePool.obtain(type, name, nullness, isFinal)
     localVariables.add(v)
     return v
   }

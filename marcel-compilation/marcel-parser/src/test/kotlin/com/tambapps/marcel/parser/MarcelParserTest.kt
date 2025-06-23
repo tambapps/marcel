@@ -379,12 +379,12 @@ class MarcelParserTest {
         BinaryOperatorCstNode(type, left, right, null, token(), token())
     private fun indexAccess(owner: ExpressionCstNode, indexes: List<ExpressionCstNode>, isSafeAccess: Boolean = false) =
         IndexAccessCstNode(null, owner, indexes, isSafeAccess, token(), token())
-    private fun varDecl(typeNode: TypeCstNode, name: String, expr: ExpressionCstNode?) = VariableDeclarationCstNode(typeNode,
-        LexToken.dummy(name), expr, null, token(), token())
+    private fun varDecl(typeNode: TypeCstNode, name: String, expr: ExpressionCstNode?, isNullable: Boolean = false) = VariableDeclarationCstNode(typeNode,
+        LexToken.dummy(name), expr, isNullable, null, token(), token())
     private fun stmt(expr: ExpressionCstNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun returnNode(expr: ExpressionCstNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun nullValue() = NullCstNode(token = token())
-    private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0, nullable: Boolean = false) = TypeCstNode(null, value, genericTypes, arrayDimensions, nullable, token(), token())
+    private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
     private fun int(value: Int) = IntCstNode(value = value, token = token())
     private fun string(value: Any) = StringCstNode(value = value.toString(), token = token())
     private fun templateSting(value: Any) = TemplateStringCstNode(expressions = listOf(string(value)), tokenStart = token(), tokenEnd = token(), parent = null)
@@ -394,9 +394,9 @@ class MarcelParserTest {
     private fun ref(name: String) = ReferenceCstNode(value = name, token = token(), parent = null)
     private fun parser(text: String) = MarcelParser("Test", MarcelLexer().lex(text))
     private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
-    private fun lambdaParam(type: TypeCstNode? = null, name: String) = LambdaCstNode.MethodParameterCstNode(null, token(), token(), type, name)
+    private fun lambdaParam(type: TypeCstNode? = null, name: String, isNullable: Boolean = false) = LambdaCstNode.MethodParameterCstNode(null, token(), token(), type, name, isNullable)
     private fun methodParam(type: TypeCstNode, name: String, defaultValue: ExpressionCstNode? = null,
-                            annotations: List<AnnotationCstNode> = emptyList(), thisParameter: Boolean = false
-    ) = MethodParameterCstNode(null, token(), token(), name, type, defaultValue, annotations, thisParameter)
+                            annotations: List<AnnotationCstNode> = emptyList(), thisParameter: Boolean = false, isNullable: Boolean = false
+    ) = MethodParameterCstNode(null, token(), token(), name, type, defaultValue, annotations, thisParameter, isNullable)
     private fun classReference(type: TypeCstNode) = ClassReferenceCstNode(null, type, token(), token())
 }

@@ -241,7 +241,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         skip(2)
         val tokenStart = current
         extensionTypes.add(
-          TypeCstNode(parentNode, importExtensionType(), emptyList(), 0, false, tokenStart, previous)
+          TypeCstNode(parentNode, importExtensionType(), emptyList(), 0, tokenStart, previous)
         )
       } else {
         imports.add(import(parentNode))
@@ -334,10 +334,11 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   fun field(parentNode: ClassCstNode, annotations: List<AnnotationCstNode>, access: AccessCstNode): FieldCstNode {
     val tokenStart = current
     val type = parseType(parentNode)
+    val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
     val identifierToken = accept(IDENTIFIER)
     val initialValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
     acceptOptional(SEMI_COLON)
-    return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, identifierToken, initialValue)
+    return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, isNullable, identifierToken, initialValue)
   }
 
   private fun parseClass(
@@ -423,8 +424,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     if (isAsync && isOverride) throw MarcelParserException(current, "Constructors cannot override")
     val node = if (!isConstructor) {
       val returnType = parseType(parentNode)
+      val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
       val identifierToken = accept(IDENTIFIER)
-      MethodCstNode(parentNode, token, token, access, identifierToken.value, returnType, isAsync=isAsync, isOverride=isOverride, identifierToken=identifierToken)
+      MethodCstNode(parentNode, token, token, access, identifierToken.value, returnType, isReturnTypeNullable=isNullable, isAsync=isAsync, isOverride=isOverride, identifierToken=identifierToken)
     } else ConstructorCstNode(parentNode, token, token, access)
     node.annotations.addAll(annotations)
 
@@ -439,7 +441,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       val type =
         if (!isThisParameter) parseType(parentNode)
         // dummy type that will not be used as we will just use the type of the field
-        else TypeCstNode(parentNode, "", emptyList(), 0, false, previous, previous)
+        else TypeCstNode(parentNode, "", emptyList(), 0, previous, previous)
+      val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
       if (isVarArgs) {
         // if it is true, and we went there, it means the three dots were not on the last parameter
         throw MarcelParserException(parameters.last().token, "Vararg parameter can only be the last parameter")
@@ -449,7 +452,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       val parameterName = accept(IDENTIFIER).value
 
       val defaultValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
-      parameters.add(MethodParameterCstNode(parentNode, parameterTokenStart, previous, parameterName, if (isVarArgs) type.withDimensions(type.arrayDimensions + 1) else type, defaultValue, parameterAnnotations, isThisParameter))
+      parameters.add(MethodParameterCstNode(parentNode, parameterTokenStart, previous, parameterName, if (isVarArgs) type.withDimensions(type.arrayDimensions + 1) else type, defaultValue, parameterAnnotations, isThisParameter, isNullable))
       acceptOptional(TokenType.COMMA)
     }
     node.isVarArgs = isVarArgs
@@ -525,11 +528,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       }
       accept(TokenType.GT)
     }
-
-    val nullable = acceptOptional(TokenType.QUESTION_MARK) != null
     // array dimensions
     val arrayDimension = parseArrayDimensions()
-    return TypeCstNode(parentNode, typeFragments.joinToString(separator = "$"), genericTypes, arrayDimension, nullable, tokenStart, previous)
+    return TypeCstNode(parentNode, typeFragments.joinToString(separator = "$"), genericTypes, arrayDimension, tokenStart, previous)
   }
 
   private fun parseArrayDimensions(): Int {
@@ -574,6 +575,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
                 || current.type == TokenType.LT)
             // for object var decl without init expression
             || (current.type == IDENTIFIER && lookup(1)?.type == TokenType.SEMI_COLON)
+            // nullable variable declaration
+            || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type == TokenType.ASSIGNMENT)
             // for array var decl
             || (current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE
                 && lookup(2)?.type == IDENTIFIER))  {
@@ -634,15 +637,16 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         }
         TokenType.DEF -> {
           accept(TokenType.LPAR)
-          val declarations = mutableListOf<Pair<TypeCstNode, String>?>()
+          val declarations = mutableListOf<Triple<TypeCstNode, String, Boolean>?>()
           while (current.type != TokenType.RPAR) {
             if (current.type == IDENTIFIER && current.value.all { it == '_' }) {
               declarations.add(null)
               skip()
             } else {
               val varType = parseType(parentNode)
+              val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
               val varName = accept(IDENTIFIER).value
-              declarations.add(Pair(varType, varName))
+              declarations.add(Triple(varType, varName, isNullable))
             }
             if (current.type == TokenType.COMMA) skip()
           }
@@ -656,11 +660,12 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           if (current.type == TokenType.LPAR) {
             // multi var declaration
             accept(TokenType.LPAR)
-            val declarations = mutableListOf<Pair<TypeCstNode, String>>()
+            val declarations = mutableListOf<Triple<TypeCstNode, String, Boolean>>()
             while (current.type != TokenType.RPAR) {
               val varType = parseType(parentNode)
+              val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
               val varName = accept(IDENTIFIER).value
-              declarations.add(Pair(varType, varName))
+              declarations.add(Triple(varType, varName, isNullable))
               if (current.type == TokenType.COMMA) skip()
             }
             accept(TokenType.RPAR)
@@ -675,6 +680,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
             ForInMultiVarCstNode(declarations, expression, forBlock, parentNode, token, forBlock.tokenEnd)
           } else {
             val type = parseType(parentNode)
+            val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
             if (lookup(1)?.type == TokenType.IN) {
               // for in statement
               val identifier = accept(IDENTIFIER).value
@@ -682,11 +688,11 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
               val expression = expression(parentNode)
               accept(TokenType.RPAR)
               val forBlock = statement(parentNode)
-              ForInCstNode(type, identifier, expression, forBlock, parentNode, token, previous)
+              ForInCstNode(type, identifier, isNullable, expression, forBlock, parentNode, token, previous)
             } else {
               // for (;;)
               // needed especially if initStatement is var declaration
-              val initStatement = varDecl(parentNode, type)
+              val initStatement = varDecl(parentNode, type, isNullable)
               accept(TokenType.SEMI_COLON)
               val condition = expression(parentNode)
               accept(TokenType.SEMI_COLON)
@@ -758,11 +764,16 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     } else expression(parentNode)
   }
 
-  private fun varDecl(parentNode: CstNode?) = varDecl(parentNode, parseType(parentNode))
-  private fun varDecl(parentNode: CstNode?, type: TypeCstNode): VariableDeclarationCstNode {
+  private fun varDecl(parentNode: CstNode?): VariableDeclarationCstNode {
+    val type = parseType(parentNode)
+    val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
+    return varDecl(parentNode, type, isNullable)
+  }
+
+  private fun varDecl(parentNode: CstNode?, type: TypeCstNode, isNullable: Boolean): VariableDeclarationCstNode {
     val identifierToken = accept(IDENTIFIER)
     val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
-    return VariableDeclarationCstNode(type, identifierToken, expression, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
+    return VariableDeclarationCstNode(type, identifierToken, expression, isNullable, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
   }
 
   private fun block(parentNode: CstNode?, acceptBracketOpen: Boolean = true): BlockCstNode {
@@ -896,7 +907,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           val arrayDimensions = parseArrayDimensions()
           accept(TokenType.DOT)
           accept(TokenType.CLASS)
-          ClassReferenceCstNode(parentNode, TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, false, token, previous), token, previous)
+          ClassReferenceCstNode(parentNode, TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
           indexAccessCstNode(parentNode, ReferenceCstNode(parentNode, token.value, token))
         } else {
@@ -1039,7 +1050,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         accept(TokenType.CLASS)
         ClassReferenceCstNode(parentNode,
           TypeCstNode(parentNode,
-            if (token.type == DYNOBJ) DynamicObject::class.java.name else token.value, emptyList(), arrayDimensions, false, token, previous), token, previous)
+            if (token.type == DYNOBJ) DynamicObject::class.java.name else token.value, emptyList(), arrayDimensions, token, previous), token, previous)
       }
       TokenType.WHEN, TokenType.SWITCH -> {
         if (token.type == TokenType.WHEN && current.type != TokenType.BRACKETS_OPEN) {
@@ -1051,8 +1062,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           accept(TokenType.LPAR)
           if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == IDENTIFIER && lookup(2)?.type == TokenType.ASSIGNMENT) {
             val type = parseType(parentNode)
+            val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
             val variableToken = accept(IDENTIFIER)
-            varDecl = VariableDeclarationCstNode(type, variableToken, null, parentNode, type.tokenStart, current)
+            varDecl = VariableDeclarationCstNode(type, variableToken, null, isNullable, parentNode, type.tokenStart, current)
             accept(TokenType.ASSIGNMENT)
           }
           switchExpression = expression(parentNode)
@@ -1163,11 +1175,12 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         val firstToken = current
         val parameter = if (lookup(1)?.type == IDENTIFIER || lookup(1)?.type == TokenType.LT) {
           val type = parseType(parentNode)
+          val isNullable = acceptOptional(TokenType.QUESTION_MARK) != null
           val identifier = accept(IDENTIFIER)
-          LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, identifier, type, identifier.value)
+          LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, identifier, type, identifier.value, isNullable)
         } else {
           next()
-          LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, firstToken, null, firstToken.value)
+          LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, firstToken, null, firstToken.value, false)
         }
         parameters.add(parameter)
         if (current.type == TokenType.COMMA) skip()

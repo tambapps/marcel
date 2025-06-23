@@ -1,5 +1,7 @@
 package com.tambapps.marcel.semantic.ast.expression
 
+import com.tambapps.marcel.semantic.symbol.type.Nullness
+
 /**
  * Node for a DUP asm instruction.
  * This node is handy for ElvisOperator, where we can DUP a value instead of assigning it into a local variable
@@ -11,7 +13,8 @@ class DupNode(val expression: ExpressionNode) :
     expression.tokenStart,
     expression.tokenEnd
   ) {
-
+    override val nullness: Nullness
+    get() = expression.nullness
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 

@@ -13,6 +13,7 @@ import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import marcel.lang.data
 import java.util.Arrays
@@ -35,14 +36,14 @@ class EqualsAndHashcodeAstTransformation : GenerateMethodAstTransformation() {
           && method.returnTypeNode.value == "boolean"
       }
     ) {
-      signatures.add(signature(name = "equals", parameters = listOf(parameter(JavaType.Object, "obj")), returnType = JavaType.boolean))
+      signatures.add(signature(name = "equals", parameters = listOf(parameter(JavaType.Object, "obj")), nullness = Nullness.NOT_NULL, returnType = JavaType.boolean))
     }
     if (node !is ClassCstNode
       || node.methods.none { method -> method.name == "hashCode" && method.parameters.isEmpty()
           && method.returnTypeNode.value == "int"
       }
     ) {
-      signatures.add(signature(name = "hashCode", returnType = JavaType.int))
+      signatures.add(signature(name = "hashCode", nullness = Nullness.NOT_NULL, returnType = JavaType.int))
     }
     return signatures
   }
@@ -61,6 +62,7 @@ class EqualsAndHashcodeAstTransformation : GenerateMethodAstTransformation() {
         ownerClass = classNode.type, name = "equals",
         parameters = listOf(parameter(JavaType.Object, "obj")),
         returnType = JavaType.boolean,
+        nullness = Nullness.NOT_NULL,
         annotations = listOf(annotationNode(Override::class.javaAnnotationType))
       ) {
         val argRef = lvRef("obj")
@@ -76,7 +78,7 @@ class EqualsAndHashcodeAstTransformation : GenerateMethodAstTransformation() {
           returnStmt(bool(false))
         }
         // now we know it is the right type
-        val otherVar = currentMethodScope.addLocalVariable(classNode.type)
+        val otherVar = currentMethodScope.addLocalVariable(classNode.type, Nullness.NOT_NULL,)
         varAssignStmt(otherVar, argRef)
 
         val otherRef = ref(otherVar)
@@ -102,12 +104,13 @@ class EqualsAndHashcodeAstTransformation : GenerateMethodAstTransformation() {
         ownerClass = classNode.type,
         name = "hashCode",
         returnType = JavaType.int,
+        nullness = Nullness.NOT_NULL,
         annotations = listOf(annotationNode(Override::class.javaAnnotationType))
       ) {
         if (fields.isEmpty() && methods.isEmpty()) {
           returnStmt(fCall(name = "hashCode", owner = superRef(), arguments = emptyList()))
         } else {
-          val resultVar = currentMethodScope.addLocalVariable(JavaType.int)
+          val resultVar = currentMethodScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL)
           varAssignStmt(
             resultVar,
             if (classNode.superType == JavaType.Object) int(0) else fCall(

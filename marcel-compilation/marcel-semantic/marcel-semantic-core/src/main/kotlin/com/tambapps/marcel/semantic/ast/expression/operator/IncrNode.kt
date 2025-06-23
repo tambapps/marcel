@@ -5,6 +5,7 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaPrimitiveType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import com.tambapps.marcel.semantic.symbol.variable.Variable
 
@@ -17,6 +18,9 @@ class IncrNode(
   val primitiveType: JavaPrimitiveType,
   val returnValueBefore: Boolean,
 ) : AbstractExpressionNode(variable.type, token) {
+
+  override val nullness: Nullness
+    get() = Nullness.NOT_NULL
 
   // constructor for local variables
   constructor(

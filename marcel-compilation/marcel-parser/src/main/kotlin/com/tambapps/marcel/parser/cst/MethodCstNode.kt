@@ -9,6 +9,7 @@ class MethodCstNode constructor(
   accessNode: AccessCstNode,
   val name: String,
   val returnTypeNode: TypeCstNode,
+  val isReturnTypeNullable: Boolean,
   val isAsync: Boolean = false,
   val isOverride: Boolean? = null, // null means not specified, useful for code generated methods
   identifierToken: LexToken? = null,

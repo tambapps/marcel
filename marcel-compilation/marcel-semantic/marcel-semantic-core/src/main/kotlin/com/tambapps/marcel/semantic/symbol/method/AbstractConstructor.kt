@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.symbol.method
 
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 abstract class AbstractConstructor(
   override val ownerClass: JavaType,
@@ -13,5 +14,7 @@ abstract class AbstractConstructor(
   override val isAbstract = false
   override val isStatic = false
   override val isAsync = false
+  override val nullness: Nullness
+    get() = Nullness.NOT_NULL
 
 }

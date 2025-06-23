@@ -11,7 +11,8 @@ class MethodParameterCstNode(
   val type: TypeCstNode,
   val defaultValue: ExpressionCstNode?,
   val annotations: List<AnnotationCstNode>,
-  val thisParameter: Boolean
+  val thisParameter: Boolean,
+  val isNullable: Boolean,
   ) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 

@@ -7,9 +7,13 @@ import com.tambapps.marcel.semantic.symbol.method.AbstractMethod
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.method.MethodParameter
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
+// TODO take care of adding jspecify annotation. Same for field, method parameters,
 class MethodNode constructor(
   override val name: String,
+  // var because sometimes it needs to be re-set after-hand
+  override var nullness: Nullness,
   override val parameters: MutableList<MethodParameter>,
   override val visibility: Visibility,
   override var returnType: JavaType,
@@ -28,6 +32,7 @@ class MethodNode constructor(
   // constructor for non-async functions
   constructor(
     name: String,
+    nullness: Nullness,
     parameters: MutableList<MethodParameter>,
     visibility: Visibility,
     returnType: JavaType,
@@ -36,12 +41,13 @@ class MethodNode constructor(
     ownerClass: JavaType,
     isVarArgs: Boolean = false,
     isSynthetic: Boolean = false,
-  ) : this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass, isVarArgs, isSynthetic)
+  ) : this(name, nullness, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass, isVarArgs, isSynthetic)
 
   companion object {
     fun fromJavaMethod(method: MarcelMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
       return MethodNode(
         method.name,
+        method.nullness,
         method.parameters.toMutableList(),
         method.visibility,
         method.returnType,

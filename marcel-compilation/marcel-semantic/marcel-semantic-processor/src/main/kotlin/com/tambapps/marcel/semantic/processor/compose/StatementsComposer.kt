@@ -37,6 +37,7 @@ import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import com.tambapps.marcel.semantic.symbol.variable.Variable
 import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
@@ -282,8 +283,8 @@ class StatementsComposer(
   }
   inline fun forInArrayStmt(array: ExpressionNode, forStatementsComposerFunc: StatementsComposer.(MethodScope, LocalVariable) -> Unit) {
     useInnerScope { forScope ->
-      val iVar = forScope.addLocalVariable(JavaType.int, token = tokenStart)
-      val forVariable = forScope.addLocalVariable(array.type.asArrayType.elementsType, token = tokenStart)
+      val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = tokenStart)
+      val forVariable = forScope.addLocalVariable(array.type.asArrayType.elementsType, Nullness.NOT_NULL, token = tokenStart)
       val forStmt = forInArrayNode(tokenStart, tokenEnd, forScope = forScope, inNode = array, iVar = iVar, forVariable = forVariable) {
         val forStatementsComposer = StatementsComposer(scopeQueue, this, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
         forStatementsComposerFunc.invoke(forStatementsComposer, forScope, forVariable)

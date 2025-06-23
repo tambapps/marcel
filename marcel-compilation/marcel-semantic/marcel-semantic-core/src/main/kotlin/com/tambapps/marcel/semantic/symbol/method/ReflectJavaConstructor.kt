@@ -10,6 +10,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractConstructor(
   constructor.parameters.map {
     ReflectJavaMethod.methodParameter(
       constructor.name,
+      constructor.declaringClass,
       JavaType.of(constructor.declaringClass),
       null,
       it

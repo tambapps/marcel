@@ -5,17 +5,21 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.JavaTyped
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
-open class MethodParameter constructor(override val type: JavaType, val rawType: JavaType,
+open class MethodParameter constructor(override val type: JavaType,
+                                       val rawType: JavaType,
+                                       override val nullness: Nullness,
                                        override val name: String,
                                        override val isFinal: Boolean = false,
                                        val isSynthetic: Boolean = false,
                                        val annotations: List<AnnotationNode>,
                                        val defaultValue: ExpressionNode? = null): Symbol {
-  constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, defaultValue: ExpressionNode?, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, type, name, isFinal, isSynthetic, annotations, defaultValue)
-  constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, name, annotations, null, isFinal, isSynthetic)
-  constructor(type: JavaType, name: String, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, name, emptyList(), isFinal, isSynthetic)
-  constructor(type: JavaType, name: String, defaultValue: ExpressionNode?): this(type, name, emptyList(), defaultValue)
+  constructor(type: JavaType, nullness: Nullness, name: String, annotations: List<AnnotationNode>, defaultValue: ExpressionNode?, isFinal: Boolean = false, isSynthetic: Boolean = false):
+      this(type, type, nullness, name, isFinal, isSynthetic, annotations, defaultValue)
+  constructor(type: JavaType, nullness: Nullness, name: String, isFinal: Boolean = false, isSynthetic: Boolean = false):
+      this(type, nullness, name, emptyList(), null, isFinal, isSynthetic)
+  constructor(type: JavaType, nullness: Nullness, name: String, defaultValue: ExpressionNode?): this(type, nullness, name, emptyList(), defaultValue)
 
   val hasDefaultValue get() = defaultValue != null
   override fun toString(): String {

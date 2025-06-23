@@ -24,6 +24,7 @@ import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.Visibility
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import marcel.lang.Script
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -37,7 +38,7 @@ class MarcelSemanticTest {
   companion object {
     private val TYPE_RESOLVER = MarcelSymbolResolver()
     private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, JavaType.Object, null, ImportResolver.DEFAULT_IMPORTS)
-    private val METHOD = MethodNode("foo", mutableListOf(),  Visibility.PUBLIC, JavaType.int, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, JavaType.Object)
+    private val METHOD = MethodNode("foo", Nullness.UNKNOWN, mutableListOf(),  Visibility.PUBLIC, JavaType.int, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, JavaType.Object)
   }
   private val sourceFile = mock(SourceFileCstNode::class.java)
 

@@ -24,7 +24,7 @@ class LambdaMethodScope(
     return outerScopeLocalVariable.find { it.name == name }?.let { lv ->
       usedOuterScopeLocalVariableMap.computeIfAbsent(lv) {
         JavaClassFieldImpl(
-          it.type, it.name, isFinal = true, visibility = Visibility.PUBLIC,
+          it.type, it.name, nullness = lv.nullness, isFinal = true, visibility = Visibility.PUBLIC,
           isStatic = false, owner = classType, isSettable = false
         )
       }

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.symbol.variable.field
 
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.Variable
 import com.tambapps.marcel.semantic.symbol.variable.VariableVisitor
 import java.util.Comparator
@@ -31,6 +32,17 @@ open class CompositeField(override val name: String): MarcelField {
   override val isMarcelStatic get() = (getters + setters).all { it.isMarcelStatic }
   override val owner get() = (getters.firstOrNull() ?: setters.first()).owner
   override val visibility get() = (getters + setters).map { it.visibility }.maxBy { it.ordinal }
+  override val nullness: Nullness
+    get() {
+      if (getters.isEmpty() && setters.isEmpty()) return Nullness.UNKNOWN
+      val all = getters + setters
+      return when {
+        all.all { it.nullness == Nullness.NOT_NULL } -> Nullness.NOT_NULL
+        all.any { it.nullness == Nullness.NULLABLE } -> Nullness.NULLABLE
+        else -> Nullness.UNKNOWN
+      }
+    }
+
   override fun isVisibleFrom(javaType: JavaType, access: Variable.Access): Boolean = when (access) {
     Variable.Access.GET -> getters.any { it.isVisibleFrom(javaType, access) }
     Variable.Access.SET -> setters.any { it.isVisibleFrom(javaType, access) }

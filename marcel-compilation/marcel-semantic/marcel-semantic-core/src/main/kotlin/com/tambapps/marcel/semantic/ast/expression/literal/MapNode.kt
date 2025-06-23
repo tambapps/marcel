@@ -5,6 +5,7 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class MapNode(
   val entries: List<Pair<ExpressionNode, ExpressionNode>>,
@@ -12,6 +13,8 @@ class MapNode(
 ) :
   AbstractExpressionNode(JavaType.Map, node) {
 
+  override val nullness: Nullness
+    get() = Nullness.NOT_NULL
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 

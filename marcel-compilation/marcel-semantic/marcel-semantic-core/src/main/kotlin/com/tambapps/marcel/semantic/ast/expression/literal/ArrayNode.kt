@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class ArrayNode constructor(
   val elements: MutableList<ExpressionNode>,
@@ -14,6 +15,8 @@ class ArrayNode constructor(
   override val type: JavaArrayType // overriding because we know for sure it's an array type
 ) : AbstractExpressionNode(type, tokenStart, tokenEnd) {
 
+  override val nullness: Nullness
+    get() = Nullness.NOT_NULL
   constructor(
     elements: MutableList<ExpressionNode>,
     node: CstNode,

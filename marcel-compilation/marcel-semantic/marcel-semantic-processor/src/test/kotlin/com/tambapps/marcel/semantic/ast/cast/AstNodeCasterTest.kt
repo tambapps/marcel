@@ -15,6 +15,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
@@ -127,6 +128,9 @@ class AstNodeCasterTest {
   private fun node(type: JavaType) = MyExpressionNode(type)
 
   private inner class MyExpressionNode(type: JavaType) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(type, token()) {
+
+    override val nullness: Nullness
+      get() = Nullness.UNKNOWN
     override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = throw UnsupportedOperationException()
 
   }

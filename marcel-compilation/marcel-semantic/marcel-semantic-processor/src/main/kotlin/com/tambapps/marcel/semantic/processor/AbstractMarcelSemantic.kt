@@ -42,6 +42,7 @@ import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import marcel.lang.lambda.CharLambda1
 import marcel.lang.lambda.DoubleLambda1
@@ -132,6 +133,7 @@ abstract class AbstractMarcelSemantic(
   ): MethodNode {
     val defaultConstructorNode = MethodNode(
       MarcelMethod.CONSTRUCTOR_NAME,
+      nullness = Nullness.NOT_NULL,
       mutableListOf(),
       visibility,
       JavaType.void,
@@ -280,7 +282,7 @@ abstract class AbstractMarcelSemantic(
     bodyCreator: () -> StatementNode
   ): ForStatementNode {
     val iRef = ReferenceNode(variable = iVar, token = tokenStart)
-    val arrayVar = forScope.addLocalVariable(inNode.type)
+    val arrayVar = forScope.addLocalVariable(inNode.type, inNode.nullness)
     val arrayRef = ReferenceNode(variable = arrayVar, token = tokenStart)
 
     // init variable
@@ -357,7 +359,7 @@ abstract class AbstractMarcelSemantic(
       else -> throw MarcelSemanticException(tokenStart, "Cannot iterate over an expression of type ${inNode.type}")
     }
     val iteratorExpressionType = iteratorExpression.type
-    return forScope.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
+    return forScope.useTempLocalVariable(iteratorExpressionType, iteratorExpression.nullness) { iteratorVariable ->
       val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(
           iteratorExpressionType
         )
@@ -403,6 +405,7 @@ abstract class AbstractMarcelSemantic(
   fun staticInitialisationMethod(classNode: ClassNode): MethodNode {
     return MethodNode(
       ownerClass = classNode.type,
+      nullness = Nullness.NOT_NULL,
       name = MarcelMethod.STATIC_INITIALIZATION_BLOCK,
       parameters = mutableListOf(),
       visibility = Visibility.PUBLIC,
@@ -497,6 +500,7 @@ abstract class AbstractMarcelSemantic(
           type = levelType,
           name = outerFieldName,
           owner = classNode.type,
+          nullness = Nullness.NOT_NULL,
           annotations = emptyList(),
           isFinal = true,
           visibility = Visibility.INTERNAL,
@@ -527,7 +531,7 @@ abstract class AbstractMarcelSemantic(
       // if we're here we know the context is not static as the above method only generates fields if it is not static
       val outerClassField = outerClassFields[i]
       // adding at the beginning
-      lambdaConstructor.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name, isSynthetic = true))
+      lambdaConstructor.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.nullness, outerClassField.name, isSynthetic = true))
       val (outerLevel, _) = outerLevel(token, lambdaNode.type, outerClassField.type)
         ?: throw MarcelSemanticException(token, "Lambda cannot be generated in this context")
 
@@ -546,6 +550,7 @@ abstract class AbstractMarcelSemantic(
                 outerClassField.name,
                 nbSlots = 1,
                 index = i + 1,
+                nullness = outerClassField.nullness,
                 isFinal = false
               ), token = token
             ),
@@ -645,6 +650,7 @@ abstract class AbstractMarcelSemantic(
 
     val lambdaConstructor = MethodNode(
       name = MarcelMethod.CONSTRUCTOR_NAME,
+      nullness = Nullness.NOT_NULL,
       visibility = Visibility.INTERNAL,
       returnType = JavaType.void,
       isStatic = false,
@@ -667,13 +673,13 @@ abstract class AbstractMarcelSemantic(
       for (reference in references) {
         // add field node
         val fieldNode = FieldNode(
-          reference.type, reference.variable.name, lambdaType, emptyList(), true, Visibility.PRIVATE,
+          reference.type, reference.variable.name, lambdaType, reference.nullness, emptyList(), true, Visibility.PRIVATE,
           isStatic = false, tokenStart, tokenEnd
         )
         symbolResolver.defineField(lambdaType, fieldNode)
         lambdaClassNode.fields.add(fieldNode)
         // ... method parameter
-        lambdaConstructor.parameters.add(MethodParameter(reference.type, reference.variable.name))
+        lambdaConstructor.parameters.add(MethodParameter(reference.type, reference.nullness, reference.variable.name))
         // ... and constructor argument
         constructorArguments.add(reference)
       }
@@ -708,7 +714,7 @@ abstract class AbstractMarcelSemantic(
     val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, tokenStart)
     // define lambda method
     val lambdaMethod = MethodNode(
-      interfaceMethod.name, lambdaMethodParameters.toMutableList(),
+      interfaceMethod.name, Nullness.UNKNOWN, lambdaMethodParameters.toMutableList(),
       Visibility.PUBLIC, returnType, isStatic = false, tokenStart, tokenEnd, lambdaType
     )
 

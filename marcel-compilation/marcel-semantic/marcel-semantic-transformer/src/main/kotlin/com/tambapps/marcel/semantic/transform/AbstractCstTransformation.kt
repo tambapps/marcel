@@ -19,6 +19,7 @@ import com.tambapps.marcel.semantic.symbol.method.MethodParameter
 import com.tambapps.marcel.semantic.processor.scope.ImportScope
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 
 /**
@@ -63,6 +64,7 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSymbolSemantic,
     ownerType: JavaType,
     forExtensionType: JavaType?,
     visibility: Visibility,
+    nullness: Nullness,
     isStatic: Boolean,
     parameterIndex: Int,
     methodName: String,
@@ -70,7 +72,7 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSymbolSemantic,
   ): MethodParameter {
     // we don't handle annotations nor defaultValue. Yup, CST transformations are limited
     return MethodParameter(
-      resolve(node.type), node.name, emptyList(), null
+      resolve(node.type), nullness, node.name, emptyList(), null
     )
   }
 

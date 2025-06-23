@@ -41,7 +41,7 @@ open class CstNodeComposer {
 
     val methodNode = MethodCstNode(
       classNode, tokenStart, tokenEnd,
-      accessNode, name, returnType
+      accessNode, name, returnType, false, // TODO handle nullable
     )
     methodNode.parameters.addAll(parameters)
     methodNode.annotations.addAll(annotations)
@@ -88,7 +88,7 @@ open class CstNodeComposer {
   // TODO review use of these to ensure the nullable parameter should be passed or not
   protected fun type(type: KClass<*>): TypeCstNode = type(type.javaType)
   protected fun type(type: JavaType): TypeCstNode =
-    TypeCstNode(null, type.className, emptyList(), 0, false, LexToken.DUMMY, LexToken.DUMMY)
+    TypeCstNode(null, type.className, emptyList(), 0, LexToken.DUMMY, LexToken.DUMMY)
 
   protected fun ref(name: String) = ReferenceCstNode(null, name, LexToken.DUMMY)
   protected fun directFieldRef(name: String) = DirectFieldReferenceCstNode(null, name, LexToken.DUMMY)

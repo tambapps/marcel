@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 /**
  * Java cast node
@@ -11,6 +12,8 @@ class JavaCastNode(
   val expressionNode: ExpressionNode,
   token: LexToken
 ) : AbstractExpressionNode(type, token) {
+  override val nullness: Nullness
+    get() = expressionNode.nullness
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)

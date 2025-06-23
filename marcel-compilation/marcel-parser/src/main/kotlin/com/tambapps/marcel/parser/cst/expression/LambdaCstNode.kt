@@ -24,6 +24,7 @@ class LambdaCstNode(
     tokenEnd: LexToken,
     val type: TypeCstNode?,
     val name: String,
+    val nullable: Boolean,
   ) : AbstractCstNode(parent, tokenStart, tokenEnd) {
 
     override fun toString(): String {

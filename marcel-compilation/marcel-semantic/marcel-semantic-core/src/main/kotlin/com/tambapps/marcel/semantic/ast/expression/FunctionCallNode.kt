@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 open class FunctionCallNode(
   val javaMethod: MarcelMethod,
@@ -12,6 +13,8 @@ open class FunctionCallNode(
 ) : AbstractExpressionNode(javaMethod.returnType, tokenStart, tokenEnd),
   OwnableAstNode {
 
+  override val nullness: Nullness
+    get() = javaMethod.nullness
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 

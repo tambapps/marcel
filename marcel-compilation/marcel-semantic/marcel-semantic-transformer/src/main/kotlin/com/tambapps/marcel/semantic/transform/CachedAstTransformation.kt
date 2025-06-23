@@ -16,6 +16,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Function
@@ -74,7 +75,8 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
       visibility = Visibility.INTERNAL,
       name = newMethodName,
       parameters = originalMethod.parameters,
-      returnType = originalMethod.returnType
+      returnType = originalMethod.returnType,
+      nullness = Nullness.UNKNOWN
     ) {
       addAllStmt(originalMethod.blockStatement.statements)
     }
@@ -89,7 +91,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
       val isMultiParams = originalMethod.parameters.size > 1
       val cacheKeyRef = if (!isMultiParams) argRef(0)
       else {
-        val lv = currentMethodScope.addLocalVariable(List::class.javaType)
+        val lv = currentMethodScope.addLocalVariable(List::class.javaType, Nullness.NOT_NULL)
         varAssignStmt(
           lv,
           cast(
@@ -109,7 +111,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
           interfaceType = Function::class.javaType,
         ) {
           val doComputeMethodCall = if (isMultiParams) {
-            val listLv = currentMethodScope.addLocalVariable(List::class.javaType)
+            val listLv = currentMethodScope.addLocalVariable(List::class.javaType, Nullness.NOT_NULL)
             varAssignStmt(listLv, argRef(0))
 
             fCall(owner = outerRef(), method = doComputeMethod,
@@ -182,7 +184,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
       }
       return fCall(name = "getVariable", arguments = listOf(string(fieldName)), owner = thisRef(), castType = java.util.Map::class.javaType)
     } else {
-      val cacheField = fieldNode(Map::class.javaType, fieldName)
+      val cacheField = fieldNode(Map::class.javaType, Nullness.NOT_NULL, fieldName)
       addField(classNode, cacheField, cacheInitValueExpr)
       return ref(cacheField)
     }

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.symbol.method
 
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class ExtensionMarcelMethod constructor(
   override val ownerClass: JavaType,
@@ -17,6 +18,9 @@ class ExtensionMarcelMethod constructor(
 
   override val ownerString: String
     get() = marcelOwnerClass.simpleName
+
+  override val nullness: Nullness
+    get() = actualMethod.nullness
 
   companion object {
 

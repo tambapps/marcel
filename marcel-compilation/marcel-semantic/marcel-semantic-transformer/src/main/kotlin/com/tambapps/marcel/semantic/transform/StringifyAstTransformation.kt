@@ -13,6 +13,7 @@ import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import marcel.lang.data
 import marcel.lang.stringify
@@ -25,7 +26,7 @@ class StringifyAstTransformation : GenerateMethodAstTransformation() {
 
   override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode): List<MarcelMethod> {
     return if (node is ClassCstNode && node.methods.none { method -> method.name == "toString" && method.parameters.isEmpty() })
-      listOf(signature(name = "toString", returnType = JavaType.String))
+      listOf(signature(name = "toString", nullness = Nullness.NOT_NULL, returnType = JavaType.String))
     else emptyList()
   }
   override fun generateMethodNodes(node: AstNode, classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
@@ -36,6 +37,7 @@ class StringifyAstTransformation : GenerateMethodAstTransformation() {
       ownerClass = classNode.type,
       name = "toString",
       returnType = JavaType.String,
+      nullness = Nullness.NOT_NULL,
       annotations = listOf(annotationNode(Override::class.javaAnnotationType))
     ) {
       val stringParts = mutableListOf<ExpressionNode>(

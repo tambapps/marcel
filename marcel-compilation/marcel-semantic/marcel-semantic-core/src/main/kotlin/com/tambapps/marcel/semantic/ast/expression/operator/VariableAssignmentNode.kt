@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import com.tambapps.marcel.semantic.symbol.variable.Variable
 
@@ -18,6 +19,8 @@ class VariableAssignmentNode(
   val identifierToken: LexToken? = null
 ) : AbstractExpressionNode(variable.type, tokenStart, tokenEnd),
   AstVariableNode {
+  override val nullness: Nullness
+    get() = expression.nullness
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 

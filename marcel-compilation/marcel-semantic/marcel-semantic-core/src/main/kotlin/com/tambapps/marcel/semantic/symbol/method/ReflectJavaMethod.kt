@@ -13,6 +13,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import marcel.lang.compile.BooleanDefaultValue
 import marcel.lang.compile.CharDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
@@ -23,6 +24,9 @@ import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import marcel.util.concurrent.Async
+import org.jspecify.annotations.NonNull
+import org.jspecify.annotations.NullMarked
+import org.jspecify.annotations.Nullable
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
@@ -38,7 +42,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   override val name: String = method.name
   override val visibility = Visibility.fromAccess(method.modifiers)
-  override val parameters = method.parameters.map { methodParameter(method.name, ownerClass, fromType, it) }
+  override val parameters = method.parameters.map { methodParameter(method.name, method.declaringClass, ownerClass, fromType, it) }
   override val returnType = JavaType.of(method.returnType)
   override val isConstructor = false
   override val isFinal = (method.modifiers and Modifier.FINAL) != 0
@@ -48,10 +52,11 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val isSynthetic = method.isSynthetic
   override val isVarArgs = method.isVarArgs
   override val asyncReturnType = method.getAnnotation(Async::class.java)?.returnType?.let { JavaType.of(it.java) }
+  override val nullness: Nullness = Nullness.of(method)
 
   companion object {
 
-    internal fun methodParameter(methodName: String, ownerType: JavaType, fromType: JavaType?, parameter: Parameter): MethodParameter {
+    internal fun methodParameter(methodName: String, declaringClass: Class<*>, ownerType: JavaType, fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
@@ -93,7 +98,8 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
         else -> null
       }
 
-      return MethodParameter(type, rawType, parameter.name, isFinal = (parameter.modifiers and Modifier.FINAL) != 0, isSynthetic = parameter.isSynthetic, emptyList(),  defaultValue)
+      val nullness = Nullness.of(parameter, declaringClass)
+      return MethodParameter(type, rawType, nullness, parameter.name, isFinal = (parameter.modifiers and Modifier.FINAL) != 0, isSynthetic = parameter.isSynthetic, emptyList(),  defaultValue)
     }
 
     private fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {

@@ -28,6 +28,7 @@ import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.visitor.AllPathsReturnVisitor
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import java.util.*
 
 /**
@@ -38,11 +39,12 @@ abstract class AstNodeComposer(
   val tokenEnd: LexToken,
   scopeQueue: LinkedList<Scope> = LinkedList<Scope>(),
 ) : AbstractMarcelSemantic(scopeQueue) {
-  protected fun parameter(type: JavaType, name: String) = MethodParameter(type, name)
+  protected fun parameter(type: JavaType, name: String) = MethodParameter(type, Nullness.UNKNOWN, name)
 
   protected fun signature(
     visibility: Visibility = Visibility.PUBLIC,
     name: String,
+    nullness: Nullness,
     parameters: List<MethodParameter> = emptyList(),
     returnType: JavaType,
     isDefault: Boolean = false,
@@ -54,6 +56,7 @@ abstract class AstNodeComposer(
       currentScope.classType,
       visibility,
       name,
+      nullness,
       parameters,
       returnType,
       isDefault,
@@ -76,7 +79,7 @@ abstract class AstNodeComposer(
     parameters: List<MethodParameter> = emptyList(),
     statementsSupplier: StatementsComposer.() -> Unit
   ) = methodNode(
-    classNode.type, visibility, MarcelMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isStatic = false
+    classNode.type, visibility, MarcelMethod.CONSTRUCTOR_NAME, Nullness.NOT_NULL, parameters, JavaType.void, isStatic = false
   ) {
     // super method call
     stmt(superNoArgConstructorCall(classNode, symbolResolver))
@@ -90,6 +93,7 @@ abstract class AstNodeComposer(
     ownerClass: JavaType = currentScope.classType,
     visibility: Visibility = Visibility.PUBLIC,
     name: String,
+    nullness: Nullness,
     parameters: List<MethodParameter> = emptyList(),
     returnType: JavaType,
     isStatic: Boolean = false,
@@ -98,6 +102,7 @@ abstract class AstNodeComposer(
   ): MethodNode {
     val methodNode = MethodNode(
       name,
+      nullness,
       parameters.toMutableList(),
       visibility,
       returnType,
@@ -157,13 +162,15 @@ abstract class AstNodeComposer(
   }
 
   protected fun fieldNode(
-    type: JavaType, name: String, owner: JavaType = currentScope.classType,
+    type: JavaType,
+    nullness: Nullness,
+    name: String, owner: JavaType = currentScope.classType,
     annotations: List<AnnotationNode> = emptyList(),
     visibility: Visibility = Visibility.PRIVATE,
     isFinal: Boolean = false,
     isStatic: Boolean = false
   ): FieldNode {
-    return FieldNode(type, name, owner, annotations, isFinal, visibility, isStatic, tokenStart, tokenEnd)
+    return FieldNode(type, name, owner, nullness, annotations, isFinal, visibility, isStatic, tokenStart, tokenEnd)
   }
 
   fun newLambda(

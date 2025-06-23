@@ -5,9 +5,13 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class VoidExpressionNode(tokenStart: LexToken, tokenEnd: LexToken) :
   AbstractExpressionNode(JavaType.void, tokenStart, tokenEnd) {
+
+  override val nullness: Nullness
+    get() = Nullness.NOT_NULL
 
   constructor(token: LexToken): this(token, token)
   constructor(node: AstNode): this(node.tokenStart, node.tokenEnd)

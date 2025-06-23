@@ -12,6 +12,7 @@ import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransfor
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import marcel.lang.comparable
 import marcel.lang.data
@@ -34,10 +35,11 @@ class ComparableAstTransformation : GenerateMethodAstTransformation() {
     return listOf(
       signature(
         name = "compareTo",
+        nullness = Nullness.NOT_NULL,
         parameters = listOf(parameter(type = JavaType.Object, "obj")),
         returnType = JavaType.int
       ),
-      signature(name = "compareTo", parameters = listOf(parameter(type = javaType, "other")), returnType = JavaType.int)
+      signature(name = "compareTo", nullness = Nullness.NOT_NULL, parameters = listOf(parameter(type = javaType, "other")), returnType = JavaType.int)
     )
   }
 
@@ -45,12 +47,13 @@ class ComparableAstTransformation : GenerateMethodAstTransformation() {
     val compareTo = methodNode(
       name = "compareTo",
       parameters = listOf(parameter(type = classNode.type, "other")),
-      returnType = JavaType.int
+      returnType = JavaType.int,
+      nullness = Nullness.NOT_NULL
     ) {
       val otherRef = argRef(0)
       val fields = classNode.fields.filter { !isAnnotableExcluded(it) && !it.isStatic }
 
-      val lv = currentMethodScope.addLocalVariable(JavaType.int)
+      val lv = currentMethodScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL)
       val lvRef = ref(lv)
       for (field in fields) {
         ifStmt(
@@ -79,7 +82,8 @@ class ComparableAstTransformation : GenerateMethodAstTransformation() {
     val compareToObject = methodNode(
       name = "compareTo",
       parameters = listOf(parameter(type = JavaType.Object, "obj")),
-      returnType = JavaType.int
+      returnType = JavaType.int,
+      nullness = Nullness.NOT_NULL
     ) {
       returnStmt(fCall(owner = thisRef(), method = compareTo, arguments = listOf(cast(argRef(0), classNode.type))))
     }

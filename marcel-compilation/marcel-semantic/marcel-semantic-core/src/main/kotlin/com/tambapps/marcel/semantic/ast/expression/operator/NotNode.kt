@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class NotNode(
   val expressionNode: ExpressionNode,
@@ -13,6 +14,9 @@ class NotNode(
   tokenEnd: LexToken
 ) :
   AbstractExpressionNode(JavaType.boolean, tokenStart, tokenEnd) {
+
+  override val nullness: Nullness
+    get() = Nullness.NOT_NULL
 
   constructor(expressionNode: ExpressionNode) : this(
     expressionNode,

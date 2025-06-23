@@ -50,6 +50,7 @@ import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.processor.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
@@ -151,12 +152,14 @@ open class MarcelSemantic(
       if (classCstNode.isEnum) {
         classCstNode as EnumCstNode
         for (enumName in classCstNode.names) {
-          symbolResolver.defineField(JavaClassFieldImpl(classType, enumName, classType, isFinal = true, Visibility.PUBLIC, isStatic = true, isSettable = false))
+          symbolResolver.defineField(JavaClassFieldImpl(classType, enumName, classType, Nullness.NOT_NULL, isFinal = true, Visibility.PUBLIC, isStatic = true, isSettable = false))
         }
-        symbolResolver.defineMethod(classType, MarcelMethodImpl(classType, Visibility.PUBLIC, "valueOf", mutableListOf(
-          MethodParameter(JavaType.String, "name")
+        symbolResolver.defineMethod(classType, MarcelMethodImpl(classType, Visibility.PUBLIC, "valueOf",
+          Nullness.NOT_NULL,
+          mutableListOf(
+          MethodParameter(JavaType.String, Nullness.NOT_NULL, "name")
         ), classType, isStatic = true))
-        symbolResolver.defineMethod(classType, MarcelMethodImpl(classType, Visibility.PUBLIC, "values", emptyList(), classType.arrayType, isStatic = true))
+        symbolResolver.defineMethod(classType, MarcelMethodImpl(classType, Visibility.PUBLIC, "values", Nullness.NOT_NULL, emptyList(), classType.arrayType, isStatic = true))
 
       }
       if (classCstNode.isExtensionClass) {
@@ -176,7 +179,7 @@ open class MarcelSemantic(
               // adding self parameter
               m.parameters.add(
                 0,
-                MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extendedCstType, null, emptyList(), false)
+                MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extendedCstType, null, emptyList(), false, false)
               )
             }
             m.accessNode.isStatic = true // extension method is always java-static. that's why we are considering them static from now on
@@ -292,6 +295,7 @@ open class MarcelSemantic(
       node.fields.forEach { cstFieldNode ->
         val fieldNode = FieldNode(
           resolve(cstFieldNode.type), cstFieldNode.name, classType,
+          Nullness.of(cstFieldNode.isNullable),
           cstFieldNode.annotations.map { visit(it, ElementType.FIELD) },
           cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
           cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd, identifierToken = cstFieldNode.identifierToken
@@ -343,9 +347,10 @@ open class MarcelSemantic(
         visibility = Visibility.PUBLIC, returnType = JavaType.Object,
         isStatic = false,
         ownerClass = classType,
-        parameters = mutableListOf(MethodParameter(JavaType.String.arrayType, "args")),
+        parameters = mutableListOf(MethodParameter(JavaType.String.arrayType, Nullness.UNKNOWN, "args")),
         tokenStart = cst.tokenStart,
-        tokenEnd = cst.tokenEnd
+        tokenEnd = cst.tokenEnd,
+        nullness = Nullness.NULLABLE
       )
 
       fillMethodNode(
@@ -383,6 +388,7 @@ open class MarcelSemantic(
       visibility = Visibility.PRIVATE,
       isStatic = true,
       isSynthetic = true,
+      nullness = Nullness.NOT_NULL,
       tokenStart = classNode.tokenStart,
       tokenEnd = classNode.tokenEnd)
 
@@ -392,8 +398,8 @@ open class MarcelSemantic(
         MethodNode(
           name = MarcelMethod.CONSTRUCTOR_NAME,
           parameters = mutableListOf(
-            MethodParameter(JavaType.String, "name", isSynthetic = true),
-            MethodParameter(JavaType.int, "ordinal", isSynthetic = true)
+            MethodParameter(JavaType.String, Nullness.NOT_NULL, "name", isSynthetic = true),
+            MethodParameter(JavaType.int, Nullness.NOT_NULL, "ordinal", isSynthetic = true)
           ),
           visibility = Visibility.PRIVATE,
           returnType = JavaType.void,
@@ -401,7 +407,8 @@ open class MarcelSemantic(
           isVarArgs = false,
           ownerClass = classType,
           tokenStart = node.tokenStart,
-          tokenEnd = node.tokenEnd)
+          tokenEnd = node.tokenEnd,
+          nullness = Nullness.NOT_NULL)
       ) { scope ->
         stmt(superConstructorCall(
           method = symbolResolver.findConstructor(java.lang.Enum::class.javaType, listOf(JavaType.String, JavaType.int))!!,
@@ -421,6 +428,7 @@ open class MarcelSemantic(
         val fieldNode = FieldNode(
           type = classType,
           name = name,
+          nullness = Nullness.NOT_NULL,
           owner = classType, annotations = emptyList(),
           isFinal = true,
           isStatic = true,
@@ -452,7 +460,8 @@ open class MarcelSemantic(
         isVarArgs = false,
         ownerClass = classType,
         tokenStart = node.tokenStart,
-        tokenEnd = node.tokenEnd)
+        tokenEnd = node.tokenEnd,
+        nullness = Nullness.NOT_NULL)
       ) {
         returnStmt(fCall(name = "clone", arguments = emptyList(), owner = ref(valuesField)))
       }
@@ -460,7 +469,7 @@ open class MarcelSemantic(
       val valueOfMethod = compose(MethodNode(
         name = "valueOf",
         parameters = mutableListOf(
-          MethodParameter(JavaType.String, "name"),
+          MethodParameter(JavaType.String, Nullness.NOT_NULL, "name"),
         ),
         visibility = Visibility.PUBLIC,
         returnType = classNode.type,
@@ -468,7 +477,8 @@ open class MarcelSemantic(
         isVarArgs = false,
         ownerClass = classType,
         tokenStart = node.tokenStart,
-        tokenEnd = node.tokenEnd)
+        tokenEnd = node.tokenEnd,
+        nullness = Nullness.NOT_NULL)
       ) { scope ->
         val nameParameterRef = ref(scope.getMethodParameterVariable(0))
         ifStmt(isEqualExpr(nameParameterRef, NullValueNode(node.token))) {
@@ -538,17 +548,18 @@ open class MarcelSemantic(
     symbolResolver: MarcelSymbolResolver,
     scriptType: JavaType
   ): MethodNode {
-    val parameter = MethodParameter(Binding::class.javaType, "binding")
+    val parameter = MethodParameter(Binding::class.javaType, Nullness.NOT_NULL, "binding")
     return compose(
       MethodNode(
         MarcelMethod.CONSTRUCTOR_NAME,
+        Nullness.NOT_NULL,
         mutableListOf(parameter),
         Visibility.PUBLIC,
         JavaType.void,
         false,
         classNode.tokenStart,
         classNode.tokenEnd,
-        JavaType.void
+        JavaType.void,
       )
     ) {
       stmt(superConstructorCall(
@@ -585,7 +596,7 @@ open class MarcelSemantic(
     val (returnType, asyncReturnType) = resolveReturnType(methodCst)
     val methodNode = toMethodNode(
       classNode, methodCst, methodCst.name,
-      returnType, asyncReturnType, classScope.classType
+      returnType, asyncReturnType, classScope.classType, Nullness.of(methodCst.isReturnTypeNullable)
     )
     val superMethod = symbolResolver.findSuperMethod(methodNode)
     if (superMethod != null && methodCst.isOverride == false) {
@@ -615,7 +626,7 @@ open class MarcelSemantic(
       for (i in outerClassFields.indices) {
         val outerClassField = outerClassFields[i]
         // adding parameter at the beginning
-        constructorNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
+        constructorNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.nullness, outerClassField.name))
       }
       // now that the method has been updated we're redefining it. THIS IS IMPORTANT. DON'T REMOVE ME
       symbolResolver.defineMethod(classNode.type, constructorNode)
@@ -666,7 +677,7 @@ open class MarcelSemantic(
                 variable = LocalVariable(
                   outerClassField.type, outerClassField.name, nbSlots = outerClassField.type.nbSlots,
                   // we can out i+1 here because we know these inner outer class arguments are references, so always take one slot
-                  index = i + 1, isFinal = false
+                  index = i + 1, isFinal = false, nullness = outerClassField.nullness
                 ), token = classNode.token
               ),
               node = constructorCstNode
@@ -702,11 +713,11 @@ open class MarcelSemantic(
   }
 
   private fun toConstructorNode(classNode: ClassNode, methodCst: AbstractMethodCstNode, classType: JavaType) =
-    toMethodNode(classNode, methodCst, MarcelMethod.CONSTRUCTOR_NAME, JavaType.void, asyncReturnType = null, classType)
+    toMethodNode(classNode, methodCst, MarcelMethod.CONSTRUCTOR_NAME, JavaType.void, asyncReturnType = null, classType, Nullness.NOT_NULL)
 
   private fun toMethodNode(
     classNode: ClassNode, methodCst: AbstractMethodCstNode, methodName: String,
-    returnType: JavaType, asyncReturnType: JavaType?, classType: JavaType
+    returnType: JavaType, asyncReturnType: JavaType?, classType: JavaType, nullness: Nullness
   ): MethodNode {
     val visibility = Visibility.fromTokenType(methodCst.accessNode.visibility)
     val isStatic = methodCst.accessNode.isStatic
@@ -716,6 +727,7 @@ open class MarcelSemantic(
     }
     return MethodNode(
       name = methodName,
+      nullness = nullness,
       visibility = visibility,
       returnType = returnType,
       isStatic = isStatic,
@@ -790,7 +802,8 @@ open class MarcelSemantic(
         isStatic = methodeNode.isStatic,
         tokenStart = methodeNode.tokenStart,
         tokenEnd = methodeNode.tokenEnd,
-        ownerClass = methodeNode.ownerClass
+        ownerClass = methodeNode.ownerClass,
+        nullness = Nullness.UNKNOWN
       )
       doMethodNode.blockStatement.addAll(statements)
       val classNode = currentClassNode ?: throw MarcelSemanticException(

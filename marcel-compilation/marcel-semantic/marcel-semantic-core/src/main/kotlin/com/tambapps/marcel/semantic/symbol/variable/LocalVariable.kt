@@ -1,14 +1,19 @@
 package com.tambapps.marcel.semantic.symbol.variable
 
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 /**
  * A local variable in a method
  */
-class LocalVariable constructor(override val type: JavaType, override val name: String,
-                                val nbSlots: Int,
-                                val index: Int = 0,
-                                override val isFinal: Boolean): AbstractVariable() {
+class LocalVariable constructor(
+  override val type: JavaType,
+  override val name: String,
+  val nbSlots: Int,
+  val index: Int = 0,
+  override val isFinal: Boolean,
+  override val nullness: Nullness
+  ): AbstractVariable() {
 
   override val isGettable = true
   override val isSettable = !isFinal
@@ -21,7 +26,7 @@ class LocalVariable constructor(override val type: JavaType, override val name: 
 
   override fun isVisibleFrom(javaType: JavaType, access: Variable.Access) = true
 
-  fun withIndex(index: Int) = LocalVariable(type, name, nbSlots, index, isFinal)
+  fun withIndex(index: Int) = LocalVariable(type, name, nbSlots, index, isFinal, nullness)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

@@ -68,7 +68,7 @@ class MethodResolver(
       return null
     }
 
-    val namedMethodParameters = namedArguments.map { MethodParameter(it.second.type, it.first) }
+    val namedMethodParameters = namedArguments.map { MethodParameter(it.second.type, it.second.nullness, it.first) }
     val method = symbolResolver.findMethodByParameters(ownerType, name, positionalArguments, namedMethodParameters)
     if (method != null) {
       return Pair(method, completedArguments(node, method, positionalArguments, namedArguments))
