@@ -347,7 +347,7 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: ArrayCstNode, smartCastType: JavaType?): ExpressionNode {
-    if (smartCastType == null) {
+    if (smartCastType == null || smartCastType == JavaType.void) {
       val elements = node.elements.map { it.accept(this) }
       val elementsType = if (elements.isEmpty()) JavaType.objectArray else JavaType.commonType(elements)
       return ArrayNode(
@@ -3105,7 +3105,7 @@ abstract class SemanticCstNodeVisitor constructor(
   protected fun exprError(node: CstNode, message: String, smartCastType: JavaType? = null) = exprError(node.token, message, smartCastType)
 
   protected fun exprError(token: LexToken, message: String, smartCastType: JavaType? = null): ExpressionNode {
-    errors.add(MarcelSemanticException.Error(message, token))
+    error(token, message)
     return ExprErrorNode(token, smartCastType)
   }
 

@@ -64,6 +64,9 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.util.LinkedList
 
+/**
+ * Method instruction writer that does NOT push expressions onto the stack by default
+ */
 open class MethodInstructionWriter(
   mv: MethodVisitor, classScopeType: JavaType
 ): MethodExpressionWriter(mv, classScopeType), StatementNodeVisitor<Unit> {
@@ -388,25 +391,24 @@ open class MethodInstructionWriter(
   override fun visit(node: ShortConstantNode) {}
 
   override fun visit(node: StringNode) {
-    for (part in node.parts) {
-      // just visiting the parts in case we evaluate something (e.g. a method call)
-      part.accept(this)
-    }
+    // just visiting the parts in case we evaluate something (e.g. a method call)
+    node.parts.forEach { it.accept(this) }
   }
 
   override fun visit(node: ArrayNode) {
-    super.visit(node)
-    popStackIfNotVoid(node.type)
+    // just visiting the elements in case we evaluate something (e.g. a method call)
+    node.elements.forEach { it.accept(this) }
   }
 
   override fun visit(node: NewArrayNode) {
-    super.visit(node)
-    popStackIfNotVoid(node.type)
+    node.sizeExpr.accept(this)
   }
 
   override fun visit(node: MapNode) {
-    super.visit(node)
-    popStackIfNotVoid(node.type)
+    node.entries.forEach { entry ->
+      entry.first.accept(this)
+      entry.second.accept(this)
+    }
   }
 
   private fun binaryOperator(node: BinaryOperatorNode) {
