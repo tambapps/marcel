@@ -124,6 +124,7 @@ nav:
               - long[]: mdk/extensions/DefaultMarcelMethods/long_array.md
               - Map: mdk/extensions/DefaultMarcelMethods/Map.md
               - Matcher: mdk/extensions/DefaultMarcelMethods/Matcher.md
+              - Number[]: mdk/extensions/DefaultMarcelMethods/Number_array.md
               - Object[]: mdk/extensions/DefaultMarcelMethods/Object_array.md
               - Queue: mdk/extensions/DefaultMarcelMethods/Queue.md
               - Set: mdk/extensions/DefaultMarcelMethods/Set.md
