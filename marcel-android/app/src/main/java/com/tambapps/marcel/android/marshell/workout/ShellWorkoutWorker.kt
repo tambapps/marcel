@@ -71,7 +71,7 @@ class ShellWorkoutWorker @AssistedInject constructor(
     shellWorkoutDao.updateState(workout.name, WorkInfo.State.RUNNING)
     shellWorkoutDao.updateStartTime(workout.name, LocalDateTime.now())
 
-    var result: marcel.util.Result<Any?> = marcel.util.Result.success(null)
+    var result: marcel.util.Result<Any?> = marcel.util.Result.success(1)
     Log.d(TAG, "Evaluating init scripts")
     for (initScript in workout.initScripts ?: emptyList()) {
       result = result.then { session.eval(readInitScriptText(initScript)) }
