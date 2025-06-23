@@ -1,12 +1,15 @@
 package marcel.lang;
 
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@NullMarked
 @AllArgsConstructor
 public class Binding {
 
@@ -16,11 +19,13 @@ public class Binding {
     this(Collections.synchronizedMap(new HashMap<>()));
   }
 
+  @Nullable
   @SuppressWarnings("unchecked")
   public <T> T getVariableOrNull(String name) {
     return (T) variables.get(name);
   }
 
+  @Nullable
   public <T> T getVariable(String name) {
     if (!variables.containsKey(name)) {
       throw new NoSuchPropertyException(null, name);

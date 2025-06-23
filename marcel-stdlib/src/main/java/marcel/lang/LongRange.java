@@ -12,11 +12,13 @@ import marcel.util.primitives.collections.lists.LongArrayList;
 import marcel.util.primitives.collections.lists.LongList;
 import marcel.util.primitives.iterable.LongIterable;
 import marcel.util.primitives.iterators.LongIterator;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.LongFunction;
 
+@NullMarked
 public interface LongRange extends LongIterable {
 
   long getFrom();

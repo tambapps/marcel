@@ -3,6 +3,8 @@ package marcel.lang;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Console;
 import java.util.Arrays;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 /**
  * Base class for any Marcel scripts
  */
+@NullMarked
 @AllArgsConstructor
 public abstract class Script {
   @Getter
@@ -26,6 +29,7 @@ public abstract class Script {
     return run(new String[0]);
   }
 
+  @Nullable
   public <T> T getVariable(String name) {
     return binding.getVariable(name);
   }
@@ -118,19 +122,23 @@ public abstract class Script {
     System.out.print(Arrays.toString(o));
   }
 
+  @Nullable
   public String readLine() {
     return getConsole().readLine();
   }
 
+  @Nullable
   public String readLine(String fmt, Object ... args) {
     return getConsole().readLine(fmt, args);
   }
 
+  @Nullable
   public String readPassword() {
     char[] c = getConsole().readPassword();
     return c != null ? new String(c) : null;
   }
 
+  @Nullable
   public String readPassword(String fmt, Object ... args) {
     char[] c = getConsole().readPassword(fmt, args);
     return c != null ? new String(c) : null;

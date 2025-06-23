@@ -30,12 +30,15 @@ import marcel.util.primitives.collections.sets.LongSet;
 import marcel.util.primitives.iterators.IntIterator;
 import marcel.lang.runtime.MapWithDefault;
 import marcel.util.function.*;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+@NullMarked
 @ExtensionClass
 @SuppressWarnings({"unused"})
 public final class DefaultMarcelMethods {
@@ -521,6 +524,7 @@ public final class DefaultMarcelMethods {
    * @param <T>       the Collection elements type
    * @return the first element matching the given predicate or null
    */
+  @Nullable
   public static <T> T find(Collection<T> $self, Predicate<T> predicate) {
     for (T e : $self) {
       if (predicate.test(e)) return e;
@@ -528,6 +532,7 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  @Nullable
   public static <T> T find(T[] $self, Predicate<T> predicate) {
     for (T e : $self) {
       if (predicate.test(e)) return e;
@@ -535,6 +540,7 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  @Nullable
   public static Integer find(int[] $self, IntPredicate predicate) {
     for (int e : $self) {
       if (predicate.test(e)) return e;
@@ -542,6 +548,7 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  @Nullable
   public static Long find(long[] $self, LongPredicate predicate) {
     for (long e : $self) {
       if (predicate.test(e)) return e;
@@ -549,6 +556,7 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  @Nullable
   public static Float find(float[] $self, FloatPredicate predicate) {
     for (float e : $self) {
       if (predicate.test(e)) return e;
@@ -556,6 +564,7 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  @Nullable
   public static Double find(double[] $self, DoublePredicate predicate) {
     for (double e : $self) {
       if (predicate.test(e)) return e;
@@ -563,6 +572,7 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  @Nullable
   public static Character find(char[] $self, CharPredicate predicate) {
     for (char e : $self) {
       if (predicate.test(e)) return e;
@@ -1510,26 +1520,32 @@ public final class DefaultMarcelMethods {
     return $self.get($self.size() - 1);
   }
 
+  @Nullable
   public static <T> T getLastOrNull(T[] $self) {
     return $self.length > 0 ? $self[$self.length - 1]: null;
   }
 
+  @Nullable
   public static Integer getLastOrNull(int[] $self) {
     return $self.length > 0 ? $self[$self.length - 1]: null;
   }
 
+  @Nullable
   public static Long getLastOrNull(long[] $self) {
     return $self.length > 0 ? $self[$self.length - 1]: null;
   }
 
+  @Nullable
   public static Float getLastOrNull(float[] $self) {
     return $self.length > 0 ? $self[$self.length - 1]: null;
   }
 
+  @Nullable
   public static Double getLastOrNull(double[] $self) {
     return $self.length > 0 ? $self[$self.length - 1]: null;
   }
 
+  @Nullable
   public static Character getLastOrNull(char[] $self) {
     return $self.length > 0 ? $self[$self.length - 1]: null;
   }
@@ -1641,6 +1657,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  @Nullable
   public static <T> T getAtSafe(List<T> $self, int index) {
     return index >= 0 && index < $self.size() ? $self.get(index) : null;
   }
@@ -1652,6 +1669,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  @Nullable
   public static <T> T getAtSafe(T[] $self, int index) {
     return index >= 0 && index < $self.length ? $self[index] : null;
   }
@@ -1663,6 +1681,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  @Nullable
   public static Integer getAtSafe(int[] $self, int index) {
     return index >= 0 && index < $self.length ? $self[index] : null;
   }
@@ -1674,6 +1693,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  @Nullable
   public static Long getAtSafe(long[] $self, int index) {
     return index >= 0 && index < $self.length ? $self[index] : null;
   }
@@ -1685,6 +1705,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  @Nullable
   public static Float getAtSafe(float[] $self, int index) {
     return index >= 0 && index < $self.length ? $self[index] : null;
   }
@@ -1696,6 +1717,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  @Nullable
   public static Double getAtSafe(double[] $self, int index) {
     return index >= 0 && index < $self.length ? $self[index] : null;
   }
@@ -1707,6 +1729,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  @Nullable
   public static Character getAtSafe(char[] $self, int index) {
     return index >= 0 && index < $self.length ? $self[index] : null;
   }

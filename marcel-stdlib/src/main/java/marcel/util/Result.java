@@ -1,5 +1,8 @@
 package marcel.util;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -10,6 +13,7 @@ import java.util.function.Supplier;
  *
  * @param <T> the type of the success value
  */
+@NullMarked
 public interface Result<T> {
 
     /**
@@ -70,7 +74,8 @@ public interface Result<T> {
      * @param value the default value
      * @return the encapsulated value if this instance represents success or the defaultValue if it is failure
      */
-    T getOrDefault(T value);
+    @Nullable
+    T getOrDefault(@Nullable T value);
 
     /**
      * Returns the encapsulated value if this instance represents success or the result of fallback function for the encapsulated Throwable exception if it is failure.
@@ -78,6 +83,7 @@ public interface Result<T> {
      * @param fallback the fallback function
      * @return the encapsulated value if this instance represents success or the result of fallback function for the encapsulated Throwable exception if it is failure.
      */
+    @Nullable
     T getOrElse(Function<Throwable, ? extends T> fallback);
 
     /**
@@ -85,6 +91,7 @@ public interface Result<T> {
      *
      * @return the encapsulated value if this instance represents success or null if it is failure.
      */
+    @Nullable
     T getOrNull();
 
     /**
@@ -92,6 +99,7 @@ public interface Result<T> {
      *
      * @return the encapsulated value if this instance represents success or throws the encapsulated Throwable exception if it is failure.
      */
+    @Nullable
     T getOrThrow();
 
     /**
@@ -99,6 +107,7 @@ public interface Result<T> {
      *
      * @return the encapsulated Throwable exception if this instance represents failure or null if it is success.
      */
+    @Nullable
     Throwable getExceptionOrNull();
 
     /**

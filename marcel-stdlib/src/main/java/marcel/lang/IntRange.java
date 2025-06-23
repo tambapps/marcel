@@ -1,7 +1,5 @@
 package marcel.lang;
 
-import marcel.util.function.ToCharFunction;
-import marcel.util.function.ToFloatFunction;
 import marcel.util.primitives.collections.lists.CharArrayList;
 import marcel.util.primitives.collections.lists.CharList;
 import marcel.util.primitives.collections.lists.DoubleArrayList;
@@ -14,14 +12,13 @@ import marcel.util.primitives.collections.lists.LongArrayList;
 import marcel.util.primitives.collections.lists.LongList;
 import marcel.util.primitives.iterable.IntIterable;
 import marcel.util.primitives.iterators.IntIterator;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntFunction;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
 
+@NullMarked
 public interface IntRange extends IntIterable {
 
   int getFrom();

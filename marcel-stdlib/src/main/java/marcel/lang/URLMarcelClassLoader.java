@@ -1,12 +1,15 @@
 package marcel.lang;
 
 import lombok.SneakyThrows;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 
+@NullMarked
 public class URLMarcelClassLoader extends MarcelClassLoader {
 
   private final JavaURLClassLoader classLoader;
@@ -47,7 +50,7 @@ public class URLMarcelClassLoader extends MarcelClassLoader {
 
   @SneakyThrows
   @Override
-  public Script loadScript(String className, File jarFile, Binding binding) throws ReflectiveOperationException {
+  public Script loadScript(String className, File jarFile, @Nullable Binding binding) throws ReflectiveOperationException {
     if (!jarFile.isFile()) throw new IllegalArgumentException(String.format("File %s is not a regular file", jarFile));
     return super.loadScript(className, jarFile, binding);
   }

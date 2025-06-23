@@ -21,6 +21,8 @@ import marcel.util.primitives.collections.sets.IntOpenHashSet;
 import marcel.util.primitives.collections.sets.IntSet;
 import marcel.util.primitives.collections.sets.LongOpenHashSet;
 import marcel.util.primitives.collections.sets.LongSet;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,6 +35,7 @@ import java.util.Set;
 /**
  * Helpful methods used by the compiler
  */
+@NullMarked
 public final class BytecodeHelper {
 
   // list
@@ -88,14 +91,17 @@ public final class BytecodeHelper {
     return o;
   }
 
+  @Nullable
   public static Integer orElseNull(OptionalInt opt) {
     return opt.isPresent() ? opt.getAsInt() : null;
   }
 
+  @Nullable
   public static Long orElseNull(OptionalLong opt) {
     return opt.isPresent() ? opt.getAsLong() : null;
   }
 
+  @Nullable
   public static Double orElseNull(OptionalDouble opt) {
     return opt.isPresent() ? opt.getAsDouble() : null;
   }

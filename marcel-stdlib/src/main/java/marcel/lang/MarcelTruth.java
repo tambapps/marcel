@@ -1,6 +1,7 @@
 package marcel.lang;
 
 import marcel.util.Result;
+import org.jspecify.annotations.NullMarked;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -15,6 +16,7 @@ import java.util.regex.Matcher;
 /**
  * The truth specifying if a value is considered to be true or not by Marcel Lang
  */
+@NullMarked
 public interface MarcelTruth {
 
   /**

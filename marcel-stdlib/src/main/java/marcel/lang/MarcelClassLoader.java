@@ -1,8 +1,12 @@
 package marcel.lang;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
 import java.io.File;
 import java.util.Collection;
 
+@NullMarked
 abstract public class MarcelClassLoader {
 
   public Script loadScript(String className, File jarFile) throws ReflectiveOperationException {
@@ -19,7 +23,7 @@ abstract public class MarcelClassLoader {
    * @return an instance of the script class loaded
    * @throws ReflectiveOperationException in case a reflective error occurs when loading the script
    */
-  public Script loadScript(String className, File jarFile, Binding binding) throws ReflectiveOperationException {
+  public Script loadScript(String className, File jarFile, @Nullable Binding binding) throws ReflectiveOperationException {
     // load the jar into the classpath
     addJar(jarFile);
 
