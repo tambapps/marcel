@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.processor.visitor.ClassNodeVisitor
 /**
  * Check that defined constructors don't recursively call each others
  */
-internal object RecursiveConstructorCheck : ClassNodeVisitor {
+internal class RecursiveConstructorCheck : ClassNodeVisitor {
 
   override fun visit(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
     classNode.constructors.forEach {

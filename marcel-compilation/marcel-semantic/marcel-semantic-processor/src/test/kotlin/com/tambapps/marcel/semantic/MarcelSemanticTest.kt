@@ -17,7 +17,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.processor.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.SourceFileSemanticProcessor
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
@@ -90,7 +90,7 @@ class MarcelSemanticTest {
     assertNotEquals(double(value = 1234.4), expr("1234.45d"))
   }
 
-  private fun semantic() = MarcelSemantic(TYPE_RESOLVER, Script::class.javaType, sourceFile, "Test.mcl")
+  private fun semantic() = SourceFileSemanticProcessor(TYPE_RESOLVER, Script::class.javaType, sourceFile, "Test.mcl")
 
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())
@@ -104,7 +104,7 @@ class MarcelSemanticTest {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
     return cstExpression.accept(semantic())
   }
-  private fun stmt(text: String, semantic: MarcelSemantic = semantic()): StatementNode {
+  private fun stmt(text: String, semantic: SourceFileSemanticProcessor = semantic()): StatementNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).statement()
     return cstExpression.accept(semantic)
   }

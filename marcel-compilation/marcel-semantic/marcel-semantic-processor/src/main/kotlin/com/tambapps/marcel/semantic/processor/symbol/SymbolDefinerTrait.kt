@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.EnumCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
-import com.tambapps.marcel.semantic.processor.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.SourceFileSemanticProcessor
 import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
@@ -33,7 +33,7 @@ interface SymbolDefinerTrait {
    * @param semantics all the semantic CSTs
    * @param scriptParentType the script parent type to use when encountering a script node
    */
-  fun defineSymbols(semantics: List<MarcelSemantic>, scriptParentType: JavaType) {
+  fun defineSymbols(semantics: List<SourceFileSemanticProcessor>, scriptParentType: JavaType) {
     val triples = defineTypes(semantics, scriptParentType)
     for ((semantic, classCstNode, classType) in triples) {
       semantic.defineClassMembers(
@@ -46,11 +46,11 @@ interface SymbolDefinerTrait {
 
   // predefining types, but not fully to avoid trying to find types we haven't predefined yet
   private fun defineTypes(
-    semantics: List<MarcelSemantic>,
+    semantics: List<SourceFileSemanticProcessor>,
     scriptParentType: JavaType
-  ): MutableList<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>> {
+  ): MutableList<Triple<SourceFileSemanticProcessor, ClassCstNode, SourceJavaType>> {
     // first define types, without super parent because one supertype may reference a type from another class that wasn't defined yet
-    val toDefineTypes = mutableListOf<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>>()
+    val toDefineTypes = mutableListOf<Triple<SourceFileSemanticProcessor, ClassCstNode, SourceJavaType>>()
     for (s in semantics) {
       s.cst.classes.forEach { predefineTypes(s, it, toDefineTypes) }
     }
@@ -100,9 +100,9 @@ interface SymbolDefinerTrait {
    * Define java types without taking care of associating their parent types and implemented interface
    */
   private fun predefineTypes(
-    s: MarcelSemantic,
+    s: SourceFileSemanticProcessor,
     classNode: ClassCstNode,
-    toDefineTypes: MutableList<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>>
+    toDefineTypes: MutableList<Triple<SourceFileSemanticProcessor, ClassCstNode, SourceJavaType>>
   ) {
     val isEnum = classNode is EnumCstNode
     val classType = SourceJavaType(

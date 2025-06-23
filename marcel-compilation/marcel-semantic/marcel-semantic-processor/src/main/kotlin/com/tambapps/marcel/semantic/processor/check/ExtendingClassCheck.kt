@@ -9,7 +9,7 @@ import com.tambapps.marcel.semantic.processor.visitor.ClassNodeVisitor
 /**
  * Check that the extended class is accessible and not final
  */
-internal object ExtendingClassCheck : ClassNodeVisitor {
+internal class ExtendingClassCheck : ClassNodeVisitor {
 
   override fun visit(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
     val superType = classNode.superType

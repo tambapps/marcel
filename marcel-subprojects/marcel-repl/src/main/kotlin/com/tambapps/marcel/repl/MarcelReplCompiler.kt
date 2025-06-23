@@ -10,7 +10,7 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.cst.MethodCstNode
-import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
+import com.tambapps.marcel.repl.semantic.SourceFileReplSemanticProcessor
 import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import com.tambapps.marcel.semantic.analysis.MarcelSemanticAnalysis
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -166,7 +166,7 @@ class MarcelReplCompiler constructor(
       }
     }
 
-    val semantic = MarcelReplSemantic(symbolResolver, cst, "prompt.mcl", imports)
+    val semantic = SourceFileReplSemanticProcessor(symbolResolver, cst, "prompt.mcl", imports)
     val ast = MarcelSemanticAnalysis.apply(configuration, symbolResolver, semantic)
 
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())

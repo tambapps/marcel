@@ -44,7 +44,6 @@ import com.tambapps.marcel.semantic.symbol.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.symbol.method.MethodParameter
-import com.tambapps.marcel.semantic.processor.compose.StatementsComposer
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
@@ -58,14 +57,12 @@ import com.tambapps.marcel.semantic.symbol.variable.field.JavaClassFieldImpl
 import marcel.lang.Binding
 import marcel.lang.compile.ExtensionClass
 import marcel.util.concurrent.Threadmill
-import java.lang.Enum
 import java.lang.IllegalArgumentException
 import java.lang.NullPointerException
 import java.lang.annotation.ElementType
 import java.util.concurrent.Callable
 
-// TODO rename SourceFileSemantic
-open class MarcelSemantic(
+open class SourceFileSemanticProcessor(
   symbolResolver: MarcelSymbolResolver,
   private val scriptType: JavaType,
   val cst: SourceFileCstNode,
@@ -79,14 +76,14 @@ open class MarcelSemantic(
     imports.add(ImportResolverGenerator.generateImports(symbolResolver, cst.imports, cst.extensionImports))
   }
 
-  fun apply(): ModuleNode {
+  fun process(): ModuleNode {
     try {
       val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
 
       loadExtensions()
 
       try {
-        doApply(moduleNode)
+        doProcess(moduleNode)
       } finally {
         unloadExtensions()
       }
@@ -97,7 +94,7 @@ open class MarcelSemantic(
     }
   }
 
-  private fun doApply(moduleNode: ModuleNode) {
+  private fun doProcess(moduleNode: ModuleNode) {
     val scriptCstNode = cst.script
 
     for (cstClass in cst.classes) {
@@ -241,7 +238,7 @@ open class MarcelSemantic(
 
       // must handle inner classes BEFORE handling this class being an inner class because in this case constructors will be modified
       node.innerClasses.forEach {
-        classNode.innerClasses.add(it.accept(this@MarcelSemantic))
+        classNode.innerClasses.add(it.accept(this@SourceFileSemanticProcessor))
       }
       processConstructors()
 
@@ -311,7 +308,7 @@ open class MarcelSemantic(
           if (fieldNode.isStatic) {
             val stInitMethod = getOrCreateStaticInitialisationMethod(classNode)
             useScope(MethodScope(classScope, stInitMethod)) {
-              staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type)
+              staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this@SourceFileSemanticProcessor, fieldNode.type)
             }
           } else {
             fieldInitialValueMap[fieldNode] = useScope(
@@ -321,7 +318,7 @@ open class MarcelSemantic(
                 JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, isSynthetic = true, classType, emptyList())
               )
             ) {
-              cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type))
+              cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@SourceFileSemanticProcessor, fieldNode.type))
             }
           }
         }
@@ -771,7 +768,7 @@ open class MarcelSemantic(
     } else if (scriptRunMethod && cstStatements.isNotEmpty()) {
       // if it's the script run method and the last statement is an expression statement, It becomes the return value of the run() method
       blockStatements(cstStatements.subList(0, cstStatements.size - 1)).apply {
-        var lastStatement = cstStatements.last().accept(this@MarcelSemantic)
+        var lastStatement = cstStatements.last().accept(this@SourceFileSemanticProcessor)
         if (lastStatement is ExpressionStatementNode && lastStatement.expressionNode.type != JavaType.void) {
           lastStatement = ReturnStatementNode(cast(JavaType.Object, lastStatement.expressionNode))
         }

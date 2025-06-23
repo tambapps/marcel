@@ -8,7 +8,7 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.semantic.analysis.MarcelSemanticAnalysis
-import com.tambapps.marcel.semantic.processor.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.SourceFileSemanticProcessor
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
@@ -72,7 +72,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
 
       handleDumbbells(marcelClassLoader, cst)
 
-      MarcelSemantic(symbolResolver, configuration.scriptClass.javaType, cst, sourceFile.fileName)
+      SourceFileSemanticProcessor(symbolResolver, configuration.scriptClass.javaType, cst, sourceFile.fileName)
     }
 
     val asts = MarcelSemanticAnalysis.apply(configuration, symbolResolver, semantics)

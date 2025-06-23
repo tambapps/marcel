@@ -3,8 +3,8 @@ package com.tambapps.marcel.semantic.analysis
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.processor.MarcelSemantic
-import com.tambapps.marcel.semantic.processor.check.ClassNodeChecks
+import com.tambapps.marcel.semantic.processor.SourceFileSemanticProcessor
+import com.tambapps.marcel.semantic.processor.check.ClassNodePostSemanticChecks
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformer
 
@@ -13,11 +13,11 @@ import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformer
  */
 object MarcelSemanticAnalysis {
 
-  fun apply(configuration: SemanticConfiguration, symbolResolver: MarcelSymbolResolver, semantics: MarcelSemantic): ModuleNode {
+  fun apply(configuration: SemanticConfiguration, symbolResolver: MarcelSymbolResolver, semantics: SourceFileSemanticProcessor): ModuleNode {
     return apply(configuration, symbolResolver, listOf(semantics)).first()
   }
 
-  fun apply(configuration: SemanticConfiguration, symbolResolver: MarcelSymbolResolver, semantics: List<MarcelSemantic>): List<ModuleNode> {
+  fun apply(configuration: SemanticConfiguration, symbolResolver: MarcelSymbolResolver, semantics: List<SourceFileSemanticProcessor>): List<ModuleNode> {
     // defining types
     symbolResolver.defineSymbols(semantics, configuration.scriptClass.javaType)
 
@@ -26,7 +26,7 @@ object MarcelSemanticAnalysis {
     semantics.forEach { syntaxTreeTransformer.applyCstTransformations(it) }
 
     // apply semantic analysis
-    val asts = semantics.map { it.apply() }
+    val asts = semantics.map { it.process() }
 
     // apply transformations if any
     asts.forEach { syntaxTreeTransformer.applyAstTransformations(it) }
@@ -39,7 +39,7 @@ object MarcelSemanticAnalysis {
   }
 
   private fun check(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
-    ClassNodeChecks.ALL.forEach {
+    ClassNodePostSemanticChecks.ALL.forEach {
       it.visit(classNode, symbolResolver)
     }
     for (innerClassNode in classNode.innerClasses) {

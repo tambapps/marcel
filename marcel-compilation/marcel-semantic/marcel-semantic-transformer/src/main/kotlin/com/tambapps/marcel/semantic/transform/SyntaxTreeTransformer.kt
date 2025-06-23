@@ -3,13 +3,12 @@ package com.tambapps.marcel.semantic.transform
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.processor.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.SourceFileSemanticProcessor
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
@@ -31,7 +30,7 @@ class SyntaxTreeTransformer(
    *
    * @param semantic the annotated CST node of the semantics
    */
-  fun applyCstTransformations(semantic: MarcelSemantic) {
+  fun applyCstTransformations(semantic: SourceFileSemanticProcessor) {
     semantic.cst.classes.forEach { applyCstTransformations(semantic, it) }
     semantic.cst.script?.let { applyCstTransformations(semantic, it) }
   }
@@ -75,7 +74,7 @@ class SyntaxTreeTransformer(
     }
   }
 
-  private fun applyCstTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
+  private fun applyCstTransformations(semantic: SourceFileSemanticProcessor, classNode: ClassCstNode) {
     val javaType = symbolResolver.of(classNode.className) as SourceJavaType
     loadFromAnnotations(semantic, classNode, ElementType.TYPE, javaType, classNode.annotations)
     classNode.fields.forEach { fieldNode ->
@@ -87,7 +86,7 @@ class SyntaxTreeTransformer(
     classNode.innerClasses.forEach { applyCstTransformations(semantic, it) }
   }
 
-  private fun loadFromAnnotations(semantic: MarcelSemantic,
+  private fun loadFromAnnotations(semantic: SourceFileSemanticProcessor,
                                   node: CstNode,
                                   elementType: ElementType,
                                   classType: SourceJavaType, annotations: List<AnnotationCstNode>) {

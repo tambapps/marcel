@@ -19,7 +19,7 @@ import com.tambapps.marcel.semantic.symbol.type.JavaType
 /**
  * Check that all implemented interfaces methods are defined.
  */
-internal object ImplementedInterfaceCheck : ClassNodeVisitor {
+internal class ImplementedInterfaceCheck : ClassNodeVisitor {
 
   override fun visit(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
     for (interfaze in classNode.type.directlyImplementedInterfaces) {

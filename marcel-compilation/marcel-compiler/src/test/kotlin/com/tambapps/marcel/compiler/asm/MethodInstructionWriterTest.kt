@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
-import com.tambapps.marcel.semantic.processor.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.SourceFileSemanticProcessor
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -85,13 +85,13 @@ class MethodInstructionWriterTest : FunSpec({
     private fun expr(text: String): ExpressionNode {
       val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
       val sourceFile = mockk<SourceFileCstNode>(relaxed = true)
-      return cstExpression.accept(MarcelSemantic(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
+      return cstExpression.accept(SourceFileSemanticProcessor(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
     }
 
     private fun stmt(text: String): StatementNode {
       val cstStatement = MarcelParser("Test", MarcelLexer().lex(text)).statement()
       val sourceFile = mockk<SourceFileCstNode>(relaxed = true)
-      return cstStatement.accept(MarcelSemantic(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
+      return cstStatement.accept(SourceFileSemanticProcessor(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
     }
   }
 }
