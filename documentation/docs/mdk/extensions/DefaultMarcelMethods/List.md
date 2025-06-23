@@ -25,7 +25,7 @@ TODO add description.
 ### getAt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>getAt</span>(int index)</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>getAt</span>(IntRange range)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -36,7 +36,7 @@ TODO add description.
 ### getAt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> List <span style='color: yellow;'>getAt</span>(IntRange range)</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>getAt</span>(int index)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -135,7 +135,7 @@ TODO add description.
 ### minus
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> List <span style='color: yellow;'>minus</span>(Collection b)</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>minus</span>(Object[] b)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -146,7 +146,7 @@ TODO add description.
 ### minus
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> List <span style='color: yellow;'>minus</span>(Object[] b)</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>minus</span>(Collection b)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
