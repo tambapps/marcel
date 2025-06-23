@@ -77,4 +77,9 @@ object ParserUtils {
     return tokenType in listOf(TYPE_BOOL, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BYTE, TYPE_CHAR,
       TYPE_LONG, TYPE_INT, TYPE_SHORT, TYPE_VOID, IDENTIFIER, DYNOBJ)
   }
+
+  fun isPrimitiveTypeToken(tokenType: TokenType): Boolean {
+    return tokenType in listOf(TYPE_BOOL, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BYTE, TYPE_CHAR,
+      TYPE_LONG, TYPE_INT, TYPE_SHORT, TYPE_VOID)
+  }
 }
