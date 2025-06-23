@@ -35,11 +35,11 @@ enum class Nullness {
       else -> NOT_NULL
     }
 
-    fun of(field: Field) = of(field, field.type, field.declaringClass)
+    fun of(field: Field) = of(field.annotatedType, field.type, field.declaringClass)
 
-    fun of(method: Method) = of(method, method.returnType, method.declaringClass)
+    fun of(method: Method) = of(method.annotatedReturnType, method.returnType, method.declaringClass)
 
-    fun of(parameter: Parameter, declaringClass: Class<*>) = of(parameter, parameter.type, declaringClass)
+    fun of(parameter: Parameter, declaringClass: Class<*>) = of(parameter.annotatedType, parameter.type, declaringClass)
 
     private fun of(element: AnnotatedElement, elementType: Class<*>, declaringClass: Class<*>) = when {
       elementType.isPrimitive -> NOT_NULL
