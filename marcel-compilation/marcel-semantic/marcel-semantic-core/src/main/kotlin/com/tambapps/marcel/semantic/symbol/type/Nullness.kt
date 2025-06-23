@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.symbol.NullAware
 import org.jspecify.annotations.NonNull
 import org.jspecify.annotations.NullMarked
 import org.jspecify.annotations.Nullable
+import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
@@ -34,36 +35,20 @@ enum class Nullness {
       else -> NOT_NULL
     }
 
-    fun of(field: Field) = when {
-      field.type.isPrimitive -> NOT_NULL
-      field.getAnnotation(Nullable::class.java) != null -> NULLABLE
-      field.getAnnotation(NonNull::class.java) != null -> NOT_NULL
-      field.getAnnotation(NullMarked::class.java) != null
-          || field.declaringClass.getAnnotation(NullMarked::class.java) != null
-          || field.declaringClass.module.getAnnotation(NullMarked::class.java) != null
-      -> if (field.getAnnotation(Nullable::class.java) != null) NULLABLE else NOT_NULL
-      else -> UNKNOWN
-    }
+    fun of(field: Field) = of(field, field.type, field.declaringClass)
 
-    fun of(method: Method) = when {
-      method.returnType.isPrimitive -> NOT_NULL
-      method.getAnnotation(Nullable::class.java) != null -> NULLABLE
-      method.getAnnotation(NonNull::class.java) != null -> NOT_NULL
-      method.getAnnotation(NullMarked::class.java) != null
-          || method.declaringClass.getAnnotation(NullMarked::class.java) != null
-          || method.declaringClass.module.getAnnotation(NullMarked::class.java) != null
-        -> if (method.getAnnotation(Nullable::class.java) != null) NULLABLE else NOT_NULL
-      else -> UNKNOWN
-    }
+    fun of(method: Method) = of(method, method.returnType, method.declaringClass)
 
-    fun of(parameter: Parameter, declaringClass: Class<*>) = when {
-      parameter.type.isPrimitive -> NOT_NULL
-      parameter.getAnnotation(Nullable::class.java) != null -> NULLABLE
-      parameter.getAnnotation(NonNull::class.java) != null -> NOT_NULL
-      declaringClass.getAnnotation(NullMarked::class.java) != null
+    fun of(parameter: Parameter, declaringClass: Class<*>) = of(parameter, parameter.type, declaringClass)
+
+    private fun of(element: AnnotatedElement, elementType: Class<*>, declaringClass: Class<*>) = when {
+      elementType.isPrimitive -> NOT_NULL
+      element.getAnnotation(Nullable::class.java) != null -> NULLABLE
+      element.getAnnotation(NonNull::class.java) != null -> NOT_NULL
+      element.getAnnotation(NullMarked::class.java) != null
           || declaringClass.getAnnotation(NullMarked::class.java) != null
           || declaringClass.module.getAnnotation(NullMarked::class.java) != null
-        -> if (parameter.getAnnotation(Nullable::class.java) != null) NULLABLE else NOT_NULL
+        -> if (element.getAnnotation(Nullable::class.java) != null) NULLABLE else NOT_NULL
       else -> UNKNOWN
     }
   }
