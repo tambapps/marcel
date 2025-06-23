@@ -88,46 +88,104 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
+  /**
+   * Swaps the elements at the specified positions in the list
+   *
+   * @param $self the list
+   * @param i the index of the first element to swap
+   * @param j the index of the second element to swap
+   * @param <T> the type of elements in the list
+   */
   public static <T> void swap(List $self, int i, int j) {
     $self.set(i, $self.set(j, $self.get(i)));
   }
 
+  /**
+   * Swaps the elements at the specified positions in the array
+   *
+   * @param $self the array
+   * @param i the index of the first element to swap
+   * @param j the index of the second element to swap
+   * @param <T> the type of elements in the array
+   */
   public static <T> void swap(T[] $self, int i, int j) {
     T temp = $self[i];
     $self[i] = $self[j];
     $self[j] = temp;
   }
 
+  /**
+   * Swaps the elements at the specified positions in the int array
+   *
+   * @param $self the int array
+   * @param i the index of the first element to swap
+   * @param j the index of the second element to swap
+   */
   public static void swap(int[] $self, int i, int j) {
     int temp = $self[i];
     $self[i] = $self[j];
     $self[j] = temp;
   }
 
+  /**
+   * Swaps the elements at the specified positions in the long array
+   *
+   * @param $self the long array
+   * @param i the index of the first element to swap
+   * @param j the index of the second element to swap
+   */
   public static void swap(long[] $self, int i, int j) {
     long temp = $self[i];
     $self[i] = $self[j];
     $self[j] = temp;
   }
 
+  /**
+   * Swaps the elements at the specified positions in the float array
+   *
+   * @param $self the float array
+   * @param i the index of the first element to swap
+   * @param j the index of the second element to swap
+   */
   public static void swap(float[] $self, int i, int j) {
     float temp = $self[i];
     $self[i] = $self[j];
     $self[j] = temp;
   }
 
+  /**
+   * Swaps the elements at the specified positions in the double array
+   *
+   * @param $self the double array
+   * @param i the index of the first element to swap
+   * @param j the index of the second element to swap
+   */
   public static void swap(double[] $self, int i, int j) {
     double temp = $self[i];
     $self[i] = $self[j];
     $self[j] = temp;
   }
 
+  /**
+   * Swaps the elements at the specified positions in the char array
+   *
+   * @param $self the char array
+   * @param i the index of the first element to swap
+   * @param j the index of the second element to swap
+   */
   public static void swap(char[] $self, int i, int j) {
     char temp = $self[i];
     $self[i] = $self[j];
     $self[j] = temp;
   }
 
+  /**
+   * Adds an element to a sorted list while maintaining the sort order
+   *
+   * @param $self the sorted list
+   * @param element the element to add
+   * @param <T> the type of elements in the list, must implement Comparable
+   */
   public static <T extends Comparable<T>> void sortedAdd(List<T> $self, T element) {
     int i = 0;
     while (i < $self.size() && $self.get(i).compareTo(element) < 0) {
@@ -136,6 +194,14 @@ public final class DefaultMarcelMethods {
     $self.add(i, element);
   }
 
+  /**
+   * Returns a list of unique elements based on the key extractor function
+   *
+   * @param $self the collection to filter
+   * @param keyExtractor function to extract keys for uniqueness comparison
+   * @param <T> the type of elements in the collection
+   * @return a list containing only unique elements
+   */
   public static <T> List<T> unique(Collection<T> $self, Function<T, ?> keyExtractor) {
     Set<Object> set = new HashSet<>($self.size());
     List<T> list = new ArrayList<>();
@@ -147,10 +213,25 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
+  /**
+   * Returns a set of all unique elements in the collection
+   *
+   * @param $self the collection to convert to a set
+   * @param <T> the type of elements in the collection
+   * @return a set containing all unique elements from the collection
+   */
   public static <T> Set<T> unique(Collection<T> $self) {
     return new HashSet<>($self);
   }
 
+  /**
+   * Returns a collection of unique elements from an array based on the key extractor function
+   *
+   * @param $self the array to filter
+   * @param keyExtractor function to extract keys for uniqueness comparison
+   * @param <T> the type of elements in the array
+   * @return a collection containing only unique elements
+   */
   public static <T> Collection<T> unique(T[] $self, Function<T, ?> keyExtractor) {
     Set<Object> set = new HashSet<>($self.length);
     List<T> list = new ArrayList<>($self.length);
@@ -162,6 +243,13 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
+  /**
+   * Returns a set of all unique elements in the array
+   *
+   * @param $self the array to convert to a set
+   * @param <T> the type of elements in the array
+   * @return a set containing all unique elements from the array
+   */
   public static <T> Set<T> unique(T[] $self) {
     return new HashSet<>(Arrays.asList($self));
   }
@@ -241,6 +329,15 @@ public final class DefaultMarcelMethods {
     return new CharOpenHashSet(CharArrayList.wrap($self));
   }
 
+  /**
+   * Replaces an element in a collection with another element
+   *
+   * @param $self the collection
+   * @param element the element to replace
+   * @param replacement the replacement element
+   * @param <T> the type of elements in the collection
+   * @return true if the element was found and replaced, false otherwise
+   */
   public static <T> boolean replace(Collection<T> $self, T element, T replacement) {
     if ($self.remove(element)) {
       return $self.add(replacement);
@@ -248,18 +345,42 @@ public final class DefaultMarcelMethods {
     throw new NoSuchElementException();
   }
 
+  /**
+   * Randomly permutes the specified list using a default source of randomness
+   *
+   * @param $self the list to be shuffled
+   */
   public static void shuffle(List<?> $self) {
     Collections.shuffle($self);
   }
 
+  /**
+   * Randomly permutes the specified list using the provided random generator
+   *
+   * @param $self the list to be shuffled
+   * @param rnd the source of randomness to use to shuffle the list
+   */
   public static void shuffle(List<?> $self, Random rnd) {
     Collections.shuffle($self, rnd);
   }
 
+  /**
+   * Randomly permutes the specified array using a default source of randomness
+   *
+   * @param $self the array to be shuffled
+   * @param <T> the type of elements in the array
+   */
   public static <T> void shuffle(T[] $self) {
     shuffle($self, new Random());
   }
 
+  /**
+   * Randomly permutes the specified array using the provided random generator
+   *
+   * @param $self the array to be shuffled
+   * @param rnd the source of randomness to use to shuffle the array
+   * @param <T> the type of elements in the array
+   */
   public static <T> void shuffle(T[] $self, Random rnd) {
     for (int i=$self.length; i>1; i--)
       swap($self, i-1, rnd.nextInt(i));
@@ -545,6 +666,14 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  /**
+   * Find the first element matching the given predicate in an array
+   *
+   * @param $self the array
+   * @param predicate the predicate
+   * @param <T> the array elements type
+   * @return the first element matching the given predicate or null
+   */
   @Nullable
   public static <T> T find(T[] $self, Predicate<T> predicate) {
     for (T e : $self) {
@@ -553,6 +682,13 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+  /**
+   * Find the first element matching the given predicate in an int array
+   *
+   * @param $self the int array
+   * @param predicate the predicate
+   * @return the first element matching the given predicate or null
+   */
   @Nullable
   public static Integer find(int[] $self, IntPredicate predicate) {
     for (int e : $self) {
@@ -865,6 +1001,13 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
+  /**
+   * Converts an array to a List
+   *
+   * @param $self the array to convert
+   * @param <T> the type of elements in the array
+   * @return a new List containing all elements from the array
+   */
   public static <T> List<T> toList(T[] $self) {
     List<T> set = new ArrayList<>($self.length);
     for (T e : $self) {
@@ -2463,6 +2606,14 @@ public final class DefaultMarcelMethods {
    * @param <T> the type of elements in the array
    * @return a new list containing the first n elements
    */
+  /**
+   * Returns a list containing the first n elements from the original array
+   * 
+   * @param $self the array
+   * @param n the number of elements to take
+   * @param <T> the type of elements in the array
+   * @return a new list containing the first n elements
+   */
   public static <T> List<T> take(T[] $self, int n) {
     if (n <= 0) return new ArrayList<>();
     List<T> result = new ArrayList<>(Math.min(n, $self.length));
@@ -2480,6 +2631,14 @@ public final class DefaultMarcelMethods {
    * @param <T> the type of elements in the collection
    * @return a new list containing the last n elements
    */
+  /**
+   * Returns a list containing the last n elements from the original list
+   * 
+   * @param $self the list
+   * @param n the number of elements to take
+   * @param <T> the type of elements in the list
+   * @return a new list containing the last n elements
+   */
   public static <T> List<T> takeLast(List<T> $self, int n) {
     if (n <= 0) return new ArrayList<>();
     int start = Math.max(0, $self.size() - n);
@@ -2488,6 +2647,14 @@ public final class DefaultMarcelMethods {
   
   /**
    * Takes the last n elements from the array
+   * 
+   * @param $self the array
+   * @param n the number of elements to take
+   * @param <T> the type of elements in the array
+   * @return a new list containing the last n elements
+   */
+  /**
+   * Returns a list containing the last n elements from the original array
    * 
    * @param $self the array
    * @param n the number of elements to take
@@ -2566,6 +2733,14 @@ public final class DefaultMarcelMethods {
    * @param <T> the type of elements in the array
    * @return a new list containing the remaining elements after dropping n elements
    */
+  /**
+   * Returns a list containing all elements except the first n elements from the array
+   * 
+   * @param $self the array
+   * @param n the number of elements to drop
+   * @param <T> the type of elements in the array
+   * @return a new list containing all elements except the first n elements
+   */
   public static <T> List<T> drop(T[] $self, int n) {
     if (n <= 0) return Arrays.asList($self);
     List<T> result = new ArrayList<>(Math.max(0, $self.length - n));
@@ -2581,6 +2756,14 @@ public final class DefaultMarcelMethods {
    * @param $self the collection
    * @param n the number of elements to drop
    * @param <T> the type of elements in the collection
+   * @return a new list containing the remaining elements after dropping the last n elements
+   */
+  /**
+   * Drops the last n elements from the list
+   * 
+   * @param $self the list
+   * @param n the number of elements to drop
+   * @param <T> the type of elements in the list
    * @return a new list containing the remaining elements after dropping the last n elements
    */
   public static <T> List<T> dropLast(List<T> $self, int n) {
@@ -2828,6 +3011,14 @@ public final class DefaultMarcelMethods {
    * @param <T> the type of elements in the collection
    * @return the last element that matches the predicate or null if none found
    */
+  /**
+   * Find the last element matching the given predicate
+   *
+   * @param $self the collection
+   * @param predicate the predicate
+   * @param <T> the Collection elements type
+   * @return the last element matching the given predicate or null
+   */
   @Nullable
   public static <T> T findLast(Collection<T> $self, Predicate<T> predicate) {
     if ($self instanceof List) {
@@ -2857,6 +3048,14 @@ public final class DefaultMarcelMethods {
    * @param predicate the predicate to match
    * @param <T> the type of elements in the array
    * @return the last element that matches the predicate or null if none found
+   */
+  /**
+   * Find the last element matching the given predicate in an array
+   *
+   * @param $self the array
+   * @param predicate the predicate
+   * @param <T> the array elements type
+   * @return the last element matching the given predicate or null
    */
   @Nullable
   public static <T> T findLast(T[] $self, Predicate<T> predicate) {
