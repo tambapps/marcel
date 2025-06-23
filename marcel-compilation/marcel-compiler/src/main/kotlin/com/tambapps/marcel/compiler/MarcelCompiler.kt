@@ -3,11 +3,11 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.compiler.asm.MarcelClassCompiler
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.compiler.file.SourceFile
-import com.tambapps.marcel.compiler.transform.SyntaxTreeTransformer
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.semantic.analysis.MarcelSemanticAnalysis
 import com.tambapps.marcel.semantic.processor.MarcelSemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -75,21 +75,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
       MarcelSemantic(symbolResolver, configuration.scriptClass.javaType, cst, sourceFile.fileName)
     }
 
-    // defining types
-    defineSymbols(symbolResolver, semantics)
-
-    // load transformations if any
-    val syntaxTreeTransformer = SyntaxTreeTransformer(configuration, symbolResolver)
-    semantics.forEach { syntaxTreeTransformer.applyCstTransformations(it) }
-
-    // apply semantic analysis
-    val asts = semantics.map { it.apply() }
-
-    // apply transformations if any
-    asts.forEach { syntaxTreeTransformer.applyAstTransformations(it) }
-
-    // checks
-    asts.forEach { check(it, symbolResolver) }
+    val asts = MarcelSemanticAnalysis.apply(configuration, symbolResolver, semantics)
 
     val classWriter = MarcelClassCompiler(configuration, symbolResolver)
 

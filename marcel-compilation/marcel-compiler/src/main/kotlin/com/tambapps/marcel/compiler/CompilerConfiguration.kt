@@ -1,16 +1,17 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.semantic.SemanticPurpose
+import com.tambapps.marcel.semantic.analysis.SemanticConfiguration
+import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import marcel.lang.Script
 
-data class CompilerConfiguration(
+class CompilerConfiguration(
+  scriptClass: Class<*> = Script::class.java,
+  purpose: SemanticPurpose = SemanticPurpose.COMPILATION,
   val classVersion: Int = computeClassVersion(),
   val dumbbellEnabled: Boolean = false,
-  val scriptClass: Class<*> = Script::class.java,
-  val purpose: SemanticPurpose = SemanticPurpose.COMPILATION
-) {
+): SemanticConfiguration(scriptClass, purpose) {
 
-  constructor(classVersion: Int, dumbbellEnabled: Boolean): this(classVersion, dumbbellEnabled, Script::class.java)
+  constructor(classVersion: Int, dumbbellEnabled: Boolean): this(classVersion = classVersion, dumbbellEnabled = dumbbellEnabled, scriptClass = Script::class.java)
 
   companion object {
     @JvmStatic
@@ -44,5 +45,26 @@ data class CompilerConfiguration(
       val version: String? = System.getProperty("java.specification.version")
       return getClassVersion(version)
     }
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is CompilerConfiguration) return false
+    if (!super.equals(other)) return false
+
+    if (classVersion != other.classVersion) return false
+    if (dumbbellEnabled != other.dumbbellEnabled) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = super.hashCode()
+    result = 31 * result + classVersion
+    return result
+  }
+
+  fun withPurpose(purpose: SemanticPurpose): CompilerConfiguration {
+    return CompilerConfiguration(scriptClass, purpose, classVersion, dumbbellEnabled)
   }
 }

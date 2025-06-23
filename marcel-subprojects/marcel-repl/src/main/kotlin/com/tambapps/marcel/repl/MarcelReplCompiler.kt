@@ -4,7 +4,6 @@ import com.tambapps.marcel.compiler.AbstractMarcelCompiler
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.asm.MarcelClassCompiler
-import com.tambapps.marcel.compiler.transform.SyntaxTreeTransformer
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -12,7 +11,8 @@ import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
-import com.tambapps.marcel.semantic.SemanticPurpose
+import com.tambapps.marcel.semantic.transform.SemanticPurpose
+import com.tambapps.marcel.semantic.analysis.MarcelSemanticAnalysis
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolverGenerator
@@ -27,7 +27,7 @@ class MarcelReplCompiler constructor(
   internal val symbolResolver: ReplMarcelSymbolResolver,
 ): AbstractMarcelCompiler(
   if (compilerConfiguration.purpose == SemanticPurpose.REPL) compilerConfiguration
-  else compilerConfiguration.copy(purpose = SemanticPurpose.REPL)
+  else compilerConfiguration.withPurpose(purpose = SemanticPurpose.REPL)
 ) {
 
   val imports = MutableImportResolver.empty()
@@ -167,23 +167,7 @@ class MarcelReplCompiler constructor(
     }
 
     val semantic = MarcelReplSemantic(symbolResolver, cst, "prompt.mcl", imports)
-
-
-    // defining types
-    defineSymbols(symbolResolver, semantic)
-
-    // load transformations if any
-    val syntaxTreeTransformer = SyntaxTreeTransformer(configuration, symbolResolver)
-    syntaxTreeTransformer.applyCstTransformations(semantic)
-
-    // apply semantic analysis
-    val ast = semantic.apply()
-
-    // apply transformations if any
-    syntaxTreeTransformer.applyAstTransformations(ast)
-
-    // checks
-    check(ast, symbolResolver)
+    val ast = MarcelSemanticAnalysis.apply(configuration, symbolResolver, semantic)
 
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     return r

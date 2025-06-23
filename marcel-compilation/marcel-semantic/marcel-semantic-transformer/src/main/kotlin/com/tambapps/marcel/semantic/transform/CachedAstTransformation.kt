@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
-import com.tambapps.marcel.semantic.SemanticPurpose
+import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode

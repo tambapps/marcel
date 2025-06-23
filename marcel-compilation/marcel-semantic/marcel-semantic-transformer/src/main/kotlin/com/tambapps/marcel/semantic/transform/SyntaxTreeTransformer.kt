@@ -1,30 +1,28 @@
-package com.tambapps.marcel.compiler.transform
+package com.tambapps.marcel.semantic.transform
 
-import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.parser.cst.AnnotationCstNode
+import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.AnnotationCstNode as AnnotationCstNode
-import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
-import com.tambapps.marcel.semantic.processor.MarcelSemantic
+import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.processor.MarcelSemantic
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
-import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
-import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
 import marcel.transform.MarcelSyntaxTreeTransformationClass
 import java.lang.Exception
 import java.lang.annotation.ElementType
 
 class SyntaxTreeTransformer(
-  private val compilerConfiguration: CompilerConfiguration,
+  private val purpose: SemanticPurpose,
   private val symbolResolver: MarcelSymbolResolver,
 ) {
 
-  private val purpose = compilerConfiguration.purpose
   private val map = mutableMapOf<JavaAnnotationType, List<SyntaxTreeTransformation>>()
 
 

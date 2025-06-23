@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.SemanticPurpose
+import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import com.tambapps.marcel.semantic.transform.compose.CstNodeComposer
 import com.tambapps.marcel.semantic.processor.CstSymbolSemantic
 import com.tambapps.marcel.semantic.symbol.Visibility

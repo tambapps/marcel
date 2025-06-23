@@ -21,7 +21,7 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-semantic-processor</artifactId>
+      <artifactId>marcel-semantic-analysis</artifactId>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

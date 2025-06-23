@@ -16,6 +16,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>marcel-semantic-analysis</module>
     <module>marcel-semantic-processor</module>
     <module>marcel-semantic-transformer</module>
     <module>marcel-semantic-core</module>

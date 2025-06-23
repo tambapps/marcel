@@ -236,6 +236,11 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-semantic-analysis</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-semantic-processor</artifactId>
         <version>${revision}</version>
       </dependency>

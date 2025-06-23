@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.SemanticPurpose
+import com.tambapps.marcel.semantic.transform.SemanticPurpose
 import com.tambapps.marcel.semantic.transform.compose.AstNodeComposer
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode

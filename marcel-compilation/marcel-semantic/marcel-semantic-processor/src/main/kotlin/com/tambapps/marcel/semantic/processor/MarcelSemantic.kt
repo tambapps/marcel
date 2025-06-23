@@ -64,6 +64,7 @@ import java.lang.NullPointerException
 import java.lang.annotation.ElementType
 import java.util.concurrent.Callable
 
+// TODO rename SourceFileSemantic
 open class MarcelSemantic(
   symbolResolver: MarcelSymbolResolver,
   private val scriptType: JavaType,
