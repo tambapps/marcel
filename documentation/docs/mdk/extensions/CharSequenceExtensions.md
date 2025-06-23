@@ -6,7 +6,7 @@ TODO description
 ### all
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence all(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>all</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -17,7 +17,7 @@ TODO add description.
 ### any
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence any(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>any</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -28,7 +28,7 @@ TODO add description.
 ### contains
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence contains(char c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>contains</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -39,7 +39,7 @@ TODO add description.
 ### count
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence count(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>count</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -50,7 +50,7 @@ TODO add description.
 ### count
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence count(char c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>count</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -61,7 +61,7 @@ TODO add description.
 ### find
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence find(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> Character <span style='color: yellow;'>find</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -72,7 +72,7 @@ TODO add description.
 ### findChar
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence findChar(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>char</span> <span style='color: yellow;'>findChar</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -83,7 +83,7 @@ TODO add description.
 ### findLast
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence findLast(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> Character <span style='color: yellow;'>findLast</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -94,7 +94,7 @@ TODO add description.
 ### findLastChar
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence findLastChar(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>char</span> <span style='color: yellow;'>findLastChar</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -105,7 +105,7 @@ TODO add description.
 ### getAt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAt(IntRange r)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>char</span> <span style='color: yellow;'>getAt</span>(int i)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -116,7 +116,7 @@ TODO add description.
 ### getAt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAt(int i)</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>getAt</span>(IntRange r)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -127,7 +127,7 @@ TODO add description.
 ### getAtSafe
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAtSafe(int i)</code>
+<span style='color: orange;'>fun</span> Character <span style='color: yellow;'>getAtSafe</span>(int i)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -138,7 +138,7 @@ TODO add description.
 ### getAtSafe
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAtSafe(IntRange r)</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>getAtSafe</span>(IntRange r)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -149,7 +149,7 @@ TODO add description.
 ### indexOf
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence indexOf(char c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>indexOf</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -160,7 +160,7 @@ TODO add description.
 ### indexOf
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence indexOf(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>indexOf</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -171,7 +171,7 @@ TODO add description.
 ### lastIndexOf
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence lastIndexOf(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>lastIndexOf</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -182,7 +182,7 @@ TODO add description.
 ### lastIndexOf
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence lastIndexOf(char c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>lastIndexOf</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -193,7 +193,7 @@ TODO add description.
 ### none
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence none(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>none</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -204,7 +204,7 @@ TODO add description.
 ### reversed
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence reversed()</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>reversed</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -215,7 +215,7 @@ TODO add description.
 ### size
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence size()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>size</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -226,7 +226,7 @@ TODO add description.
 ### toDouble
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toDouble()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>double</span> <span style='color: yellow;'>toDouble</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -237,7 +237,7 @@ TODO add description.
 ### toFloat
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toFloat()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>float</span> <span style='color: yellow;'>toFloat</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -248,7 +248,7 @@ TODO add description.
 ### toInt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toInt()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>toInt</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -259,7 +259,7 @@ TODO add description.
 ### toList
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toList()</code>
+<span style='color: orange;'>fun</span> CharList <span style='color: yellow;'>toList</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -270,7 +270,7 @@ TODO add description.
 ### toLong
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toLong()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long</span> <span style='color: yellow;'>toLong</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -281,7 +281,7 @@ TODO add description.
 ### toSet
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toSet()</code>
+<span style='color: orange;'>fun</span> CharSet <span style='color: yellow;'>toSet</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.

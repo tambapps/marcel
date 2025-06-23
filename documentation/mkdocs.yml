@@ -110,6 +110,7 @@ nav:
           - CharExtensions: mdk/extensions/CharExtensions.md
           - CharSequenceExtensions: mdk/extensions/CharSequenceExtensions.md
           - DefaultMarcelMethods:
+              - intro: mdk/extensions/DefaultMarcelMethods/index.md
               - boolean[]: mdk/extensions/DefaultMarcelMethods/boolean_array.md
               - byte[]: mdk/extensions/DefaultMarcelMethods/byte_array.md
               - char[]: mdk/extensions/DefaultMarcelMethods/char_array.md

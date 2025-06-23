@@ -6,7 +6,7 @@ TODO description
 ### appendBytes
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File appendBytes(byte[] bytes)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>appendBytes</span>(byte[] bytes)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -17,7 +17,7 @@ TODO add description.
 ### appendText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File appendText(CharSequence text)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>appendText</span>(CharSequence text)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -28,7 +28,7 @@ TODO add description.
 ### appendText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File appendText(CharSequence text, Charset charset)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>appendText</span>(CharSequence text, Charset charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -39,7 +39,7 @@ TODO add description.
 ### appendText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File appendText(CharSequence text, String charset)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>appendText</span>(CharSequence text, String charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -50,7 +50,7 @@ TODO add description.
 ### child
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File child(String path)</code>
+<span style='color: orange;'>fun</span> File <span style='color: yellow;'>child</span>(String path)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -61,7 +61,7 @@ TODO add description.
 ### leftShift
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File leftShift(CharSequence text)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>leftShift</span>(byte[] bytes)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -72,7 +72,7 @@ TODO add description.
 ### leftShift
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File leftShift(byte[] bytes)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>leftShift</span>(CharSequence text)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -83,7 +83,7 @@ TODO add description.
 ### readBytes
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readBytes()</code>
+<span style='color: orange;'>fun</span> byte[] <span style='color: yellow;'>readBytes</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -94,7 +94,7 @@ TODO add description.
 ### readLines
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readLines()</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>readLines</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -105,7 +105,7 @@ TODO add description.
 ### readLines
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readLines(String charset)</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>readLines</span>(Charset charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -116,7 +116,7 @@ TODO add description.
 ### readLines
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readLines(Charset charset)</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>readLines</span>(String charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -127,7 +127,7 @@ TODO add description.
 ### readText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readText()</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>readText</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -138,7 +138,7 @@ TODO add description.
 ### readText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readText(String charset)</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>readText</span>(String charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -149,7 +149,7 @@ TODO add description.
 ### readText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File readText(Charset charset)</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>readText</span>(Charset charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -160,7 +160,7 @@ TODO add description.
 ### writeBytes
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File writeBytes(byte[] bytes)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>writeBytes</span>(byte[] bytes)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -171,7 +171,7 @@ TODO add description.
 ### writeText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File writeText(CharSequence text)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>writeText</span>(CharSequence text)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -182,7 +182,7 @@ TODO add description.
 ### writeText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File writeText(CharSequence text, String charset)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>writeText</span>(CharSequence text, String charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -193,7 +193,7 @@ TODO add description.
 ### writeText
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> File writeText(CharSequence text, Charset charset)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>writeText</span>(CharSequence text, Charset charset)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.

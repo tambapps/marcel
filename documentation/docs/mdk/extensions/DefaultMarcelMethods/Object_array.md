@@ -3,7 +3,7 @@
 ### all
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] all(Predicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>all</span>(Predicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -14,7 +14,7 @@ TODO add description.
 ### any
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] any(Predicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>any</span>(Predicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -25,7 +25,7 @@ TODO add description.
 ### asUnmodifiable
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] asUnmodifiable()</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>asUnmodifiable</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -36,7 +36,40 @@ TODO add description.
 ### count
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] count(Predicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>count</span>(Predicate predicate)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### drop
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>drop</span>(int n)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### dropLast
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>dropLast</span>(int n)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### dropWhile
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>dropWhile</span>(Predicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -47,7 +80,7 @@ TODO add description.
 ### find
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] find(Predicate predicate)</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>find</span>(Predicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -58,7 +91,40 @@ TODO add description.
 ### findAll
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] findAll(Predicate predicate)</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>findAll</span>(Predicate predicate)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### findFirst
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>findFirst</span>(Predicate predicate)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### findLast
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>findLast</span>(Predicate predicate)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### fold
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>fold</span>(Object initial, BiFunction operation)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -69,7 +135,7 @@ TODO add description.
 ### getAtSafe
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] getAtSafe(<span style='color: orange;'>int </span>index)</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>getAtSafe</span>(int index)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -80,7 +146,7 @@ TODO add description.
 ### getFirst
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] getFirst()</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>getFirst</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -91,7 +157,7 @@ TODO add description.
 ### getLast
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] getLast()</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>getLast</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -102,7 +168,18 @@ TODO add description.
 ### getLastOrNull
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] getLastOrNull()</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>getLastOrNull</span>()</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### groupBy
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> Map <span style='color: yellow;'>groupBy</span>(Function keyExtractor)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -113,7 +190,7 @@ TODO add description.
 ### isEmpty
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] isEmpty()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>isEmpty</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -124,7 +201,7 @@ TODO add description.
 ### join
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] join()</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>join</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -135,7 +212,7 @@ TODO add description.
 ### join
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] join(String separator)</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>join</span>(String separator)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -146,7 +223,7 @@ TODO add description.
 ### map
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] map(Function lambda1)</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>map</span>(Function lambda1)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -157,7 +234,7 @@ TODO add description.
 ### mapToChar
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] mapToChar(ToCharFunction lambda1)</code>
+<span style='color: orange;'>fun</span> CharList <span style='color: yellow;'>mapToChar</span>(ToCharFunction lambda1)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -168,7 +245,7 @@ TODO add description.
 ### mapToDouble
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] mapToDouble(ToDoubleFunction lambda1)</code>
+<span style='color: orange;'>fun</span> DoubleList <span style='color: yellow;'>mapToDouble</span>(ToDoubleFunction lambda1)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -179,7 +256,7 @@ TODO add description.
 ### mapToFloat
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] mapToFloat(ToFloatFunction lambda1)</code>
+<span style='color: orange;'>fun</span> FloatList <span style='color: yellow;'>mapToFloat</span>(ToFloatFunction lambda1)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -190,7 +267,7 @@ TODO add description.
 ### mapToInt
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] mapToInt(ToIntFunction lambda1)</code>
+<span style='color: orange;'>fun</span> IntList <span style='color: yellow;'>mapToInt</span>(ToIntFunction lambda1)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -201,7 +278,7 @@ TODO add description.
 ### mapToLong
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] mapToLong(ToLongFunction lambda1)</code>
+<span style='color: orange;'>fun</span> LongList <span style='color: yellow;'>mapToLong</span>(ToLongFunction lambda1)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -212,7 +289,7 @@ TODO add description.
 ### max
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] max(Function keyExtractor)</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>max</span>(Function keyExtractor)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -223,7 +300,7 @@ TODO add description.
 ### min
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] min(Function keyExtractor)</code>
+<span style='color: orange;'>fun</span> Object <span style='color: yellow;'>min</span>(Function keyExtractor)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -234,7 +311,18 @@ TODO add description.
 ### none
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] none(Predicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>none</span>(Predicate predicate)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### partition
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>partition</span>(Predicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -245,7 +333,7 @@ TODO add description.
 ### plus
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] plus(Object[] b)</code>
+<span style='color: orange;'>fun</span> Object[] <span style='color: yellow;'>plus</span>(Object[] b)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -256,7 +344,7 @@ TODO add description.
 ### reverse
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] reverse()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>reverse</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -267,7 +355,7 @@ TODO add description.
 ### setLast
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] setLast(Object value)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>setLast</span>(Object value)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -278,7 +366,7 @@ TODO add description.
 ### shuffle
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] shuffle()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>shuffle</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -289,7 +377,7 @@ TODO add description.
 ### shuffle
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] shuffle(Random rnd)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>shuffle</span>(Random rnd)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -300,7 +388,7 @@ TODO add description.
 ### sort
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] sort()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>sort</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -311,7 +399,40 @@ TODO add description.
 ### sortBy
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] sortBy(Function keyExtractor)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>sortBy</span>(Function keyExtractor)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### sumBy
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>sumBy</span>(ToIntFunction mapper)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### sumByDouble
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> <span style='color: orange;'>double</span> <span style='color: yellow;'>sumByDouble</span>(ToDoubleFunction mapper)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### sumByLong
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long</span> <span style='color: yellow;'>sumByLong</span>(ToLongFunction mapper)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -322,7 +443,40 @@ TODO add description.
 ### swap
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] swap(<span style='color: orange;'>int </span>i, <span style='color: orange;'>int </span>j)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>void</span> <span style='color: yellow;'>swap</span>(int i, int j)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### take
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>take</span>(int n)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### takeLast
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>takeLast</span>(int n)</code>
+</div>
+<p style="margin-top: -0.5em; margin-bottom: 2em;">
+TODO add description.
+</p>
+
+---
+
+### takeWhile
+<div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
+<code style="all: unset; font-family: monospace; color: inherit;">
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>takeWhile</span>(Predicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -333,7 +487,7 @@ TODO add description.
 ### toList
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] toList()</code>
+<span style='color: orange;'>fun</span> List <span style='color: yellow;'>toList</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -344,7 +498,7 @@ TODO add description.
 ### toSet
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] toSet()</code>
+<span style='color: orange;'>fun</span> Set <span style='color: yellow;'>toSet</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -355,7 +509,7 @@ TODO add description.
 ### unique
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] unique()</code>
+<span style='color: orange;'>fun</span> Set <span style='color: yellow;'>unique</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -366,7 +520,7 @@ TODO add description.
 ### unique
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> Object[] unique(Function keyExtractor)</code>
+<span style='color: orange;'>fun</span> Collection <span style='color: yellow;'>unique</span>(Function keyExtractor)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
