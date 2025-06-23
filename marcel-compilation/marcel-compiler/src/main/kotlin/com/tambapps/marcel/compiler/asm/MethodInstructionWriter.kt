@@ -388,8 +388,10 @@ open class MethodInstructionWriter(
   override fun visit(node: ShortConstantNode) {}
 
   override fun visit(node: StringNode) {
-    super.visit(node)
-    popStackIfNotVoid(node.type)
+    for (part in node.parts) {
+      // just visiting the parts in case we evaluate something (e.g. a method call)
+      part.accept(this)
+    }
   }
 
   override fun visit(node: ArrayNode) {
