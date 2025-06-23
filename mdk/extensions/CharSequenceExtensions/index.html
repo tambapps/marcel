@@ -18,7 +18,7 @@
         <link rel="prev" href="../CharExtensions/">
       
       
-        <link rel="next" href="../DefaultMarcelMethods/boolean_array/">
+        <link rel="next" href="../DefaultMarcelMethods/">
       
       
       <link rel="icon" href="../../../img/marcel_logo.png">
@@ -2165,6 +2165,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../DefaultMarcelMethods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    intro
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../DefaultMarcelMethods/boolean_array/" class="md-nav__link">
         
   
@@ -3442,13 +3465,12 @@
 
 
 <h1 id="charsequenceextensions">CharSequenceExtensions<a class="headerlink" href="#charsequenceextensions" title="Permanent link">&para;</a></h1>
-<p>You can find here all methods added to the <code>CharSequence</code> class.
-Note that these methods also work on <code>String</code> as it implements <code>CharSequence</code>.</p>
+<p>TODO description</p>
 <h2 id="charsequence">CharSequence<a class="headerlink" href="#charsequence" title="Permanent link">&para;</a></h2>
 <h3 id="all">all<a class="headerlink" href="#all" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence all(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>all</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3458,7 +3480,7 @@ TODO add description.
 <h3 id="any">any<a class="headerlink" href="#any" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence any(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>any</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3468,7 +3490,7 @@ TODO add description.
 <h3 id="contains">contains<a class="headerlink" href="#contains" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence contains(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>contains</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3478,7 +3500,7 @@ TODO add description.
 <h3 id="count">count<a class="headerlink" href="#count" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence count(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>count</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3488,7 +3510,7 @@ TODO add description.
 <h3 id="count_1">count<a class="headerlink" href="#count_1" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence count(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>count</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3498,7 +3520,7 @@ TODO add description.
 <h3 id="find">find<a class="headerlink" href="#find" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence find(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> Character <span style='color: yellow;'>find</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3508,7 +3530,7 @@ TODO add description.
 <h3 id="findchar">findChar<a class="headerlink" href="#findchar" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence findChar(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>char</span> <span style='color: yellow;'>findChar</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3518,7 +3540,7 @@ TODO add description.
 <h3 id="findlast">findLast<a class="headerlink" href="#findlast" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence findLast(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> Character <span style='color: yellow;'>findLast</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3528,7 +3550,7 @@ TODO add description.
 <h3 id="findlastchar">findLastChar<a class="headerlink" href="#findlastchar" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence findLastChar(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>char</span> <span style='color: yellow;'>findLastChar</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3538,7 +3560,7 @@ TODO add description.
 <h3 id="getat">getAt<a class="headerlink" href="#getat" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAt(<span style='color: orange;'>int </span>i)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>char</span> <span style='color: yellow;'>getAt</span>(int i)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3548,7 +3570,7 @@ TODO add description.
 <h3 id="getat_1">getAt<a class="headerlink" href="#getat_1" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAt(IntRange r)</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>getAt</span>(IntRange r)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3558,7 +3580,7 @@ TODO add description.
 <h3 id="getatsafe">getAtSafe<a class="headerlink" href="#getatsafe" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAtSafe(<span style='color: orange;'>int </span>i)</code>
+<span style='color: orange;'>fun</span> Character <span style='color: yellow;'>getAtSafe</span>(int i)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3568,7 +3590,7 @@ TODO add description.
 <h3 id="getatsafe_1">getAtSafe<a class="headerlink" href="#getatsafe_1" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence getAtSafe(IntRange r)</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>getAtSafe</span>(IntRange r)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3578,7 +3600,7 @@ TODO add description.
 <h3 id="indexof">indexOf<a class="headerlink" href="#indexof" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence indexOf(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>indexOf</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3588,7 +3610,7 @@ TODO add description.
 <h3 id="indexof_1">indexOf<a class="headerlink" href="#indexof_1" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence indexOf(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>indexOf</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3598,7 +3620,7 @@ TODO add description.
 <h3 id="lastindexof">lastIndexOf<a class="headerlink" href="#lastindexof" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence lastIndexOf(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>lastIndexOf</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3608,7 +3630,7 @@ TODO add description.
 <h3 id="lastindexof_1">lastIndexOf<a class="headerlink" href="#lastindexof_1" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence lastIndexOf(<span style='color: orange;'>char </span>c)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>lastIndexOf</span>(char c)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3618,7 +3640,7 @@ TODO add description.
 <h3 id="none">none<a class="headerlink" href="#none" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence none(CharPredicate predicate)</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>boolean</span> <span style='color: yellow;'>none</span>(CharPredicate predicate)</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3628,7 +3650,7 @@ TODO add description.
 <h3 id="reversed">reversed<a class="headerlink" href="#reversed" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence reversed()</code>
+<span style='color: orange;'>fun</span> String <span style='color: yellow;'>reversed</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3638,7 +3660,7 @@ TODO add description.
 <h3 id="size">size<a class="headerlink" href="#size" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence size()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>size</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3648,7 +3670,7 @@ TODO add description.
 <h3 id="todouble">toDouble<a class="headerlink" href="#todouble" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toDouble()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>double</span> <span style='color: yellow;'>toDouble</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3658,7 +3680,7 @@ TODO add description.
 <h3 id="tofloat">toFloat<a class="headerlink" href="#tofloat" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toFloat()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>float</span> <span style='color: yellow;'>toFloat</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3668,7 +3690,7 @@ TODO add description.
 <h3 id="toint">toInt<a class="headerlink" href="#toint" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toInt()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>int</span> <span style='color: yellow;'>toInt</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3678,7 +3700,7 @@ TODO add description.
 <h3 id="tolist">toList<a class="headerlink" href="#tolist" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toList()</code>
+<span style='color: orange;'>fun</span> CharList <span style='color: yellow;'>toList</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3688,7 +3710,7 @@ TODO add description.
 <h3 id="tolong">toLong<a class="headerlink" href="#tolong" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toLong()</code>
+<span style='color: orange;'>fun</span> <span style='color: orange;'>long</span> <span style='color: yellow;'>toLong</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
@@ -3698,7 +3720,7 @@ TODO add description.
 <h3 id="toset">toSet<a class="headerlink" href="#toset" title="Permanent link">&para;</a></h3>
 <div style="background-color: #2e2e2e; padding: 1em; border-radius: 8px; margin-bottom: 1em; color: #f8f8f2; font-family: monospace;">
 <code style="all: unset; font-family: monospace; color: inherit;">
-<span style='color: orange;'>fun</span> CharSequence toSet()</code>
+<span style='color: orange;'>fun</span> CharSet <span style='color: yellow;'>toSet</span>()</code>
 </div>
 <p style="margin-top: -0.5em; margin-bottom: 2em;">
 TODO add description.
