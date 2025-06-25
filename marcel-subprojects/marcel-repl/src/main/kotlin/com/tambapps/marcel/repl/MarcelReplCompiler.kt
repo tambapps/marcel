@@ -166,7 +166,7 @@ class MarcelReplCompiler constructor(
       }
     }
 
-    val semantic = SourceFileReplSemanticProcessor(symbolResolver, cst, "prompt.mcl", imports)
+    val semantic = SourceFileReplSemanticProcessor(symbolResolver, cst, "prompt.mcl", imports, configuration.semanticConfiguration.nullSafetyMode)
     val ast = MarcelSemanticAnalysis.apply(configuration.semanticConfiguration, symbolResolver, semantic)
 
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())

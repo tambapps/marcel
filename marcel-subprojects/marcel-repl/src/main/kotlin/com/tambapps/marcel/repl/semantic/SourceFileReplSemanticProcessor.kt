@@ -9,14 +9,16 @@ import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.imprt.MutableImportResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import marcel.lang.Script
 
 class SourceFileReplSemanticProcessor(
   private val replSymbolResolver: ReplMarcelSymbolResolver,
   cst: SourceFileCstNode,
   fileName: String,
-  imports: MutableImportResolver
-) : SourceFileSemanticProcessor(replSymbolResolver, Script::class.javaType, cst, fileName) {
+  imports: MutableImportResolver,
+  nullSafetyMode: NullSafetyMode,
+) : SourceFileSemanticProcessor(replSymbolResolver, Script::class.javaType, cst, fileName, nullSafetyMode) {
 
   init {
     this.imports.add(imports)

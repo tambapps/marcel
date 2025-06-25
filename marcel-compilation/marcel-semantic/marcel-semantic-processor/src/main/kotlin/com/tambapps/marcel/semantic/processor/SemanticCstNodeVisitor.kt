@@ -165,6 +165,7 @@ import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.symbol.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.PrimitiveCollectionTypes
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
@@ -197,9 +198,10 @@ import java.util.regex.Pattern
  * NOT thread-safe
  */
 abstract class SemanticCstNodeVisitor constructor(
-  final override val symbolResolver: MarcelSymbolResolver,
   packageName: String?,
-  val fileName: String
+  final override val symbolResolver: MarcelSymbolResolver,
+  val fileName: String,
+  private val nullSafetyMode: NullSafetyMode // TODO use me
 ) : AbstractMarcelSemantic(),
   CstSymbolSemantic,
   ExpressionCstNodeVisitor<ExpressionNode, JavaType>,
@@ -1114,9 +1116,12 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   private fun assignment(variable: Variable, owner: ExpressionNode?, expression: ExpressionNode, node: CstNode): ExpressionNode {
-    if (variable.nullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
+    if (nullSafetyMode == NullSafetyMode.STRICT && variable.nullness == Nullness.NOT_NULL && (expression.nullness == Nullness.UNKNOWN || expression.nullness == Nullness.NULLABLE)) {
+      error(node, "Cannot assign nullable value to non null variable ${variable.name}")
+    } else if (nullSafetyMode == NullSafetyMode.DEFAULT && variable.nullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
       error(node, "Cannot assign nullable value to non null variable ${variable.name}")
     }
+
     try {
       checkVariableAccess(variable, node, checkSet = true)
     } catch (e: VariableAccessException) {

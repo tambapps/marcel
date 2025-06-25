@@ -49,6 +49,7 @@ import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.processor.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.symbol.type.SourceJavaType
@@ -67,7 +68,8 @@ open class SourceFileSemanticProcessor(
   private val scriptType: JavaType,
   val cst: SourceFileCstNode,
   fileName: String,
-) : SemanticCstNodeVisitor(symbolResolver, cst.packageName, fileName), ClassCstNodeVisitor<ClassNode> {
+  nullSafetyMode: NullSafetyMode = NullSafetyMode.DEFAULT,
+) : SemanticCstNodeVisitor(cst.packageName, symbolResolver, fileName, nullSafetyMode), ClassCstNodeVisitor<ClassNode> {
 
   companion object {
     private const val ENUM_VALUES_FIELD_NAME = "\$VALUES"
