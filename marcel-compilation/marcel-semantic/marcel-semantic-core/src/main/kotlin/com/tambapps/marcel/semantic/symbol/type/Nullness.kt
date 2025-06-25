@@ -26,7 +26,8 @@ enum class Nullness {
 
 
   companion object {
-    fun of(isNullable: Boolean) = if (isNullable) NULLABLE else NOT_NULL
+    // useful for cst conversion to ast
+    fun of(type: JavaType, isNullable: Boolean) = if (!type.primitive && isNullable) NULLABLE else NOT_NULL
 
     fun of(nullAware1: NullAware, nullAware2: NullAware) = of(nullAware1.nullness, nullAware2.nullness)
     fun of(nullness1: Nullness, nullness2: Nullness) = when {
@@ -48,7 +49,7 @@ enum class Nullness {
       element.getAnnotation(NullMarked::class.java) != null
           || declaringClass.getAnnotation(NullMarked::class.java) != null
           || declaringClass.module.getAnnotation(NullMarked::class.java) != null
-        -> if (element.getAnnotation(Nullable::class.java) != null) NULLABLE else NOT_NULL
+        -> NOT_NULL
       else -> UNKNOWN
     }
   }

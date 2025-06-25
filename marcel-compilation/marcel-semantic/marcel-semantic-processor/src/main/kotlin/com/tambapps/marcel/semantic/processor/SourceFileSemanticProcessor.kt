@@ -291,9 +291,10 @@ open class SourceFileSemanticProcessor(
 
     protected open fun processFields() {
       node.fields.forEach { cstFieldNode ->
+        val fieldType = resolve(cstFieldNode.type)
         val fieldNode = FieldNode(
-          resolve(cstFieldNode.type), cstFieldNode.name, classType,
-          Nullness.of(cstFieldNode.isNullable),
+          fieldType, cstFieldNode.name, classType,
+          Nullness.of(fieldType, cstFieldNode.isNullable),
           cstFieldNode.annotations.map { visit(it, ElementType.FIELD) }.toMutableList(),
           cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
           cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd, identifierToken = cstFieldNode.identifierToken
@@ -594,7 +595,7 @@ open class SourceFileSemanticProcessor(
     val (returnType, asyncReturnType) = resolveReturnType(methodCst)
     val methodNode = toMethodNode(
       classNode, methodCst, methodCst.name,
-      returnType, asyncReturnType, classScope.classType, Nullness.of(methodCst.isReturnTypeNullable)
+      returnType, asyncReturnType, classScope.classType, Nullness.of(returnType, methodCst.isReturnTypeNullable)
     )
     val superMethod = symbolResolver.findSuperMethod(methodNode)
     if (superMethod != null && methodCst.isOverride == false) {

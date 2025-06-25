@@ -64,15 +64,15 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSymbolSemantic,
     ownerType: JavaType,
     forExtensionType: JavaType?,
     visibility: Visibility,
-    nullness: Nullness,
     isStatic: Boolean,
     parameterIndex: Int,
     methodName: String,
     node: MethodParameterCstNode
   ): MethodParameter {
     // we don't handle annotations nor defaultValue. Yup, CST transformations are limited
+    val type = resolve(node.type)
     return MethodParameter(
-      resolve(node.type), nullness, node.name, emptyList(), null
+      type, Nullness.of(type, node.isNullable), node.name, emptyList(), null
     )
   }
 

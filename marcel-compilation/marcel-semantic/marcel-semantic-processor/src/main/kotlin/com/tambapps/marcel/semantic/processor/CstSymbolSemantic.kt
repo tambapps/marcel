@@ -21,8 +21,9 @@ import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 interface CstSymbolSemantic {
 
   fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
+    val type = resolve(fieldNode.type)
     return JavaClassFieldImpl(
-      resolve(fieldNode.type), fieldNode.name, ownerType, Nullness.of(fieldNode.isNullable), fieldNode.access.isFinal,
+      type, fieldNode.name, ownerType, Nullness.of(type, fieldNode.isNullable), fieldNode.access.isFinal,
       Visibility.fromTokenType(fieldNode.access.visibility), fieldNode.access.isStatic
     )
   }
@@ -33,12 +34,12 @@ interface CstSymbolSemantic {
     val (returnType, asyncReturnType) = resolveReturnType(node)
     return MarcelMethodImpl(
       ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
-      Nullness.of(node.isReturnTypeNullable),
+      Nullness.of(returnType, node.isReturnTypeNullable),
       node.parameters.mapIndexed { index, methodParameterCstNode ->
         toMethodParameter(
           ownerType,
           forExtensionType,
-          visibility, Nullness.of(methodParameterCstNode.isNullable),
+          visibility,
           isStatic,
           index,
           node.name,
@@ -61,7 +62,7 @@ interface CstSymbolSemantic {
         toMethodParameter(
           ownerType,
           null,
-          visibility, Nullness.of(methodParameterCstNode.isNullable),
+          visibility,
           false,
           index,
           "constructor",
@@ -72,8 +73,7 @@ interface CstSymbolSemantic {
 
   fun toMethodParameter(
     ownerType: JavaType, forExtensionType: JavaType?, visibility: Visibility,
-    nullness: Nullness, isStatic: Boolean,
-    parameterIndex: Int, methodName: String, node: MethodParameterCstNode
+    isStatic: Boolean, parameterIndex: Int, methodName: String, node: MethodParameterCstNode
   ): MethodParameter
 
   fun resolve(node: TypeCstNode): JavaType

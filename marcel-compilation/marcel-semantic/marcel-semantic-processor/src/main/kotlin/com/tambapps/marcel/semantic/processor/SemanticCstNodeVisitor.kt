@@ -1694,7 +1694,8 @@ abstract class SemanticCstNodeVisitor constructor(
     val variableType = resolve(node.type)
     // need to visit the expression BEFORE declaring the variable because the variable is not supposed to exist yet when evaluating the expression
     val expression = node.expressionNode?.accept(this, variableType)
-    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, Nullness.of(node.isNullable), token = node.token)
+    val type = resolve(node.type)
+    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, Nullness.of(type, node.isNullable), token = node.token)
     return ExpressionStatementNode(
       assignment(
         variable = variable,
@@ -1730,8 +1731,12 @@ abstract class SemanticCstNodeVisitor constructor(
       // declare all variables
       val variableMap = mutableMapOf<Int, LocalVariable>()
       node.declarations.forEachIndexed { index, triple ->
-        if (triple != null) variableMap[index] =
-          currentMethodScope.addLocalVariable(resolve(triple.first), triple.second, Nullness.of(triple.third), token = node.token)
+        if (triple != null) {
+          val variableType = resolve(triple.first)
+          variableMap[index] =
+            currentMethodScope.addLocalVariable(variableType, triple.second, Nullness.of(variableType, triple.third), token = node.token)
+
+        }
       }
       // then assign
       when {
@@ -1913,9 +1918,12 @@ abstract class SemanticCstNodeVisitor constructor(
       ownerClass = lambdaType
     )
     val parameters =
-      node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { resolve(it) },
-        if (param.type != null) Nullness.of(param.nullable) else Nullness.UNKNOWN,
-        param.name) }
+      node.parameters.map { param ->
+        val parameterType = param.type?.let { resolve(it) }
+        LambdaClassNode.MethodParameter(parameterType,
+          parameterType?.let { Nullness.of(it, param.nullable) } ?: Nullness.UNKNOWN,
+        param.name)
+      }
 
     val lambdaNode = LambdaClassNode(
       lambdaType,
@@ -2431,7 +2439,8 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val variable = it.addLocalVariable(resolve(node.varType), node.varName, Nullness.of(node.isVarNullable), token = node.token)
+    val varType = resolve(node.varType)
+    val variable = it.addLocalVariable(varType, node.varName, Nullness.of(varType, node.isVarNullable), token = node.token)
 
     val inNode = node.inNode.accept(this)
 
@@ -2447,7 +2456,8 @@ abstract class SemanticCstNodeVisitor constructor(
       val inNode = node.inNode.accept(this)
 
       val localVars = node.declarations.map { triple ->
-        it.addLocalVariable(resolve(triple.first), triple.second, Nullness.of(triple.third), token = node.token)
+        val varType = resolve(triple.first)
+        it.addLocalVariable(varType, triple.second, Nullness.of(varType, triple.third), token = node.token)
       }
 
       if (inNode.type.implements(JavaType.Map)) {
@@ -2734,8 +2744,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun toMethodParameter(
     ownerType: JavaType, forExtensionType: JavaType?, visibility: Visibility,
-    nullness: Nullness, isStatic: Boolean,
-    parameterIndex: Int, methodName: String, node: MethodParameterCstNode
+    isStatic: Boolean, parameterIndex: Int, methodName: String, node: MethodParameterCstNode
   ): MethodParameter {
     val parameterType =
       if (node.thisParameter) symbolResolver.getClassField(ownerType, node.name, node.token).type
@@ -2754,7 +2763,7 @@ abstract class SemanticCstNodeVisitor constructor(
     } else null
     return MethodParameter(
       parameterType,
-      nullness,
+      Nullness.of(parameterType, node.isNullable),
       node.name,
       node.annotations.map { visit(it, ElementType.PARAMETER) },
       defaultValue,
@@ -2910,7 +2919,7 @@ abstract class SemanticCstNodeVisitor constructor(
         }
       }
     }
-    return MethodParameter(parameterType, Nullness.of(node.isNullable), parameterName, annotations, defaultValue)
+    return MethodParameter(parameterType, Nullness.of(parameterType, node.isNullable), parameterName, annotations, defaultValue)
   }
 
 
