@@ -28,6 +28,7 @@ import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.visitor.AllPathsReturnVisitor
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import java.util.*
 
@@ -38,7 +39,7 @@ abstract class AstNodeComposer(
   val tokenStart: LexToken,
   val tokenEnd: LexToken,
   scopeQueue: LinkedList<Scope> = LinkedList<Scope>(),
-) : AbstractMarcelSemantic(scopeQueue) {
+) : AbstractMarcelSemantic(scopeQueue, NullSafetyMode.DISABLED) {
   protected fun parameter(type: JavaType, name: String) = MethodParameter(type, Nullness.UNKNOWN, name)
 
   protected fun signature(
@@ -218,5 +219,5 @@ abstract class AstNodeComposer(
     } else statements.add(statement)
   }
 
-  fun newStatementsComposer(statements: MutableList<StatementNode>) = StatementsComposer(scopeQueue, this, symbolResolver, statements, tokenStart, tokenEnd)
+  fun newStatementsComposer(statements: MutableList<StatementNode>) = StatementsComposer(scopeQueue, this, nullSafetyMode, symbolResolver, statements, tokenStart, tokenEnd)
 }

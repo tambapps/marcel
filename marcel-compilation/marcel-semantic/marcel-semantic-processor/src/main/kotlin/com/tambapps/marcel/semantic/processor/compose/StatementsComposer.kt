@@ -37,6 +37,7 @@ import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaArrayType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import com.tambapps.marcel.semantic.symbol.variable.Variable
@@ -44,16 +45,17 @@ import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 import java.util.*
 
 /**
- * Useful class allowing to compose easily statements of a method
+ * Useful class allowing to easily compose statements of a method
  */
-class StatementsComposer(
+class StatementsComposer constructor(
   scopeQueue: LinkedList<Scope>,
   val caster: ExpressionCaster,
+  nullSafetyMode: NullSafetyMode,
   override val symbolResolver: MarcelSymbolResolver,
   val statements: MutableList<StatementNode>,
   val tokenStart: LexToken,
   val tokenEnd: LexToken,
-): AbstractMarcelSemantic(scopeQueue), ExpressionCaster by caster {
+): AbstractMarcelSemantic(scopeQueue, nullSafetyMode), ExpressionCaster by caster {
 
 
   fun addAllStmt(statements: List<StatementNode>) = this.statements.addAll(statements)
@@ -255,7 +257,7 @@ class StatementsComposer(
     condition: ExpressionNode, trueStatementsComposerFunc: StatementsComposer.() -> Unit
   ): IfStatementNode {
     val trueStatementBlock = useInnerScope {
-      val trueStatementsComposer = StatementsComposer(scopeQueue, caster, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
+      val trueStatementsComposer = StatementsComposer(scopeQueue, caster, nullSafetyMode, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
       trueStatementsComposerFunc.invoke(trueStatementsComposer)
       trueStatementsComposer.asBlockStatement()
     }
@@ -274,7 +276,7 @@ class StatementsComposer(
   ) {
     useInnerScope { forScope ->
       val forStmt = forInIteratorNode(tokenStart, tokenEnd, forScope, forVariable, inNode) {
-        val forStatementsComposer = StatementsComposer(scopeQueue, caster, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
+        val forStatementsComposer = StatementsComposer(scopeQueue, caster, nullSafetyMode, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
         forStatementsComposerFunc.invoke(forStatementsComposer, forScope, forVariable)
         forStatementsComposer.asBlockStatement()
       }
@@ -286,7 +288,7 @@ class StatementsComposer(
       val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = tokenStart)
       val forVariable = forScope.addLocalVariable(array.type.asArrayType.elementsType, Nullness.NOT_NULL, token = tokenStart)
       val forStmt = forInArrayNode(tokenStart, tokenEnd, forScope = forScope, inNode = array, iVar = iVar, forVariable = forVariable) {
-        val forStatementsComposer = StatementsComposer(scopeQueue, this, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
+        val forStatementsComposer = StatementsComposer(scopeQueue, this, nullSafetyMode, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
         forStatementsComposerFunc.invoke(forStatementsComposer, forScope, forVariable)
         forStatementsComposer.asBlockStatement()
       }

@@ -111,7 +111,7 @@ open class SourceFileSemanticProcessor(
 
     if (scriptCstNode != null) {
       if (scriptCstNode.constructors.isNotEmpty()) {
-        error(
+        recordError(
           scriptCstNode.constructors.first().token,
           "Cannot define constructors for scripts"
         )
@@ -167,7 +167,7 @@ open class SourceFileSemanticProcessor(
         val extendedType = extendedCstType?.let(this::resolve)
         classCstNode.methods.forEach { m ->
           if (extendedType != null && m.parameters.firstOrNull()?.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME) {
-            error(m.tokenEnd, "First parameter of a method extension cannot be named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
+            recordError(m.tokenEnd, "First parameter of a method extension cannot be named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
           }
           val extensionMethod = if (m.accessNode.isStatic) {
             if (extendedType == null) {
@@ -222,11 +222,11 @@ open class SourceFileSemanticProcessor(
       // extension types check
       if (classNode.forExtensionType != null) {
         if (node.constructors.isNotEmpty()) {
-          error(node, "Extension classes cannot have constructors")
+          recordError(node, "Extension classes cannot have constructors")
         }
         node.fields.forEach { f ->
           if (!f.access.isStatic) {
-            error(f, "Cannot have non static members in extension class")
+            recordError(f, "Cannot have non static members in extension class")
           }
         }
         classNode.annotations.add(AnnotationNode(ExtensionClass::class.javaAnnotationType,
@@ -302,7 +302,7 @@ open class SourceFileSemanticProcessor(
           cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd, identifierToken = cstFieldNode.identifierToken
         )
         if (classNode.fields.any { it.name == fieldNode.name }) {
-          error(cstFieldNode, "Field ${cstFieldNode.name} already exists")
+          recordError(cstFieldNode, "Field ${cstFieldNode.name} already exists")
         }
         classNode.fields.add(fieldNode)
 
@@ -601,9 +601,9 @@ open class SourceFileSemanticProcessor(
     )
     val superMethod = symbolResolver.findSuperMethod(methodNode)
     if (superMethod != null && methodCst.isOverride == false) {
-      error(methodCst, "override keyword should be used for overridden methods")
+      recordError(methodCst, "override keyword should be used for overridden methods")
     } else if (superMethod == null && methodCst.isOverride == true) {
-      error(methodCst, "method $methodNode doesn't override anything")
+      recordError(methodCst, "method $methodNode doesn't override anything")
     }
     fillMethodNode(
       classScope, methodNode, methodCst.statements, methodCst.annotations,
@@ -782,7 +782,7 @@ open class SourceFileSemanticProcessor(
       } else if (scriptRunMethod) {
         statements.add(ReturnStatementNode(NullValueNode(methodeNode.token)))
       } else {
-        error(
+        recordError(
           methodeNode,
           "Not all paths return a value in method ${methodeNode.ownerClass}.${methodeNode.name}()"
         )

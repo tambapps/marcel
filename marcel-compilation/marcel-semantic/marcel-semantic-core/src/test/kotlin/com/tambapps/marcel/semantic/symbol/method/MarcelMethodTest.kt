@@ -46,4 +46,5 @@ class MarcelMethodTest {
   }
 
   private fun cstNode() = IntCstNode(null, 0, LexToken.DUMMY)
+
 }

@@ -201,8 +201,8 @@ abstract class SemanticCstNodeVisitor constructor(
   packageName: String?,
   final override val symbolResolver: MarcelSymbolResolver,
   val fileName: String,
-  private val nullSafetyMode: NullSafetyMode // TODO use me
-) : AbstractMarcelSemantic(),
+  nullSafetyMode: NullSafetyMode
+) : AbstractMarcelSemantic(nullSafetyMode=nullSafetyMode),
   CstSymbolSemantic,
   ExpressionCstNodeVisitor<ExpressionNode, JavaType>,
   StatementCstNodeVisitor<StatementNode> {
@@ -876,7 +876,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
       TokenType.QUESTION_DOT -> {
         val left = leftOperand.accept(this)
-        if (left.type.primitive) error(node, "Cannot use safe access operator on primitive type as it cannot be null")
+        if (left.type.primitive) recordError(node, "Cannot use safe access operator on primitive type as it cannot be null")
 
         currentMethodScope.useTempLocalVariable(left.type, left.nullness) { lv ->
           var dotNode = dotOperator(node, ReferenceNode(variable = lv, token = node.token), rightOperand, smartCastType = smartCastType)
@@ -903,7 +903,7 @@ abstract class SemanticCstNodeVisitor constructor(
             try {
               checkVariableAccess(p.first, node, checkGet = true)
             } catch (e: VariableAccessException) {
-              error(leftOperand, e.message)
+              recordError(leftOperand, e.message)
             }
             dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand, smartCastType = smartCastType)
           } else {
@@ -1116,16 +1116,12 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   private fun assignment(variable: Variable, owner: ExpressionNode?, expression: ExpressionNode, node: CstNode): ExpressionNode {
-    if (nullSafetyMode == NullSafetyMode.STRICT && variable.nullness == Nullness.NOT_NULL && (expression.nullness == Nullness.UNKNOWN || expression.nullness == Nullness.NULLABLE)) {
-      error(node, "Cannot assign nullable value to non null variable ${variable.name}")
-    } else if (nullSafetyMode == NullSafetyMode.DEFAULT && variable.nullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
-      error(node, "Cannot assign nullable value to non null variable ${variable.name}")
-    }
+    checkExpressionNullness(variable, expression, "Cannot assign nullable value to non null variable ${variable.name}")
 
     try {
       checkVariableAccess(variable, node, checkSet = true)
     } catch (e: VariableAccessException) {
-      error(node, e.message)
+      recordError(node, e.message)
     }
     return VariableAssignmentNode(
       variable,
@@ -1172,7 +1168,7 @@ abstract class SemanticCstNodeVisitor constructor(
         try {
           checkVariableAccess(variable, node)
         } catch (e: VariableAccessException) {
-          error(rightOperand, e.message)
+          recordError(rightOperand, e.message)
         }
         ReferenceNode(
           if (discardOwnerInReturned || variable.isMarcelStatic) null else owner,
@@ -1186,7 +1182,7 @@ abstract class SemanticCstNodeVisitor constructor(
         try {
           checkVariableAccess(variable, node)
         } catch (e: VariableAccessException) {
-          error(rightOperand, e.message)
+          recordError(rightOperand, e.message)
         }
         ReferenceNode(
           if (discardOwnerInReturned || variable.isMarcelStatic) null else owner,
@@ -1235,7 +1231,7 @@ abstract class SemanticCstNodeVisitor constructor(
         try {
           checkVariableAccess(variable, node)
         } catch (e: VariableAccessException) {
-          error(rightOperand, e.message)
+          recordError(rightOperand, e.message)
         }
         ReferenceNode(null, variable, rightOperand.token)
       }
@@ -1246,7 +1242,7 @@ abstract class SemanticCstNodeVisitor constructor(
         try {
           checkVariableAccess(variable, node, checkGet = true, checkSet = true)
         } catch (e: VariableAccessException) {
-          error(rightOperand, e.message)
+          recordError(rightOperand, e.message)
         }
         incr(rightOperand, variable, owner = null)
       }
@@ -2942,7 +2938,7 @@ abstract class SemanticCstNodeVisitor constructor(
     )
     val javaAnnotationType = JavaAnnotationType.of(annotationType)
     if (!javaAnnotationType.targets.contains(elementType)) {
-      error(
+      recordError(
         cstAnnotation,
         "Annotation $javaAnnotationType is not expected on elements of type $elementType"
       )
@@ -2959,7 +2955,7 @@ abstract class SemanticCstNodeVisitor constructor(
     // check attributes without default values that weren't specified
     for (attr in javaAnnotationType.attributes) {
       if (attr.defaultValue == null && annotation.attributes.none { it.name == attr.name }) {
-        error(
+        recordError(
           cstAnnotation,
           "Attribute ${attr.name} has no default value and was not specified for annotation $javaAnnotationType"
         )
@@ -3121,16 +3117,18 @@ abstract class SemanticCstNodeVisitor constructor(
   protected fun exprError(node: CstNode, message: String, smartCastType: JavaType? = null) = exprError(node.token, message, smartCastType)
 
   protected fun exprError(token: LexToken, message: String, smartCastType: JavaType? = null): ExpressionNode {
-    error(token, message)
+    recordError(token, message)
     return ExprErrorNode(token, smartCastType)
   }
 
-  protected fun error(node: AstNode, message: String) = error(node.token, message)
-  protected fun error(node: CstNode, message: String) = error(node.token, message)
+  protected fun recordError(node: AstNode, message: String) = recordError(node.token, message)
+  protected fun recordError(node: CstNode, message: String) = recordError(node.token, message)
 
-  protected fun error(token: LexToken, message: String) {
+  protected fun recordError(token: LexToken, message: String) {
     errors.add(MarcelSemanticException.Error(message, token))
   }
+
+  override fun throwError(token: LexToken, message: String) = recordError(token, message)
 
   fun throwIfHasErrors(moduleNode: ModuleNode? = null) {
     if (errors.isNotEmpty()) {

@@ -29,7 +29,7 @@ open class MarcelSemanticException constructor(val errors: List<Error>, val ast:
       return "Multiple semantic errors were found:" + errors.stream()
         .map { e: Error ->
           """
-  -${e.message}"""
+  -line ${e.token.line}, column ${e.token.column} near ${e.token.infoString()}: ${e.message}"""
         }
         .collect(Collectors.joining())
     }

@@ -41,7 +41,10 @@ import com.tambapps.marcel.semantic.processor.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.symbol.NullAware
+import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.type.JavaType
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import marcel.lang.lambda.CharLambda1
@@ -69,7 +72,8 @@ import marcel.util.primitives.iterators.LongIterator
 import java.util.*
 
 abstract class AbstractMarcelSemantic(
-  val scopeQueue: LinkedList<Scope> = LinkedList<Scope>()
+  val scopeQueue: LinkedList<Scope> = LinkedList<Scope>(),
+  val nullSafetyMode: NullSafetyMode
 ): ExpressionCaster {
 
   /**
@@ -168,7 +172,7 @@ abstract class AbstractMarcelSemantic(
       || symbolResolver.matchesMethod(method, arguments)
     ) return arguments.mapIndexed { index, expressionNode ->
       cast(
-        method.parameters[index].type,
+        method.parameters[index],
         expressionNode
       )
     }
@@ -177,7 +181,7 @@ abstract class AbstractMarcelSemantic(
     var i = 0
     while (i < method.parameters.size - 1) {
       castedArguments.add(
-        cast(method.parameters[i].type, arguments[i])
+        cast(method.parameters[i], arguments[i])
       )
       i++
     }
@@ -189,6 +193,11 @@ abstract class AbstractMarcelSemantic(
     }
     castedArguments.add(ArrayNode(arrayArgs, LexToken.DUMMY, LexToken.DUMMY, method.varArgsType))
     return castedArguments
+  }
+
+  private fun cast(parameter: MethodParameter, expressionNode: ExpressionNode): ExpressionNode {
+    checkExpressionNullness(parameter, expressionNode, "Cannot pass nullable value to non null parameter ${parameter.name}")
+    return cast(parameter.type, expressionNode)
   }
 
   fun fCall(
@@ -246,8 +255,7 @@ abstract class AbstractMarcelSemantic(
       "Method $method is static but was call from an instance"
     )
     if (!method.isVisibleFrom(currentScope.classType)) {
-      throw
-      MemberNotVisibleException(tokenStart, method, currentScope.classType)
+      throw MemberNotVisibleException(tokenStart, method, currentScope.classType)
     }
     val node = FunctionCallNode(
       method,
@@ -428,6 +436,7 @@ abstract class AbstractMarcelSemantic(
       val statementComposer = StatementsComposer(
         scopeQueue,
         this,
+        nullSafetyMode,
         symbolResolver,
         methodNode.blockStatement.statements,
         methodNode.tokenStart,
@@ -442,7 +451,7 @@ abstract class AbstractMarcelSemantic(
     return useScope(scope) {
       val statements = mutableListOf<StatementNode>()
       val statementComposer =
-        StatementsComposer(scopeQueue, this, symbolResolver, statements, node.tokenStart, node.tokenEnd)
+        StatementsComposer(scopeQueue, this, nullSafetyMode, symbolResolver, statements, node.tokenStart, node.tokenEnd)
       composer.invoke(statementComposer, scope)
       BlockStatementNode(statements)
     }
@@ -733,8 +742,19 @@ abstract class AbstractMarcelSemantic(
 
   protected fun block(statements: List<StatementNode>): BlockStatementNode {
     return BlockStatementNode(
-      if (statements is MutableList) statements else statements.toMutableList(),
+      statements as? MutableList ?: statements.toMutableList(),
       statements.firstOrNull()?.tokenStart ?: LexToken.DUMMY, statements.firstOrNull()?.tokenEnd ?: LexToken.DUMMY
     )
+  }
+  protected fun checkExpressionNullness(variable: Symbol, expression: ExpressionNode, message: String) {
+    if (nullSafetyMode == NullSafetyMode.STRICT && variable.nullness == Nullness.NOT_NULL && (expression.nullness == Nullness.UNKNOWN || expression.nullness == Nullness.NULLABLE)) {
+      throwError(expression.token, message)
+    } else if (nullSafetyMode == NullSafetyMode.DEFAULT && variable.nullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
+      throwError(expression.token, message)
+    }
+  }
+
+  protected open fun throwError(token: LexToken, message: String) {
+    throw MarcelSemanticException(token, message)
   }
 }

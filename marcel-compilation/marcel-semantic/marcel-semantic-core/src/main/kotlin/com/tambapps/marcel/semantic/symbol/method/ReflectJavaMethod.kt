@@ -34,7 +34,7 @@ import java.lang.reflect.ParameterizedType
 import java.lang.reflect.TypeVariable
 import java.lang.reflect.WildcardType
 
-class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): AbstractMethod() {
+class ReflectJavaMethod constructor(val method: Method, fromType: JavaType?): AbstractMethod() {
 
   constructor(method: Method): this(method, null)
 
