@@ -19,6 +19,8 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Type
+import org.objectweb.asm.TypeReference
+import java.lang.annotation.ElementType
 import java.lang.annotation.RetentionPolicy
 
 class MarcelClassCompiler(
@@ -93,7 +95,10 @@ class MarcelClassCompiler(
     // writing annotations
     for (annotation in field.annotations) {
       if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE) {
-        writeAnnotation(fieldVisitor.visitAnnotation(annotation.type.descriptor, true), annotation)
+        val annotationVisitor = if (annotation.type.targets.any { it == ElementType.TYPE_USE }) fieldVisitor.visitTypeAnnotation(
+          TypeReference.FIELD, null, annotation.type.descriptor, true)
+        else fieldVisitor.visitAnnotation(annotation.type.descriptor, true)
+        writeAnnotation(annotationVisitor, annotation)
       }
     }
   }
@@ -107,7 +112,21 @@ class MarcelClassCompiler(
     // writing annotations
     for (annotation in methodNode.annotations) {
       if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE) {
-        writeAnnotation(mv.visitAnnotation(annotation.type.descriptor, true), annotation)
+        val annotationVisitor = if (annotation.type.targets.any { it == ElementType.TYPE_USE }) mv.visitTypeAnnotation(
+          TypeReference.METHOD_RETURN, null, annotation.type.descriptor, true)
+        else mv.visitAnnotation(annotation.type.descriptor, true)
+        writeAnnotation(annotationVisitor, annotation)
+      }
+    }
+
+    // write target=TYPE_USE annotations of method parameters
+    for (i in methodNode.parameters.indices) {
+      val parameter = methodNode.parameters[i]
+      for (annotation in parameter.annotations) {
+        if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE && annotation.type.targets.any { it == ElementType.TYPE_USE }) {
+          val annotationVisitor = mv.visitTypeAnnotation(TypeReference.newFormalParameterReference(i).value, null, annotation.type.descriptor, true)
+          writeAnnotation(annotationVisitor, annotation)
+        }
       }
     }
 
@@ -133,7 +152,9 @@ class MarcelClassCompiler(
       // this is important, to be able to resolve marcel method parameter names
       mv.visitParameter(parameter.name, parameter.access)
       parameter.annotations.forEach {
-        if (it.type.retentionPolicy != RetentionPolicy.SOURCE) {
+        if (it.type.retentionPolicy != RetentionPolicy.SOURCE
+          // TYPE_USE annotations are to be written at the method level, not at the parameter level
+          && it.type.targets.any { it != ElementType.TYPE_USE }) {
           writeAnnotation(mv.visitParameterAnnotation(i, it.type.descriptor, true), it)
         }
       }
