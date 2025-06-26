@@ -32,10 +32,10 @@ if (Integer i = getOptionalInteger(1)) {
 }
 assertEquals(1, a)
 
-fun Integer getNullableInteger(Integer n) {
+fun Integer? getNullableInteger(Integer? n) {
   return n
 }
 
-fun Optional<Integer> getOptionalInteger(Integer n) {
+fun Optional<Integer> getOptionalInteger(Integer? n) {
   return Optional.ofNullable(n)
 }

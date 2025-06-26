@@ -34,7 +34,7 @@ class MarcelCompilerTest: FunSpec({
   }
 
   test("script (manual)") {
-    val manualScriptTest = "stringify.mcl"
+    val manualScriptTest = "function_default_parameters.mcl"
     eval("/tests/$manualScriptTest")
   }
 
