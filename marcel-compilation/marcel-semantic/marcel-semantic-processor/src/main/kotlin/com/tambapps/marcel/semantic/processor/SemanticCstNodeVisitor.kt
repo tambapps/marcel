@@ -401,7 +401,8 @@ abstract class SemanticCstNodeVisitor constructor(
       node.inExpr,
       "_mapFilter_",
       bodyCstNodes,
-      expectedType
+      expectedType,
+      Nullness.NOT_NULL
     ) { mapFilterMethodNode: MethodNode, methodScope: MethodScope ->
       val collectionVar = methodScope.addLocalVariable(collectionType, Nullness.NOT_NULL)
       val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
@@ -543,7 +544,8 @@ abstract class SemanticCstNodeVisitor constructor(
       node.inExpr,
       "_find_",
       listOf(node.filterExpr),
-      varType.objectType
+      varType.objectType,
+      Nullness.NULLABLE,
     ) { methodNode, methodScope ->
       useInnerScope { forScope ->
         val forVariable = forScope.addLocalVariable(varType, node.varName, Nullness.UNKNOWN)
@@ -597,7 +599,8 @@ abstract class SemanticCstNodeVisitor constructor(
     finalReturnValue: Boolean,
     forBodyGenerator: (ExpressionNode) -> StatementNode
   ): ExpressionNode {
-    return inOperation(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean) { methodNode, methodScope ->
+    return inOperation(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean, Nullness.NOT_NULL) {
+                                                                                         methodNode, methodScope ->
 
       val forStatement = useInnerScope { forScope ->
         val forVariable = forScope.addLocalVariable(resolve(varType), varName, Nullness.UNKNOWN)
@@ -633,6 +636,7 @@ abstract class SemanticCstNodeVisitor constructor(
     methodPrefix: String,
     bodyCstNodes: List<ExpressionCstNode>,
     methodReturnType: JavaType,
+    nullness: Nullness,
     methodFiller: (MethodNode, MethodScope) -> Unit
   ): ExpressionNode {
     if (inExpr == null) {
@@ -661,7 +665,7 @@ abstract class SemanticCstNodeVisitor constructor(
     val inOperatorMethodParameters = mutableListOf(MethodParameter(inNode.type,inNode.nullness,  inValueName))
     inOperatorMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.nullness, it.name) })
     val inOperatorMethodNode = generateOrGetMethod(methodPrefix, inOperatorMethodParameters, methodReturnType, node,
-      if (methodReturnType.primitive) Nullness.NOT_NULL else Nullness.UNKNOWN)
+      nullness)
 
     useScope(newMethodScope(inOperatorMethodNode)) { methodScope ->
       methodFiller.invoke(inOperatorMethodNode, methodScope)
@@ -1687,6 +1691,9 @@ abstract class SemanticCstNodeVisitor constructor(
       return stmtError(node, "Cannot return expression in void function")
     } else if (expression == null && expectedReturnType != JavaType.void) {
       return ReturnStatementNode(exprError(node, "Must return expression in non void function", expectedReturnType))
+    }
+    if (expression != null && expectedReturnType != JavaType.void) {
+      checkExpressionNullness(scope.method.nullness, expression, "Cannot return nullable value on non-nullable function")
     }
     return ReturnStatementNode(expression, node.tokenStart, node.tokenEnd)
   }
