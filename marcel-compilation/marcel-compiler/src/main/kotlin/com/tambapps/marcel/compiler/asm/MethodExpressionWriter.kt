@@ -8,7 +8,6 @@ import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
-import com.tambapps.marcel.semantic.ast.expression.PopNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
@@ -93,10 +92,6 @@ sealed class MethodExpressionWriter(
   final override fun visit(node: com.tambapps.marcel.semantic.ast.expression.DupNode) {
     pushExpression(node.expression)
     dup(node.type)
-  }
-
-  override fun visit(node: PopNode) {
-    popStackIfNotVoid(node.popType)
   }
 
   override fun visit(node: ArrayNode) {

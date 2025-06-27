@@ -10,7 +10,6 @@ import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
-import com.tambapps.marcel.semantic.ast.expression.PopNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
@@ -83,10 +82,6 @@ class ForEachNodeVisitor(
   override fun visit(node: DupNode) {
     consume(node)
     node.expression.accept(this)
-  }
-
-  override fun visit(node: PopNode) {
-    consume(node)
   }
 
   override fun visit(node: VariableAssignmentNode) {
