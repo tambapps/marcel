@@ -2771,7 +2771,8 @@ abstract class SemanticCstNodeVisitor constructor(
     } else null
     return MethodParameter(
       parameterType,
-      Nullness.of(parameterType, node.isNullable),
+      if (node.thisParameter) symbolResolver.getClassField(ownerType, node.name, node.token).nullness
+      else Nullness.of(parameterType, node.isNullable),
       node.name,
       node.annotations.map { visit(it, ElementType.PARAMETER) },
       defaultValue,
@@ -2822,7 +2823,9 @@ abstract class SemanticCstNodeVisitor constructor(
           )
         }
       } else null
-    val parameterNullness = Nullness.of(parameterType, node.isNullable)
+    val parameterNullness =
+      if (node.thisParameter) symbolResolver.getClassField(ownerType, node.name, node.token).nullness
+      else Nullness.of(parameterType, node.isNullable)
     if (defaultValue != null) {
       when {
         defaultValue is NullValueNode

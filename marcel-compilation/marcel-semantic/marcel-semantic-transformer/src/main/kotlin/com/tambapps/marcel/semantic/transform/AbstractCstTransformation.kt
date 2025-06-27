@@ -72,7 +72,9 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSymbolSemantic,
     // we don't handle annotations nor defaultValue. Yup, CST transformations are limited
     val type = resolve(node.type)
     return MethodParameter(
-      type, Nullness.of(type, node.isNullable), node.name, emptyList(), null
+      type,
+      if (node.thisParameter) symbolResolver.getClassField(ownerType, node.name, node.token).nullness
+          else Nullness.of(type, node.isNullable), node.name, emptyList(), null
     )
   }
 
