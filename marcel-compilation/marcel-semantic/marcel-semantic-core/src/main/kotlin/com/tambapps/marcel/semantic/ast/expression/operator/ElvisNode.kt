@@ -15,8 +15,11 @@ class ElvisNode(
   type: JavaType
 ) :
   BinaryOperatorNode(leftOperand, rightOperand, type) {
-  override val nullness: Nullness
-    get() = Nullness.of(leftOperand, rightOperand)
+  override val nullness = when {
+    leftOperand.nullness == Nullness.NOT_NULL -> Nullness.NOT_NULL
+    rightOperand.nullness == Nullness.NOT_NULL -> Nullness.NOT_NULL
+    else -> Nullness.of(leftOperand, rightOperand)
+  }
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 
