@@ -8,7 +8,6 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
-import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
@@ -41,7 +40,6 @@ import com.tambapps.marcel.semantic.processor.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.symbol.NullAware
 import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
@@ -746,10 +744,12 @@ abstract class AbstractMarcelSemantic(
       statements.firstOrNull()?.tokenStart ?: LexToken.DUMMY, statements.firstOrNull()?.tokenEnd ?: LexToken.DUMMY
     )
   }
-  protected fun checkExpressionNullness(variable: Symbol, expression: ExpressionNode, message: String) {
-    if (nullSafetyMode == NullSafetyMode.STRICT && variable.nullness == Nullness.NOT_NULL && (expression.nullness == Nullness.UNKNOWN || expression.nullness == Nullness.NULLABLE)) {
+  protected fun checkExpressionNullness(variable: Symbol, expression: ExpressionNode, message: String) = checkExpressionNullness(variable.nullness, expression, message)
+
+  protected fun checkExpressionNullness(expectedNullness: Nullness, expression: ExpressionNode, message: String) {
+    if (nullSafetyMode == NullSafetyMode.STRICT && expectedNullness == Nullness.NOT_NULL && (expression.nullness == Nullness.UNKNOWN || expression.nullness == Nullness.NULLABLE)) {
       throwError(expression.token, message)
-    } else if (nullSafetyMode == NullSafetyMode.DEFAULT && variable.nullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
+    } else if (nullSafetyMode == NullSafetyMode.DEFAULT && expectedNullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
       throwError(expression.token, message)
     }
   }

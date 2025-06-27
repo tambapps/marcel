@@ -2815,13 +2815,16 @@ abstract class SemanticCstNodeVisitor constructor(
           )
         }
       } else null
+    val parameterNullness = Nullness.of(parameterType, node.isNullable)
     if (defaultValue != null) {
       when {
         defaultValue is NullValueNode
             // because of casting
             || defaultValue is JavaCastNode && defaultValue.expressionNode is NullValueNode -> {
           if (parameterType.primitive) {
-            throw MarcelSemanticException(node.token, "Primitive types cannot have null default value")
+            recordError(node.token, "Primitive types cannot have null default value")
+          } else if (nullSafetyMode != NullSafetyMode.DISABLED &&  !node.isNullable) {
+            recordError(node.token, "Cannot have null default value for a non-nullable parameter")
           }
           annotations.add(
             AnnotationNode(
@@ -2905,6 +2908,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
         else -> {
           // defining method
+          checkExpressionNullness(parameterNullness, defaultValue, "Cannot have a nullable default value for a non-nullable parameter")
           defaultValueMethod.blockStatement.add(ReturnStatementNode(cast(parameterType, defaultValue)))
           classNode.methods.add(defaultValueMethod)
           symbolResolver.defineMethod(ownerType, defaultValueMethod)
@@ -2920,7 +2924,7 @@ abstract class SemanticCstNodeVisitor constructor(
         }
       }
     }
-    return MethodParameter(parameterType, Nullness.of(parameterType, node.isNullable), parameterName, annotations, defaultValue)
+    return MethodParameter(parameterType, parameterNullness, parameterName, annotations, defaultValue)
   }
 
 
