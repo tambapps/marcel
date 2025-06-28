@@ -74,6 +74,10 @@ public class CompileMojo extends AbstractCompileMojo {
         } catch (IOException e) {
             throw new MojoExecutionException("An unexpected error occurred", e);
         } catch (MarcelLexerException | MarcelParserException | MarcelSemanticException | MarcelCompilerException e) {
+            // TODO add fileName on parser (and Lexer?). and do same for testCompileMojo
+            if (e instanceof MarcelSemanticException mse && mse.getFileName() != null) {
+                throw new MojoExecutionException(mse.getFileName() + ": " + mse.getMessage(), e);
+            }
             throw new MojoExecutionException(e.getMessage(), e);
         } catch (DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Compile dependencies weren't resolved.", e);
