@@ -1,0 +1,11 @@
+
+class NullableMembersClass {
+
+  public Long? aLong = 1l
+
+  constructor(this.aLong)
+
+  fun Integer? computeInteger() -> 1
+
+  fun int sum(Integer? a, Integer b) -> (a ?: 0) + b
+}

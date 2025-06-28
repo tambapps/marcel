@@ -96,7 +96,7 @@ class MarcelClassCompiler(
     for (annotation in field.annotations) {
       if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE) {
         val annotationVisitor = if (annotation.type.targets.any { it == ElementType.TYPE_USE }) fieldVisitor.visitTypeAnnotation(
-          TypeReference.FIELD, null, annotation.type.descriptor, true)
+          TypeReference.newTypeReference(TypeReference.FIELD).value, null, annotation.type.descriptor, true)
         else fieldVisitor.visitAnnotation(annotation.type.descriptor, true)
         writeAnnotation(annotationVisitor, annotation)
       }
@@ -106,14 +106,13 @@ class MarcelClassCompiler(
   private fun writeMethod(classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor,
       methodNode.signature,
-
       null)
 
     // writing annotations
     for (annotation in methodNode.annotations) {
       if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE) {
         val annotationVisitor = if (annotation.type.targets.any { it == ElementType.TYPE_USE }) mv.visitTypeAnnotation(
-          TypeReference.METHOD_RETURN, null, annotation.type.descriptor, true)
+          TypeReference.newTypeReference(TypeReference.METHOD_RETURN).value, null, annotation.type.descriptor, true)
         else mv.visitAnnotation(annotation.type.descriptor, true)
         writeAnnotation(annotationVisitor, annotation)
       }

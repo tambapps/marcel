@@ -13,9 +13,7 @@ assertEquals(2, o['bar'].value)
 assertEquals(['foo': 1, 'bar': 2], o.value)
 assertTrue(o as bool)
 
-o = new DynImpl()
-assertNull(o.value)
-o.name = "test"
+o = new DynImpl("test")
 assertEquals("test", o.getValue())
 assertEquals("test", o.value)
 assertEquals("test", o.name.value)
@@ -34,10 +32,12 @@ assertEquals("123", DynamicObject.of("123").toString())
 
 class DynImpl implements DynamicObject {
 
-  String? name
+  String name
+
+  constructor(this.name)
 
   override fun dynobj? setProperty(String name, dynobj o) {
-    if (name == "name") this.name = o?.value?.toString()
+    if (name == "name") this.name = o.value.toString()
     return null
   }
 
