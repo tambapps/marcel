@@ -2450,7 +2450,8 @@ abstract class SemanticCstNodeVisitor constructor(
     val varType = resolve(node.varType)
     val variable = it.addLocalVariable(varType, node.varName, Nullness.of(varType, node.isVarNullable), token = node.token)
 
-    val inNode = node.inNode.accept(this)
+    // passing smart cast type for errorNode
+    val inNode = node.inNode.accept(this, Collection::class.javaType)
 
     return@useScope if (inNode.type.isArray) forInArrayNode(
       node = node, forScope = it, inNode = inNode,
@@ -3147,7 +3148,7 @@ abstract class SemanticCstNodeVisitor constructor(
   fun throwIfHasErrors(moduleNode: ModuleNode? = null) {
     if (errors.isNotEmpty()) {
       // need a copy because we will clear this list
-      throw MarcelSemanticException(errors.toList(), moduleNode)
+      throw MarcelSemanticException(fileName, errors.toList(), moduleNode)
     }
   }
 }

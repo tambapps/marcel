@@ -5,12 +5,16 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import java.util.stream.Collectors
 
-open class MarcelSemanticException constructor(val errors: List<Error>, val ast: ModuleNode? = null) : RuntimeException(
+open class MarcelSemanticException constructor(val fileName: String?, val errors: List<Error>, val ast: ModuleNode? = null) : RuntimeException(
   generateErrorMessage(
     errors
   )
 ) {
   class Error(val message: String, val token: LexToken)
+
+  // TODO migrate uses to primary constructor
+  @JvmOverloads
+  constructor(errors: List<Error>, ast: ModuleNode? = null) : this(null, errors, ast)
 
   constructor(node: CstNode, message: String) : this(node.token, message)
 
