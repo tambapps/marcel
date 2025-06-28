@@ -35,7 +35,7 @@ open class MethodScope internal constructor(
   ) {
     // method parameters are stored in local variables
     for (param in method.parameters) {
-      addLocalVariable(param.type, param.name, method.nullness, param.isFinal)
+      addLocalVariable(param.type, param.name, param.nullness, param.isFinal)
     }
   }
 
