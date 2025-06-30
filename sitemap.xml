@@ -2,366 +2,366 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://tambapps.github.io/marcel/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/asynchronous-programming/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/getting-started/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/marcel-in-action/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/guides/collections/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/guides/command-line-arguments/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/guides/csv/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/guides/json/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/guides/regular-expressions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/guides/stdlib-extensions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/guides/yaml/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/basics/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/extension-classes/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/lambdas/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/variables/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/control-flows/exception-handling/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/control-flows/for-loops/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/control-flows/if-else/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/control-flows/marcel-truth/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/control-flows/switch-when/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/control-flows/while-loops/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/iterable-operations/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/iterable-operations/any-all/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/iterable-operations/chain-operations/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/iterable-operations/find/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/iterable-operations/map-filter/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/as/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/comparison/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/direct-field-access/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/indexed-access/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/instanceof/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/left-shift/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/minus/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/operator-overloading/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/plus/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/safe-navigation/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/operators/ternary-elvis/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/annotations/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/classes/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/enums/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/functions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/imports/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/script/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/source-file-structure/visibility/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/arrays/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/collections-of-primitives/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/collections/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/dynamic-objects/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/maps/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/objects/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/primitives/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/ranges/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/language-specification/types/string/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/CharExtensions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/CharSequenceExtensions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/CharacterExtensions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/FileExtensions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/TimeExtensions/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Collection/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Comparable_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Iterable/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/List/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Map/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Matcher/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Number_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Object_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Queue/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/Set/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/boolean_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/byte_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/char_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/double_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/float_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/int_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/long_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/mdk/extensions/DefaultMarcelMethods/short_array/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/metaprogramming/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/metaprogramming/meta-annotations/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/tools/dumbbell/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/tools/lsp-server/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/tools/marcel-for-android/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/tools/marcl/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/tools/marshell/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
     <url>
          <loc>https://tambapps.github.io/marcel/tools/maven-plugin/</loc>
-         <lastmod>2025-06-23</lastmod>
+         <lastmod>2025-06-30</lastmod>
     </url>
 </urlset>
