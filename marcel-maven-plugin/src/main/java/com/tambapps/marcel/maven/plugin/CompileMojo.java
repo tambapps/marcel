@@ -16,12 +16,7 @@
 
 package com.tambapps.marcel.maven.plugin;
 
-import com.tambapps.marcel.compiler.exception.MarcelCompilerException;
-import com.tambapps.marcel.lexer.MarcelLexerException;
-import com.tambapps.marcel.parser.MarcelParserException;
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -31,7 +26,6 @@ import org.apache.maven.shared.model.fileset.FileSet;
 import org.slf4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Compiles the main sources.
@@ -64,24 +58,7 @@ public class CompileMojo extends AbstractCompileMojo {
      */
     @Override
     public void execute() throws MojoExecutionException {
-        try {
-            try {
-                getLog().debug("Project compile classpath:\n" + project.getCompileClasspathElements());
-            } catch (DependencyResolutionRequiredException e) {
-                getLog().debug("Unable to log project compile classpath");
-            }
-            doCompile(getFiles(sources, false), project.getCompileClasspathElements(), outputDirectory);
-        } catch (IOException e) {
-            throw new MojoExecutionException("An unexpected error occurred", e);
-        } catch (MarcelLexerException | MarcelParserException | MarcelSemanticException | MarcelCompilerException e) {
-            // TODO add fileName on parser (and Lexer?). and do same for testCompileMojo
-            if (e instanceof MarcelSemanticException mse && mse.getFileName() != null) {
-                throw new MojoExecutionException(mse.getFileName() + ": " + mse.getMessage(), e);
-            }
-            throw new MojoExecutionException(e.getMessage(), e);
-        } catch (DependencyResolutionRequiredException e) {
-            throw new MojoExecutionException("Compile dependencies weren't resolved.", e);
-        }
+        doExecute(sources, outputDirectory, "compile");
     }
 
     @Override

@@ -9,18 +9,18 @@ import com.tambapps.marcel.semantic.analysis.SemanticConfiguration;
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException;
 import marcel.lang.MarcelClassLoader;
 import marcel.lang.URLMarcelClassLoader;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.shared.model.fileset.FileSet;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 /**
  * The base compile mojo, which all compile mojos extend.
@@ -34,7 +34,26 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
     protected String targetBytecode;
 
 
-
+    public void doExecute(FileSet[] sources, File outputDirectory, String phase) throws MojoExecutionException {
+        try {
+            try {
+                getLog().debug("Project " + phase + " classpath:\n" + project.getCompileClasspathElements());
+            } catch (DependencyResolutionRequiredException e) {
+                getLog().debug("Unable to log project " + phase + " classpath");
+            }
+            compile(getFiles(sources, false), project.getCompileClasspathElements(), outputDirectory);
+        } catch (IOException e) {
+            throw new MojoExecutionException("An unexpected error occurred", e);
+        } catch (MarcelLexerException | MarcelParserException | MarcelSemanticException | MarcelCompilerException e) {
+            // TODO add fileName on parser (and Lexer?)
+            if (e instanceof MarcelSemanticException mse && mse.getFileName() != null) {
+                throw new MojoExecutionException(mse.getFileName() + ": " + mse.getMessage(), e);
+            }
+            throw new MojoExecutionException(e.getMessage(), e);
+        } catch (DependencyResolutionRequiredException e) {
+            throw new MojoExecutionException(phase + " dependencies weren't resolved.", e);
+        }
+    }
     /**
      * Performs compilation of compile mojos.
      *
@@ -44,7 +63,7 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
      * @throws MalformedURLException     when a classpath element provides a malformed URL
      */
     @SuppressWarnings({"rawtypes"})
-    protected synchronized void doCompile(final Set<File> sources, final List<String> classpath, final File compileOutputDirectory)
+    private synchronized void compile(final Set<File> sources, final List<String> classpath, final File compileOutputDirectory)
             throws IOException, MarcelLexerException, MarcelParserException, MarcelSemanticException, MarcelCompilerException {
         if (sources == null || sources.isEmpty()) {
             getLog().info("No sources specified for compilation. Skipping.");
@@ -85,16 +104,4 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
         // log compiled classes
         getLog().info("Compiled " + classesCount.get() + " file" + (classesCount.get() != 1 ? "s" : "") + ".");
     }
-
-
-    private static String translateJavacTargetToTargetBytecode(String targetBytecode) {
-        Map<String, String> javacTargetToTargetBytecode = new HashMap<>();
-        javacTargetToTargetBytecode.put("5", "1.5");
-        javacTargetToTargetBytecode.put("6", "1.6");
-        javacTargetToTargetBytecode.put("7", "1.7");
-        javacTargetToTargetBytecode.put("8", "1.8");
-        javacTargetToTargetBytecode.put("1.9", "9");
-        return javacTargetToTargetBytecode.getOrDefault(targetBytecode, targetBytecode);
-    }
-
 }
