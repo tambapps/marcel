@@ -7,5 +7,6 @@ import marcel.lang.Script
 data class SemanticConfiguration(
   val scriptClass: Class<*> = Script::class.java,
   val purpose: SemanticPurpose = SemanticPurpose.COMPILATION,
-  val nullSafetyMode: NullSafetyMode = NullSafetyMode.DEFAULT
+  // disabled by default, at least for now, because it is not completely handled
+  val nullSafetyMode: NullSafetyMode = NullSafetyMode.DISABLED
 )

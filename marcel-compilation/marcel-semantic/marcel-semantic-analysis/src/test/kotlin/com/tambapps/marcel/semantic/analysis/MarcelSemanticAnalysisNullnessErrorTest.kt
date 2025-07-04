@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.analysis
 
 import com.tambapps.marcel.semantic.analysis.TestUtils.applySemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.string.shouldContain
@@ -13,7 +14,7 @@ class MarcelSemanticAnalysisNullnessErrorTest : AnnotationSpec() {
     val exception = shouldThrow<MarcelSemanticException> {
       applySemantic("""
         Integer a = null
-      """.trimIndent())
+      """.trimIndent(), NullSafetyMode.DEFAULT)
     }
     exception.message shouldContain "Cannot assign nullable value to non null"
   }
@@ -24,7 +25,7 @@ class MarcelSemanticAnalysisNullnessErrorTest : AnnotationSpec() {
       applySemantic("""
         Integer a = foo(1)
         fun Integer? foo(Integer a) -> a = 1
-      """.trimIndent())
+      """.trimIndent(), NullSafetyMode.DEFAULT)
     }
     exception.message shouldContain "Cannot assign nullable value to non null"
   }
@@ -36,7 +37,7 @@ class MarcelSemanticAnalysisNullnessErrorTest : AnnotationSpec() {
       applySemantic("""
         private Integer a = 1
         a = null
-      """.trimIndent())
+      """.trimIndent(), NullSafetyMode.DEFAULT)
     }
     exception.message shouldContain "Cannot assign nullable value to non null"
   }
@@ -48,7 +49,7 @@ class MarcelSemanticAnalysisNullnessErrorTest : AnnotationSpec() {
         fun int foo(Integer a) -> a = 1
         Integer? b = null
         foo(b)
-      """.trimIndent())
+      """.trimIndent(), NullSafetyMode.DEFAULT)
     }
     exception.message shouldContain "Cannot pass nullable value to non null"
   }
@@ -58,7 +59,7 @@ class MarcelSemanticAnalysisNullnessErrorTest : AnnotationSpec() {
     val exception = shouldThrow<MarcelSemanticException> {
       applySemantic("""
         fun Integer foo(Integer a) -> null
-      """.trimIndent())
+      """.trimIndent(), NullSafetyMode.DEFAULT)
     }
     exception.message shouldContain "Cannot return nullable value on non-nullable function"
   }
@@ -68,7 +69,7 @@ class MarcelSemanticAnalysisNullnessErrorTest : AnnotationSpec() {
     val exception = shouldThrow<MarcelSemanticException> {
       applySemantic("""
         fun Integer foo(Integer a = null) -> a
-      """.trimIndent())
+      """.trimIndent(), NullSafetyMode.DEFAULT)
     }
     exception.message shouldContain "Cannot have null default value for"
   }
@@ -79,7 +80,7 @@ class MarcelSemanticAnalysisNullnessErrorTest : AnnotationSpec() {
       applySemantic("""
         static fun Integer? bar() -> null 
         fun Integer foo(Integer a = bar()) -> a
-      """.trimIndent())
+      """.trimIndent(), NullSafetyMode.DEFAULT)
     }
     exception.message shouldContain "Cannot have a nullable default value for a non-nullable parameter"
   }
