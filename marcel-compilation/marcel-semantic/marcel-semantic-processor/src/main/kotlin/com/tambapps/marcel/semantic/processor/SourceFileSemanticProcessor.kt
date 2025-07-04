@@ -68,7 +68,7 @@ open class SourceFileSemanticProcessor(
   private val scriptType: JavaType,
   val cst: SourceFileCstNode,
   fileName: String,
-  nullSafetyMode: NullSafetyMode = NullSafetyMode.DEFAULT,
+  nullSafetyMode: NullSafetyMode,
 ) : SemanticCstNodeVisitor(cst.packageName, symbolResolver, fileName, nullSafetyMode), ClassCstNodeVisitor<ClassNode> {
 
   companion object {

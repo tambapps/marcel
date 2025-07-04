@@ -24,6 +24,7 @@ import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.Visibility
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import marcel.lang.Script
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -90,7 +91,7 @@ class MarcelSemanticTest {
     assertNotEquals(double(value = 1234.4), expr("1234.45d"))
   }
 
-  private fun semantic() = SourceFileSemanticProcessor(TYPE_RESOLVER, Script::class.javaType, sourceFile, "Test.mcl")
+  private fun semantic() = SourceFileSemanticProcessor(TYPE_RESOLVER, Script::class.javaType, sourceFile, "Test.mcl", NullSafetyMode.DISABLED)
 
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())

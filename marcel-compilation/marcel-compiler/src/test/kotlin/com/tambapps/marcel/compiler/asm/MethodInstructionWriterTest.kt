@@ -20,6 +20,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearMocks
 import io.mockk.mockk
@@ -85,13 +86,13 @@ class MethodInstructionWriterTest : FunSpec({
     private fun expr(text: String): ExpressionNode {
       val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
       val sourceFile = mockk<SourceFileCstNode>(relaxed = true)
-      return cstExpression.accept(SourceFileSemanticProcessor(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
+      return cstExpression.accept(SourceFileSemanticProcessor(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl", NullSafetyMode.DISABLED))
     }
 
     private fun stmt(text: String): StatementNode {
       val cstStatement = MarcelParser("Test", MarcelLexer().lex(text)).statement()
       val sourceFile = mockk<SourceFileCstNode>(relaxed = true)
-      return cstStatement.accept(SourceFileSemanticProcessor(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
+      return cstStatement.accept(SourceFileSemanticProcessor(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl", NullSafetyMode.DISABLED))
     }
   }
 }

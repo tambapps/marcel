@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.analysis
 
+import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -12,6 +13,10 @@ import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformer
  * Class to perform Marcel semantic analysis
  */
 object MarcelSemanticAnalysis {
+
+  fun apply(configuration: SemanticConfiguration, symbolResolver: MarcelSymbolResolver, cst: SourceFileCstNode, fileName: String): ModuleNode {
+    return apply(configuration, symbolResolver, listOf(SourceFileSemanticProcessor(symbolResolver, configuration.scriptClass.javaType, cst, fileName, configuration.nullSafetyMode))).first()
+  }
 
   fun apply(configuration: SemanticConfiguration, symbolResolver: MarcelSymbolResolver, semantics: SourceFileSemanticProcessor): ModuleNode {
     return apply(configuration, symbolResolver, listOf(semantics)).first()
