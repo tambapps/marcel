@@ -36,12 +36,13 @@ open class CstNodeComposer {
     returnType: TypeCstNode,
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
+    isReturnTypeNullable: Boolean = false,
     statementsSupplier: CstStatementsComposer.() -> Unit,
   ): MethodCstNode {
 
     val methodNode = MethodCstNode(
       classNode, tokenStart, tokenEnd,
-      accessNode, name, returnType, false, // TODO handle nullable
+      accessNode, name, returnType, isReturnTypeNullable,
     )
     methodNode.parameters.addAll(parameters)
     methodNode.annotations.addAll(annotations)
@@ -85,7 +86,6 @@ open class CstNodeComposer {
     isExplicit = isExplicit
   )
 
-  // TODO review use of these to ensure the nullable parameter should be passed or not
   protected fun type(type: KClass<*>): TypeCstNode = type(type.javaType)
   protected fun type(type: JavaType): TypeCstNode =
     TypeCstNode(null, type.className, emptyList(), 0, LexToken.DUMMY, LexToken.DUMMY)

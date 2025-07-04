@@ -12,7 +12,6 @@ open class MarcelSemanticException constructor(val fileName: String?, val errors
 ) {
   class Error(val message: String, val token: LexToken)
 
-  // TODO migrate uses to primary constructor
   @JvmOverloads
   constructor(errors: List<Error>, ast: ModuleNode? = null) : this(null, errors, ast)
 
