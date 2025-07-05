@@ -40,6 +40,7 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: NotNode): T
   fun visit(node: IncrNode): T
   fun visit(node: DupNode): T
+  fun visit(node: YieldExpression): T
 
   fun visit(node: VariableAssignmentNode): T
   fun visit(node: ArrayIndexAssignmentNode): T
@@ -61,6 +62,7 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: ElvisNode): T
 
   fun visit(node: TernaryNode): T
+  fun visit(node: ConditionalExpressionNode): T
 
   fun visit(node: ArrayAccessNode): T
   fun visit(node: FunctionCallNode): T

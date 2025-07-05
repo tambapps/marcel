@@ -75,6 +75,7 @@ import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.ConditionalExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -92,6 +93,7 @@ import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.TernaryNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.YieldExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
@@ -104,6 +106,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
@@ -161,6 +164,7 @@ import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.processor.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.processor.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.processor.visitor.ReturningWhenIfBranchTransformer
+import com.tambapps.marcel.semantic.processor.visitor.WhenStatementExpressionSeparator
 import com.tambapps.marcel.semantic.symbol.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.symbol.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.symbol.type.JavaPrimitiveType
@@ -1854,6 +1858,7 @@ abstract class SemanticCstNodeVisitor constructor(
   override fun visit(node: SwitchCstNode, smartCastType: JavaType?): ExpressionNode {
     // transforming the switch into a when
     val switchExpression = node.switchExpression.accept(this)
+    // TODO migrate to when
     return switchWhen(node, smartCastType, switchExpression, node.varDeclaration)
   }
 
@@ -2265,7 +2270,75 @@ abstract class SemanticCstNodeVisitor constructor(
     )
   }
 
-  override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
+  override fun visit(node: WhenCstNode, smartCastType: JavaType?): ExpressionNode {
+    val shouldReturnValue = smartCastType != null && smartCastType != JavaType.void
+    val elseCstStatement = node.elseStatement
+    if (node.branches.isEmpty()) {
+      return exprError(
+        node.token,
+        "Switch/When should have at least 1 non else branch", smartCastType
+      )
+    }
+
+    return if (shouldReturnValue) {
+      if (elseCstStatement == null) {
+        return exprError(node, "When/switch expression should have an else branch", smartCastType)
+      }
+      val extractorVisitor = WhenStatementExpressionSeparator(this::exprError)
+      val rawBranches: List<Triple<ExpressionNode, StatementNode?, ExpressionNode>> = node.branches.map { (conditionCstExpr, stmtCst) ->
+        val conditionExpression = conditionCstExpr.accept(this)
+        val (statement, yieldValue) = stmtCst.accept(this).accept(extractorVisitor)
+        Triple(conditionExpression, statement, yieldValue)
+      }
+      val (elseStatement, elseYieldValue) = elseCstStatement.accept(this).accept(extractorVisitor)
+      val allBranches = rawBranches.map { it.third } + elseYieldValue
+      val expectedYieldType = smartCastType ?: JavaType.commonType(allBranches.map { it.type })
+
+      val rootIf = rawBranches.first().let {
+        ConditionalExpressionNode(
+          condition = it.first,
+          trueExpression = YieldExpression(it.second, cast(expectedYieldType, it.third)),
+          falseExpression = null
+        )
+      }
+      var currentIf = rootIf
+      for (i in 1 until rawBranches.size) {
+        val it = rawBranches[i]
+        val ifBranch = ConditionalExpressionNode(
+          condition = it.first,
+          trueExpression = YieldExpression(it.second, cast(expectedYieldType, it.third)),
+          falseExpression = null
+        )
+        currentIf.falseExpression = ifBranch
+        currentIf = ifBranch
+      }
+      currentIf.falseExpression = YieldExpression(elseStatement, cast(expectedYieldType, elseYieldValue))
+      rootIf
+    } else {
+      val rootIf = node.branches.first().let {
+        ConditionalExpressionNode(
+          condition = it.first.accept(this),
+          trueExpression = YieldExpression(statement = it.second.accept(this), expression = VoidExpressionNode(it.first.token)),
+          falseExpression = null
+        )
+      }
+      var currentIf = rootIf
+      for (i in 1 until node.branches.size) {
+        val it = node.branches[i]
+        val ifBranch = ConditionalExpressionNode(
+          condition = it.first.accept(this),
+          trueExpression = YieldExpression(it.second.accept(this), VoidExpressionNode(it.first.token)),
+          falseExpression = null
+        )
+        currentIf.falseExpression = ifBranch
+        currentIf = ifBranch
+      }
+      if (elseCstStatement != null) {
+        currentIf.falseExpression = YieldExpression(elseCstStatement.accept(this), VoidExpressionNode(node.token))
+      }
+      rootIf
+    }
+  }
 
   private fun switchWhen(
     node: WhenCstNode,
@@ -2425,6 +2498,7 @@ abstract class SemanticCstNodeVisitor constructor(
     switchExpressionRef: ExpressionCstNode,
     node: CstNode
   ): IfStatementCstNode {
+    // TODO change all it.first, etc with a decapsulation (first, second) -> ...
     return if (switchExpression != null) IfStatementCstNode(
       BinaryOperatorCstNode(
         TokenType.EQUAL, switchExpressionRef, it.first, node.parent, node.tokenStart, node.tokenEnd

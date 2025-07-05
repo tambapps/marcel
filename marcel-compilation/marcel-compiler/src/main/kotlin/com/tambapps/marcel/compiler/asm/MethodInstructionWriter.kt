@@ -3,6 +3,7 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.addCode
 import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.semantic.ast.AstNode
+import com.tambapps.marcel.semantic.ast.expression.ConditionalExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
@@ -52,6 +53,7 @@ import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
+import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryNode
@@ -71,7 +73,7 @@ open class MethodInstructionWriter(
   mv: MethodVisitor, classScopeType: JavaType
 ): MethodExpressionWriter(mv, classScopeType), StatementNodeVisitor<Unit> {
 
-  private val expressionPusher = PushingMethodExpressionWriter(mv, classScopeType)
+  private val expressionPusher = PushingMethodExpressionWriter(this, mv, classScopeType)
 
   private val loopContextQueue = LinkedList<LoopContext>()
   private val currentLoopContext get() = loopContextQueue.peek()
@@ -262,15 +264,6 @@ open class MethodInstructionWriter(
 
   override fun visit(node: TryNode) = TryFinallyMethodInstructionWriter(mv, classScopeType).visit(node)
 
-  /**
-   * Add line number to bytecode, so that it can be displayed when an exception occured.
-   * Only useful for statements
-   */
-  protected fun label(node: AstNode) = Label().apply {
-    mv.visitLabel(this)
-    mv.visitLineNumber(node.token.line + 1, this)
-  }
-
   /*
    * Expressions
    */
@@ -415,6 +408,8 @@ open class MethodInstructionWriter(
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)
   }
+
+  override fun visitStatement(statementNode: StatementNode) = statementNode.accept(this)
 
   override fun pushExpression(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = node.accept(expressionPusher)
   override fun pushConstant(value: Any) = expressionPusher.pushConstant(value)

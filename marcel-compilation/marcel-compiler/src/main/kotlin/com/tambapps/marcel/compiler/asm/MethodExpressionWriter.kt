@@ -5,6 +5,8 @@ import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.typeCode
+import com.tambapps.marcel.semantic.ast.AstNode
+import com.tambapps.marcel.semantic.ast.expression.ConditionalExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
@@ -14,12 +16,14 @@ import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.TernaryNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
+import com.tambapps.marcel.semantic.ast.expression.YieldExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.symbol.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.method.ReflectJavaConstructor
 import com.tambapps.marcel.semantic.symbol.method.ReflectJavaMethod
@@ -49,12 +53,28 @@ sealed class MethodExpressionWriter(
   // should be an Int, Byte, Long, Float, Double, String
   internal abstract fun pushConstant(value: Any)
 
+  internal abstract fun visitStatement(statementNode: StatementNode)
+
+  /**
+   * Adds line number to bytecode so that it can be displayed when an exception occured.
+   * Only useful for statements
+   */
+  protected fun label(node: AstNode) = Label().apply {
+    mv.visitLabel(this)
+    mv.visitLineNumber(node.token.line + 1, this)
+  }
+
+
+  override fun visit(node: YieldExpression) {
+    node.statement?.let(this::visitStatement)
+    pushExpression(node.expression)
+  }
+
   override fun visit(node: VariableAssignmentNode) {
     node.owner?.let { pushExpression(it) }
     pushExpression(node.expression)
     node.variable.accept(storeVariableVisitor)
   }
-
 
   override fun visit(node: ArrayIndexAssignmentNode) {
     pushExpression(node.owner)
@@ -80,6 +100,27 @@ sealed class MethodExpressionWriter(
     mv.visitLabel(falseLabel)
     node.falseExpressionNode.accept(this)
     mv.visitLabel(endLabel)
+  }
+
+  // inspired from MethodInstructionWriter.visit(IfStatementNode)
+  override fun visit(node: ConditionalExpressionNode) {
+    label(node.condition)
+    pushExpression(node.condition)
+    val endLabel = Label()
+    val falseExpression = node.falseExpression
+    if (falseExpression == null) {
+      mv.visitJumpInsn(Opcodes.IFEQ, endLabel)
+      node.trueExpression.accept(this)
+      mv.visitLabel(endLabel)
+    } else {
+      val falseLabel = Label()
+      mv.visitJumpInsn(Opcodes.IFEQ, falseLabel)
+      node.trueExpression.accept(this)
+      mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+      mv.visitLabel(falseLabel)
+      falseExpression.accept(this)
+      mv.visitLabel(endLabel)
+    }
   }
 
 

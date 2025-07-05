@@ -50,6 +50,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.variable.LocalVariable
 import com.tambapps.marcel.semantic.symbol.variable.field.ReflectJavaField
@@ -58,7 +59,11 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-class PushingMethodExpressionWriter(mv: MethodVisitor, classScopeType: JavaType) :
+class PushingMethodExpressionWriter(
+  private val statementWriter: MethodInstructionWriter,
+  mv: MethodVisitor,
+  classScopeType: JavaType
+) :
   MethodExpressionWriter(mv, classScopeType) {
 
   companion object {
@@ -331,5 +336,6 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, classScopeType: JavaType)
     mv.visitTypeInsn(Opcodes.INSTANCEOF, node.instanceType.internalName)
   }
 
+  override fun visitStatement(statementNode: StatementNode) = statementWriter.visitStatement(statementNode)
   override fun pushExpression(node: ExpressionNode) = node.accept(this)
 }

@@ -30,6 +30,14 @@ enum class Nullness {
     fun of(type: JavaType, isNullable: Boolean) = if (!type.primitive && isNullable) NULLABLE else NOT_NULL
 
     fun of(nullAware1: NullAware, nullAware2: NullAware) = of(nullAware1.nullness, nullAware2.nullness)
+
+    // the list should not be empty
+    fun of(list: List<Nullness>) = when {
+      list.contains(NULLABLE) -> NULLABLE
+      list.contains(UNKNOWN) -> UNKNOWN
+      else -> NOT_NULL
+    }
+
     fun of(nullness1: Nullness, nullness2: Nullness) = when {
       nullness1 == NULLABLE || nullness2 == NULLABLE -> NULLABLE
       nullness1 == UNKNOWN || nullness2 == UNKNOWN -> UNKNOWN

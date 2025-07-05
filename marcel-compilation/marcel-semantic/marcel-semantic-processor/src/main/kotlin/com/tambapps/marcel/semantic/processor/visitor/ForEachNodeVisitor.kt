@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.processor.visitor
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.ConditionalExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
@@ -17,6 +18,7 @@ import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.TernaryNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.YieldExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode
@@ -84,6 +86,12 @@ class ForEachNodeVisitor(
     node.expression.accept(this)
   }
 
+  override fun visit(node: YieldExpression) {
+    consume(node)
+    node.statement?.accept(this)
+    node.expression.accept(this)
+  }
+
   override fun visit(node: VariableAssignmentNode) {
     consume(node)
     node.owner?.accept(this)
@@ -135,6 +143,12 @@ class ForEachNodeVisitor(
     node.falseExpressionNode.accept(this)
   }
 
+  override fun visit(node: ConditionalExpressionNode) {
+    consume(node)
+    node.condition.accept(this)
+    node.trueExpression.accept(this)
+    node.falseExpression?.accept(this)
+  }
   override fun visit(node: ArrayAccessNode) {
     consume(node)
     node.owner.accept(this)
