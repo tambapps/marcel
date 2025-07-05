@@ -395,100 +395,110 @@ abstract class SemanticCstNodeVisitor constructor(
       )
       else return exprError(node, "Incompatible type. Expected Collection/array but got $expectedType", smartCastType)
 
-    val bodyCstNodes = mutableListOf<ExpressionCstNode>()
-    node.mapExpr?.let(bodyCstNodes::add)
-    node.filterExpr?.let(bodyCstNodes::add)
-
-    return inOperation(
-      node,
-      node.inExpr,
-      "_mapFilter_",
-      bodyCstNodes,
-      expectedType,
-      Nullness.NOT_NULL
-    ) { mapFilterMethodNode: MethodNode, methodScope: MethodScope ->
-      val collectionVar = methodScope.addLocalVariable(collectionType, Nullness.NOT_NULL)
-      val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
-      val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
-      var expectedElementType = if (JavaType.intCollection.isAssignableFrom(collectionType)) JavaType.int
-      else if (JavaType.longCollection.isAssignableFrom(collectionType)) JavaType.long
-      else if (JavaType.floatCollection.isAssignableFrom(collectionType)) JavaType.float
-      else if (JavaType.doubleCollection.isAssignableFrom(collectionType)) JavaType.double
-      else if (JavaType.charCollection.isAssignableFrom(collectionType)) JavaType.char
-      else JavaType.Object
-
-      useInnerScope { forScope ->
-        val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName, Nullness.UNKNOWN)
-        val addedExpression = node.mapExpr?.accept(this) ?: ReferenceNode(variable = forVariable, token = node.token)
-        if (addedExpression.type.primitive
-          && PrimitiveCollectionTypes.hasPrimitiveCollection(addedExpression.type.asPrimitiveType)
-          && (collectionVar.type == List::class.javaType || collectionVar.type == Set::class.javaType)
-        ) {
-          // try to guess a primitive collection type if the addStmt always adds a primitive
-          expectedElementType = addedExpression.type
-          collectionType =
-            if (collectionVar.type == List::class.javaType) PrimitiveCollectionTypes.listFromPrimitiveType(
-              expectedElementType.asPrimitiveType
-            )!!
-            else PrimitiveCollectionTypes.setFromPrimitiveType(expectedElementType.asPrimitiveType)!!
-          mapFilterMethodNode.returnType = collectionType
-        }
-
-        mapFilterMethodNode.blockStatement.add(
-          ExpressionStatementNode(
-            VariableAssignmentNode(
-              collectionVar,
-              expression = cast(
-                collectionType,
-                NewArrayNode(
-                  expectedElementType.arrayType,
-                  IntConstantNode(token = node.token, value = 0),
-                  token = node.token
-                )
-              )
-            )
-          )
-        )
-
-        var addStmt: StatementNode = ExpressionStatementNode(
-          fCall(
-            node = node,
-            name = "add",
-            arguments = listOf(cast(expectedElementType, addedExpression)),
-            owner = collectionRef
-          )
-        )
-        node.filterExpr?.let { filterExpr ->
-          addStmt = IfStatementNode(
-            conditionNode = truthyCast(filterExpr.accept(this)),
-            trueStatementNode = addStmt,
-            falseStatementNode = null,
-            node = node
-          )
-        }
-        val forStatement = if (inNodeVarRef.type.isArray) {
-          val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
-          forInArrayNode(
-            node = node,
-            forScope = forScope,
-            iVar = iVar,
-            inNode = inNodeVarRef,
-            forVariable = forVariable,
-            statementNode = addStmt
-          )
-        } else { // iterating over iterable
-          forInIteratorNode(
-            node = node,
-            forScope = forScope,
-            variable = forVariable,
-            inNode = inNodeVarRef,
-            bodtStmt = addStmt
-          )
-        }
-        mapFilterMethodNode.blockStatement.add(forStatement)
-      }
-      mapFilterMethodNode.blockStatement.add(ReturnStatementNode(cast(expectedType, collectionRef)))
+    val inCstExpr = node.inExpr
+    if (inCstExpr == null) {
+      return exprError(node, "Invalid use of IN operation: missing IN value", expectedType)
     }
+    val inNode = inCstExpr.accept(this)
+    if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(
+        CharSequence::class.javaType
+      )
+    ) {
+      return exprError(inCstExpr, "Can only perform IN operation on an Iterable, CharSequence or array")
+    }
+
+    return useInnerScope { scope ->
+     val collectionVar = scope.addLocalVariable(collectionType, Nullness.NOT_NULL)
+     val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
+      val inNodeVar = scope.addLocalVariable(inNode.type, Nullness.NOT_NULL)
+      val inNodeVarRef = ReferenceNode(variable = inNodeVar, token = node.token)
+     var expectedElementType = if (JavaType.intCollection.isAssignableFrom(collectionType)) JavaType.int
+     else if (JavaType.longCollection.isAssignableFrom(collectionType)) JavaType.long
+     else if (JavaType.floatCollection.isAssignableFrom(collectionType)) JavaType.float
+     else if (JavaType.doubleCollection.isAssignableFrom(collectionType)) JavaType.double
+     else if (JavaType.charCollection.isAssignableFrom(collectionType)) JavaType.char
+     else JavaType.Object
+
+     val blockStatement = BlockStatementNode(mutableListOf(
+       ExpressionStatementNode(
+         VariableAssignmentNode(
+           variable = inNodeVar,
+           expression = inNode,
+           tokenStart = inNode.tokenStart,
+           tokenEnd = inNode.tokenEnd,
+         )
+       )
+     ), node.tokenStart, node.tokenEnd)
+     useInnerScope { forScope ->
+       val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName, Nullness.UNKNOWN)
+       val addedExpression = node.mapExpr?.accept(this) ?: ReferenceNode(variable = forVariable, token = node.token)
+       if (addedExpression.type.primitive
+         && PrimitiveCollectionTypes.hasPrimitiveCollection(addedExpression.type.asPrimitiveType)
+         && (collectionVar.type == List::class.javaType || collectionVar.type == Set::class.javaType)
+       ) {
+         // try to guess a primitive collection type if the addStmt always adds a primitive
+         expectedElementType = addedExpression.type
+         collectionType =
+           if (collectionVar.type == List::class.javaType) PrimitiveCollectionTypes.listFromPrimitiveType(
+             expectedElementType.asPrimitiveType
+           )!!
+           else PrimitiveCollectionTypes.setFromPrimitiveType(expectedElementType.asPrimitiveType)!!
+       }
+
+       blockStatement.add(
+         ExpressionStatementNode(
+           VariableAssignmentNode(
+             collectionVar,
+             expression = cast(
+               collectionType,
+               NewArrayNode(
+                 expectedElementType.arrayType,
+                 IntConstantNode(token = node.token, value = 0),
+                 token = node.token
+               )
+             )
+           )
+         )
+       )
+       var addStmt: StatementNode = ExpressionStatementNode(
+         fCall(
+           node = node,
+           name = "add",
+           arguments = listOf(cast(expectedElementType, addedExpression)),
+           owner = collectionRef
+         )
+       )
+       node.filterExpr?.let { filterExpr ->
+         addStmt = IfStatementNode(
+           conditionNode = truthyCast(filterExpr.accept(this)),
+           trueStatementNode = addStmt,
+           falseStatementNode = null,
+           node = node
+         )
+       }
+       val forStatement = if (inNodeVarRef.type.isArray) {
+         val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
+         forInArrayNode(
+           node = node,
+           forScope = forScope,
+           iVar = iVar,
+           inNode = inNodeVarRef,
+           forVariable = forVariable,
+           statementNode = addStmt
+         )
+       } else { // iterating over iterable
+         forInIteratorNode(
+           node = node,
+           forScope = forScope,
+           variable = forVariable,
+           inNode = inNodeVarRef,
+           bodtStmt = addStmt
+         )
+       }
+       blockStatement.add(forStatement)
+     }
+     YieldExpression(blockStatement, cast(expectedType, collectionRef))
+   }
   }
 
   override fun visit(node: AllInCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -542,53 +552,88 @@ abstract class SemanticCstNodeVisitor constructor(
 
   override fun visit(node: FindInCstNode, smartCastType: JavaType?): ExpressionNode {
     val varType = resolve(node.varType)
-    return inOperation(
-      node,
-      node.inExpr,
-      "_find_",
-      listOf(node.filterExpr),
-      varType.objectType,
-      Nullness.NULLABLE,
-    ) { methodNode, methodScope ->
-      useInnerScope { forScope ->
-        val forVariable = forScope.addLocalVariable(varType, node.varName, Nullness.UNKNOWN)
-        val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
 
-        val forStatement = if (inNodeVarRef.type.isArray) {
-          val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
-          forInArrayNode(
-            node = node,
-            forScope = forScope,
-            iVar = iVar,
-            inNode = inNodeVarRef,
-            forVariable = forVariable
-          ) {
-            IfStatementNode(
-              conditionNode = truthyCast(node.filterExpr.accept(this)),
-              trueStatementNode = ReturnStatementNode(
-                cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
-              ),
-              falseStatementNode = null,
-              node = node
-            )
-          }
-        } else { // iterating over iterable
-          forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
-            IfStatementNode(
-              conditionNode = truthyCast(node.filterExpr.accept(this)),
-              trueStatementNode = ReturnStatementNode(
-                cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
-              ),
-              falseStatementNode = null,
-              node = node
-            )
-          }
+    val inCstExpr = node.inExpr
+    if (inCstExpr == null) {
+      return exprError(node, "Invalid use of IN operation: missing IN value", smartCastType)
+    }
+    val inNode = inCstExpr.accept(this)
+    if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(
+        CharSequence::class.javaType
+      )
+    ) {
+      return exprError(inCstExpr, "Can only perform IN operation on an Iterable, CharSequence or array")
+    }
+
+    return useInnerScope { forScope ->
+      val forVariable = forScope.addLocalVariable(varType, node.varName, Nullness.UNKNOWN)
+      val inNodeVar = forScope.addLocalVariable(inNode.type, Nullness.NOT_NULL)
+      val inNodeVarRef = ReferenceNode(variable = inNodeVar, token = node.token)
+
+      val resultVariable = forScope.addLocalVariable(varType.objectType, Nullness.NULLABLE)
+
+      val blockStatement = BlockStatementNode(mutableListOf(
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            variable = inNodeVar,
+            expression = inNode,
+            tokenStart = inNode.tokenStart,
+            tokenEnd = inNode.tokenEnd,
+          )
+        ),
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            variable = resultVariable,
+            expression = NullValueNode(token = node.token),
+            tokenStart = inNode.tokenStart,
+            tokenEnd = inNode.tokenEnd,
+          )
+        )
+      ), node.tokenStart, node.tokenEnd)
+
+      val forStatement = if (inNodeVarRef.type.isArray) {
+        val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
+        forInArrayNode(
+          node = node,
+          forScope = forScope,
+          iVar = iVar,
+          inNode = inNodeVarRef,
+          forVariable = forVariable
+        ) {
+          IfStatementNode(
+            conditionNode = truthyCast(node.filterExpr.accept(this)),
+            trueStatementNode = ReturnStatementNode(
+              cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
+            ),
+            falseStatementNode = null,
+            node = node
+          )
         }
-        methodNode.blockStatement.apply {
-          add(forStatement)
-          add(ReturnStatementNode(NullValueNode(token = node.token, type = varType.objectType)))
+      } else { // iterating over iterable
+        forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
+          IfStatementNode(
+            conditionNode = truthyCast(node.filterExpr.accept(this)),
+            trueStatementNode = BlockStatementNode(mutableListOf(
+              ExpressionStatementNode(
+                VariableAssignmentNode(
+                  variable = resultVariable,
+                  // TODO create ForcePushExpression and push value here then break instead of doing a varAssign.
+                  //    then on the below yieldNode, push null instead of resultVariable
+                  //    don't forget to remove resultVariable
+                  expression = cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token)),
+                  tokenStart = inNode.tokenStart,
+                  tokenEnd = inNode.tokenEnd,
+                )
+              ),
+              BreakNode(node=node) // exit for loop
+            )),
+            falseStatementNode = null,
+            node = node
+          )
         }
       }
+      blockStatement.add(forStatement)
+      YieldExpression(blockStatement, expression = ReferenceNode(variable = resultVariable, token = node.token))
     }
   }
 
