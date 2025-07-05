@@ -5,9 +5,9 @@ import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class ThisReferenceNode(
-  type: JavaType,
+  override val type: JavaType,
   token: LexToken
-) : AbstractExpressionNode(type, token) {
+) : AbstractExpressionNode(token) {
 
   override val nullness: Nullness
     get() = Nullness.NOT_NULL

@@ -10,8 +10,9 @@ class ThisConstructorCallNode(
   val javaMethod: MarcelMethod,
   val arguments: List<ExpressionNode>,
   tokenStart: LexToken, tokenEnd: LexToken
-) : AbstractExpressionNode(JavaType.void, tokenStart, tokenEnd) {
+) : AbstractExpressionNode(tokenStart, tokenEnd) {
 
+  override val type = JavaType.void
   override val nullness: Nullness
     get() = Nullness.NOT_NULL
 

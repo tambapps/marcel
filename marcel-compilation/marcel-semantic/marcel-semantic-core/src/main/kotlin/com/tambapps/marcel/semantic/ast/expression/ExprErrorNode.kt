@@ -9,11 +9,11 @@ import com.tambapps.marcel.semantic.symbol.type.Nullness
  * Such nodes are not present in a semantically valid AST
  */
 class ExprErrorNode private constructor(
-  type: JavaType,
+  override val type: JavaType,
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) :
-  AbstractExpressionNode(type, tokenStart, tokenEnd) {
+  AbstractExpressionNode(tokenStart, tokenEnd) {
 
   override val nullness: Nullness
     get() = Nullness.UNKNOWN

@@ -10,8 +10,10 @@ open class FunctionCallNode(
   val arguments: List<ExpressionNode>,
   tokenStart: LexToken,
   tokenEnd: LexToken
-) : AbstractExpressionNode(javaMethod.returnType, tokenStart, tokenEnd),
+) : AbstractExpressionNode(tokenStart, tokenEnd),
   OwnableAstNode {
+
+  override val type = javaMethod.returnType
 
   override val nullness: Nullness
     get() = javaMethod.nullness

@@ -7,7 +7,7 @@ import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class NullValueNode(token: LexToken, type: JavaType?) :
-  AbstractExpressionNode(type ?: JavaType.Anything, token),
+  AbstractExpressionNode(token),
   JavaConstantExpression {
 
     override val nullness: Nullness
@@ -17,7 +17,7 @@ class NullValueNode(token: LexToken, type: JavaType?) :
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 
-  override var type = super.type
+  override var type = type ?: JavaType.Anything
 
   constructor(token: LexToken) : this(token, null)
 

@@ -17,8 +17,9 @@ class VariableAssignmentNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val identifierToken: LexToken? = null
-) : AbstractExpressionNode(variable.type, tokenStart, tokenEnd),
+) : AbstractExpressionNode(tokenStart, tokenEnd),
   AstVariableNode {
+  override val type = variable.type
   override val nullness: Nullness
     get() = expression.nullness
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =

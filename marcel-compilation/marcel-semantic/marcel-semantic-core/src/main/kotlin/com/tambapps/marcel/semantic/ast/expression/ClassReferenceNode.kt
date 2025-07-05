@@ -5,8 +5,9 @@ import com.tambapps.marcel.semantic.ast.expression.literal.JavaConstantExpressio
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 class ClassReferenceNode(val classType: JavaType, token: LexToken) :
-  AbstractExpressionNode(JavaType.Clazz, token), JavaConstantExpression {
+  AbstractExpressionNode(token), JavaConstantExpression {
 
+  override val type = JavaType.Clazz
   override val value = classType
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =

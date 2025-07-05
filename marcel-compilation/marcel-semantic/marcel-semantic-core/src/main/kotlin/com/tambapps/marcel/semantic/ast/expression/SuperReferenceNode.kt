@@ -5,8 +5,8 @@ import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 // must pass the actual superType
-class SuperReferenceNode(type: JavaType, token: LexToken) :
-  AbstractExpressionNode(type, token) {
+class SuperReferenceNode(override val type: JavaType, token: LexToken) :
+  AbstractExpressionNode(token) {
 
   override val nullness: Nullness
     get() = Nullness.NOT_NULL

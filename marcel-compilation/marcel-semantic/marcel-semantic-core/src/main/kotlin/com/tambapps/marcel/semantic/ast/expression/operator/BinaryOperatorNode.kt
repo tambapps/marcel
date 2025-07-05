@@ -7,9 +7,8 @@ import com.tambapps.marcel.semantic.symbol.type.JavaType
 sealed class BinaryOperatorNode(
   val leftOperand: ExpressionNode,
   val rightOperand: ExpressionNode,
-  type: JavaType
+  override val type: JavaType
 ) : AbstractExpressionNode(
-  type,
   leftOperand.tokenStart,
   rightOperand.tokenEnd
 ) {

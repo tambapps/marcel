@@ -6,8 +6,9 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 class BoolConstantNode(token: LexToken, override val value: Boolean) :
-  AbstractExpressionNode(JavaType.boolean, token), JavaConstantExpression {
+  AbstractExpressionNode(token), JavaConstantExpression {
 
+  override val type = JavaType.boolean
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 

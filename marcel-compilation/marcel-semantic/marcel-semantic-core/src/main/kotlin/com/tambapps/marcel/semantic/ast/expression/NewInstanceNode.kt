@@ -6,11 +6,11 @@ import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 open class NewInstanceNode(
-  type: JavaType,
+  override val type: JavaType,
   val javaMethod: MarcelMethod,
   open val arguments: List<ExpressionNode>,
   token: LexToken
-) : AbstractExpressionNode(type, token) {
+) : AbstractExpressionNode(token) {
   override val nullness: Nullness
     get() = Nullness.NOT_NULL
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =

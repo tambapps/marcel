@@ -9,10 +9,10 @@ import com.tambapps.marcel.semantic.symbol.type.Nullness
  */
 class DupNode(val expression: ExpressionNode) :
   AbstractExpressionNode(
-    expression.type,
     expression.tokenStart,
     expression.tokenEnd
   ) {
+    override val type = expression.type
     override val nullness: Nullness
     get() = expression.nullness
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =

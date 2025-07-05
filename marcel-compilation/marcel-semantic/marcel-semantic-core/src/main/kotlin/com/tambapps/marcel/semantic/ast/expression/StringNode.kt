@@ -10,7 +10,9 @@ class StringNode(
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) :
-  AbstractExpressionNode(JavaType.String, tokenStart, tokenEnd) {
+  AbstractExpressionNode(tokenStart, tokenEnd) {
+
+  override val type = JavaType.String
 
   override val nullness: Nullness
     get() = Nullness.NOT_NULL

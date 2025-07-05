@@ -5,10 +5,10 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.AbstractAstNode
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 
-abstract class AbstractExpressionNode(override val type: JavaType, tokenStart: LexToken, tokenEnd: LexToken) :
+abstract class AbstractExpressionNode constructor(tokenStart: LexToken, tokenEnd: LexToken) :
   AbstractAstNode(tokenStart, tokenEnd),
   ExpressionNode {
 
-  constructor(type: JavaType, token: LexToken) : this(type, token, token)
-  constructor(type: JavaType, node: CstNode) : this(type, node.tokenStart, node.tokenEnd)
+  constructor(token: LexToken) : this(token, token)
+  constructor(node: CstNode) : this(node.tokenStart, node.tokenEnd)
 }

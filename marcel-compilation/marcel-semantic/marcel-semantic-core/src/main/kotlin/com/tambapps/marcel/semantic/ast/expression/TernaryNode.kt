@@ -9,13 +9,12 @@ class TernaryNode(
   val trueExpressionNode: ExpressionNode,
   val falseExpressionNode: ExpressionNode,
   node: CstNode
-) :
-  AbstractExpressionNode(
-    JavaType.commonType(
-      trueExpressionNode,
-      falseExpressionNode
-    ), node
-  ) {
+) : AbstractExpressionNode(node) {
+
+  override val type = JavaType.commonType(
+    trueExpressionNode,
+    falseExpressionNode
+  )
 
   override val nullness: Nullness
     get() = Nullness.of(trueExpressionNode, falseExpressionNode)

@@ -12,8 +12,8 @@ class ArrayNode constructor(
   val elements: MutableList<ExpressionNode>,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  override val type: JavaArrayType // overriding because we know for sure it's an array type
-) : AbstractExpressionNode(type, tokenStart, tokenEnd) {
+  override val type: JavaArrayType
+) : AbstractExpressionNode(tokenStart, tokenEnd) {
 
   override val nullness: Nullness
     get() = Nullness.NOT_NULL

@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AstVariableNode
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.Variable
 import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
@@ -9,9 +10,10 @@ import com.tambapps.marcel.semantic.symbol.variable.field.MarcelField
 class ReferenceNode(
   override val owner: ExpressionNode? = null,
   override var variable: Variable, token: LexToken
-) : AbstractExpressionNode(variable.type, token),
+) : AbstractExpressionNode(token),
   AstVariableNode, OwnableAstNode {
 
+  override val type = variable.type
   override val nullness: Nullness
     get() = variable.nullness
 

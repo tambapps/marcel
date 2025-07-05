@@ -10,11 +10,12 @@ class StringConstantNode(
   override val value: String,
   tokenStart: LexToken,
   tokenEnd: LexToken
-) : AbstractExpressionNode(JavaType.String, tokenStart, tokenEnd),
+) : AbstractExpressionNode(tokenStart, tokenEnd),
   JavaConstantExpression {
 
   constructor(value: String, node: CstNode) : this(value, node.tokenStart, node.tokenEnd)
 
+  override val type = JavaType.String
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 

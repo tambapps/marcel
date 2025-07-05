@@ -127,7 +127,7 @@ class AstNodeCasterTest {
 
   private fun node(type: JavaType) = MyExpressionNode(type)
 
-  private inner class MyExpressionNode(type: JavaType) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(type, token()) {
+  private inner class MyExpressionNode(override val type: JavaType) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(token()) {
 
     override val nullness: Nullness
       get() = Nullness.UNKNOWN

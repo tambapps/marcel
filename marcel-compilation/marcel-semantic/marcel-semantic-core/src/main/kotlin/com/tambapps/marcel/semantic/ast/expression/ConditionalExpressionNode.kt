@@ -11,8 +11,7 @@ class ConditionalExpressionNode(
   val trueExpression: ExpressionNode,
   var falseExpression: ExpressionNode?,
 ) :
-  // type will be overridden anyway TODO move type away from constructor. Make it an abstract property so that I don't have to pass random type here
-  AbstractExpressionNode(JavaType.Object, tokenStart, tokenEnd) {
+  AbstractExpressionNode(tokenStart, tokenEnd) {
 
   constructor(condition: ExpressionNode, trueExpression: ExpressionNode, falseExpression: ExpressionNode?): this(condition.tokenStart, trueExpression.tokenEnd, condition, trueExpression, falseExpression)
 

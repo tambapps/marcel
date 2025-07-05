@@ -8,10 +8,10 @@ import com.tambapps.marcel.semantic.symbol.type.Nullness
  * Java cast node
  */
 class JavaCastNode(
-  type: JavaType,
+  override val type: JavaType,
   val expressionNode: ExpressionNode,
   token: LexToken
-) : AbstractExpressionNode(type, token) {
+) : AbstractExpressionNode(token) {
   override val nullness: Nullness
     get() = expressionNode.nullness
 

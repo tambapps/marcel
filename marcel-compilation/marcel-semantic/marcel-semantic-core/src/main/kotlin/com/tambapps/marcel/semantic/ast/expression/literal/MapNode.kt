@@ -11,7 +11,9 @@ class MapNode(
   val entries: List<Pair<ExpressionNode, ExpressionNode>>,
   node: CstNode
 ) :
-  AbstractExpressionNode(JavaType.Map, node) {
+  AbstractExpressionNode(node) {
+
+  override val type = JavaType.Map
 
   override val nullness: Nullness
     get() = Nullness.NOT_NULL

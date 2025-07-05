@@ -10,7 +10,9 @@ class InstanceOfNode(
   val expressionNode: ExpressionNode,
   tokenStart: LexToken,
   tokenEnd: LexToken
-) : AbstractExpressionNode(JavaType.boolean, tokenStart, tokenEnd) {
+) : AbstractExpressionNode(tokenStart, tokenEnd) {
+
+  override val type = JavaType.boolean
 
   override val nullness: Nullness
     get() = Nullness.NOT_NULL

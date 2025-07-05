@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 class ArrayAccessNode(
@@ -10,7 +11,6 @@ class ArrayAccessNode(
   tokenStart: LexToken, tokenEnd: LexToken
 ) :
   AbstractExpressionNode(
-    owner.type.asArrayType.elementsType,
     tokenStart,
     tokenEnd
   ) {
@@ -21,6 +21,7 @@ class ArrayAccessNode(
   )
       : this(owner, indexNode, node.tokenStart, node.tokenEnd)
 
+  override val type = owner.type.asArrayType.elementsType
   override val nullness: Nullness
     get() = if (arrayType.elementsType.primitive) Nullness.NOT_NULL else Nullness.UNKNOWN
 

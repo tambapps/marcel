@@ -19,7 +19,9 @@ class YieldExpression(
    */
   val expression: ExpressionNode
 ) :
-  AbstractExpressionNode(expression.type, tokenStart, tokenEnd) {
+  AbstractExpressionNode(tokenStart, tokenEnd) {
+
+  override val type = expression.type
 
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
