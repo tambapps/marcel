@@ -668,6 +668,7 @@ abstract class SemanticCstNodeVisitor constructor(
 
     val inOperatorMethodParameters = mutableListOf(MethodParameter(inNode.type,inNode.nullness,  inValueName))
     inOperatorMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.nullness, it.name) })
+    // TODO method may not be needed. Use something like YieldValue
     val inOperatorMethodNode = generateOrGetMethod(methodPrefix, inOperatorMethodParameters, methodReturnType, node,
       nullness)
 
@@ -955,45 +956,7 @@ abstract class SemanticCstNodeVisitor constructor(
         )
       )
 
-      TokenType.EQUAL, TokenType.NOT_EQUAL -> equalityComparisonOperatorNode(
-        leftOperand, rightOperand,
-        if (tokenType == TokenType.EQUAL) ::IsEqualNode else ::IsNotEqualNode
-      ) { left, right ->
-        val equalNode = when {
-          left.type.isArray && left.type.isArray -> {
-            if (left.type == right.type) {
-              if (left.type.asArrayType.elementsType.primitive) fCall(
-                node = node,
-                name = "equals",
-                ownerType = Arrays::class.javaType,
-                arguments = listOf(left, right)
-              )
-              else fCall(
-                node = node,
-                name = "deepEquals",
-                ownerType = Arrays::class.javaType,
-                arguments = listOf(left, right)
-              )
-            }
-            // Objects.equals(...) handles any Object whereas Arrays.equals() handles Object[]
-            else fCall(
-              node = node,
-              name = "deepEquals",
-              ownerType = Objects::class.javaType,
-              arguments = listOf(left, right)
-            )
-          }
-
-          else -> fCall(
-            node = node,
-            name = "equals",
-            ownerType = Objects::class.javaType,
-            arguments = listOf(left, right)
-          )
-        }
-        if (tokenType == TokenType.EQUAL) equalNode else NotNode(equalNode)
-      }
-
+      TokenType.EQUAL, TokenType.NOT_EQUAL -> equalityComparisonOperatorNode(node, tokenType, leftOperand.accept(this), rightOperand.accept(this))
       TokenType.GOE -> numberComparisonOperatorNode(
         leftOperand, rightOperand,
         ::GeNode
@@ -1311,20 +1274,64 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   private fun equalityComparisonOperatorNode(
-    leftOperand: ExpressionCstNode,
-    rightOperand: ExpressionCstNode,
+    node: CstNode,
+    tokenType: TokenType,
+    leftOperand: ExpressionNode,
+    rightOperand: ExpressionNode,
+  ): ExpressionNode {
+    return equalityComparisonOperatorNode(
+      leftOperand, rightOperand,
+      if (tokenType == TokenType.EQUAL) ::IsEqualNode else ::IsNotEqualNode
+    ) { left, right ->
+      val equalNode = when {
+        left.type.isArray && left.type.isArray -> {
+          if (left.type == right.type) {
+            if (left.type.asArrayType.elementsType.primitive) fCall(
+              node = node,
+              name = "equals",
+              ownerType = Arrays::class.javaType,
+              arguments = listOf(left, right)
+            )
+            else fCall(
+              node = node,
+              name = "deepEquals",
+              ownerType = Arrays::class.javaType,
+              arguments = listOf(left, right)
+            )
+          }
+          // Objects.equals(...) handles any Object whereas Arrays.equals() handles Object[]
+          else fCall(
+            node = node,
+            name = "deepEquals",
+            ownerType = Objects::class.javaType,
+            arguments = listOf(left, right)
+          )
+        }
+
+        else -> fCall(
+          node = node,
+          name = "equals",
+          ownerType = Objects::class.javaType,
+          arguments = listOf(left, right)
+        )
+      }
+      if (tokenType == TokenType.EQUAL) equalNode else NotNode(equalNode)
+    }
+  }
+
+  private inline fun equalityComparisonOperatorNode(
+    left: ExpressionNode,
+    right: ExpressionNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
     objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode
   ): ExpressionNode {
-    val left = leftOperand.accept(this)
-    val right = rightOperand.accept(this)
 
     return if (left.type.primitive && right.type.primitive) {
       val commonType = JavaType.commonType(left.type, right.type)
       nodeCreator.invoke(cast(commonType, left), cast(commonType, right))
     } else if (left.type.primitive && !right.type.primitive || !left.type.primitive && right.type.primitive) {
       if (!left.type.isPrimitiveObjectType || !left.type.isPrimitiveObjectType) {
-        return exprError(leftOperand.token, "Cannot compare ${left.type} with ${right.type}", JavaType.boolean)
+        return exprError(left.token, "Cannot compare ${left.type} with ${right.type}", JavaType.boolean)
       }
       // getting the object type (not primitive because as one is originally an object, it can be null)
       val leftType = left.type.asPrimitiveType.objectType
@@ -1855,13 +1862,6 @@ abstract class SemanticCstNodeVisitor constructor(
     }
   }
 
-  override fun visit(node: SwitchCstNode, smartCastType: JavaType?): ExpressionNode {
-    // transforming the switch into a when
-    val switchExpression = node.switchExpression.accept(this)
-    // TODO migrate to when
-    return switchWhen(node, smartCastType, switchExpression, node.varDeclaration)
-  }
-
   /**
    * Predefine the lambda. This methods just creates the lambda class node and return a constructor call of it.
    * The lambda class will be constructed and sematically checked later, as we first we to continue the analysis
@@ -2270,7 +2270,33 @@ abstract class SemanticCstNodeVisitor constructor(
     )
   }
 
-  override fun visit(node: WhenCstNode, smartCastType: JavaType?): ExpressionNode {
+  override fun visit(node: SwitchCstNode, smartCastType: JavaType?): ExpressionNode {
+    return useInnerScope { scope ->
+      val switchExpression = node.switchExpression.accept(this)
+      val varDeclaration = node.varDeclaration
+      val switchVariable = if (varDeclaration != null) {
+        val varType = resolve(varDeclaration.type)
+        scope.addLocalVariable(varType, varDeclaration.value, Nullness.of(varType, varDeclaration.isNullable))
+      } else {
+        scope.addLocalVariable(switchExpression.type, switchExpression.nullness)
+      }
+      val initStatement = ExpressionStatementNode(
+        VariableAssignmentNode(switchVariable, cast(switchVariable.type, switchExpression), node)
+      )
+      val switchVarRef = ReferenceNode(variable = switchVariable, token = node.token)
+
+      YieldExpression(
+        statement = initStatement,
+        expression = switchWhenV2(node, smartCastType) { comparisonExpression ->
+          equalityComparisonOperatorNode(node, TokenType.EQUAL, switchVarRef, comparisonExpression)
+        }
+      )
+    }
+  }
+
+  override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhenV2(node, smartCastType) { it }
+
+  private inline fun switchWhenV2(node: WhenCstNode, smartCastType: JavaType?, conditionTransformer: (ExpressionNode) -> ExpressionNode): ExpressionNode {
     val shouldReturnValue = smartCastType != null && smartCastType != JavaType.void
     val elseCstStatement = node.elseStatement
     if (node.branches.isEmpty()) {
@@ -2284,19 +2310,19 @@ abstract class SemanticCstNodeVisitor constructor(
       if (elseCstStatement == null) {
         return exprError(node, "When/switch expression should have an else branch", smartCastType)
       }
-      val extractorVisitor = WhenStatementExpressionSeparator(this::exprError)
+      val extractorVisitor = WhenStatementExpressionSeparator(smartCastType, this, this::exprError)
       val rawBranches: List<Triple<ExpressionNode, StatementNode?, ExpressionNode>> = node.branches.map { (conditionCstExpr, stmtCst) ->
         val conditionExpression = conditionCstExpr.accept(this)
-        val (statement, yieldValue) = stmtCst.accept(this).accept(extractorVisitor)
+        val (statement, yieldValue) = stmtCst.accept(extractorVisitor)
         Triple(conditionExpression, statement, yieldValue)
       }
-      val (elseStatement, elseYieldValue) = elseCstStatement.accept(this).accept(extractorVisitor)
+      val (elseStatement, elseYieldValue) = elseCstStatement.accept(extractorVisitor)
       val allBranches = rawBranches.map { it.third } + elseYieldValue
       val expectedYieldType = smartCastType ?: JavaType.commonType(allBranches.map { it.type })
 
       val rootIf = rawBranches.first().let {
         ConditionalExpressionNode(
-          condition = it.first,
+          condition = conditionTransformer.invoke(it.first),
           trueExpression = YieldExpression(it.second, cast(expectedYieldType, it.third)),
           falseExpression = null
         )
@@ -2305,7 +2331,7 @@ abstract class SemanticCstNodeVisitor constructor(
       for (i in 1 until rawBranches.size) {
         val it = rawBranches[i]
         val ifBranch = ConditionalExpressionNode(
-          condition = it.first,
+          condition = conditionTransformer.invoke(it.first),
           trueExpression = YieldExpression(it.second, cast(expectedYieldType, it.third)),
           falseExpression = null
         )
@@ -2317,7 +2343,7 @@ abstract class SemanticCstNodeVisitor constructor(
     } else {
       val rootIf = node.branches.first().let {
         ConditionalExpressionNode(
-          condition = it.first.accept(this),
+          condition = conditionTransformer.invoke(it.first.accept(this)),
           trueExpression = YieldExpression(statement = it.second.accept(this), expression = VoidExpressionNode(it.first.token)),
           falseExpression = null
         )
@@ -2326,7 +2352,7 @@ abstract class SemanticCstNodeVisitor constructor(
       for (i in 1 until node.branches.size) {
         val it = node.branches[i]
         val ifBranch = ConditionalExpressionNode(
-          condition = it.first.accept(this),
+          condition = conditionTransformer.invoke(it.first.accept(this)),
           trueExpression = YieldExpression(it.second.accept(this), VoidExpressionNode(it.first.token)),
           falseExpression = null
         )
@@ -2340,135 +2366,6 @@ abstract class SemanticCstNodeVisitor constructor(
     }
   }
 
-  private fun switchWhen(
-    node: WhenCstNode,
-    smartCastType: JavaType?,
-    switchExpression: ExpressionNode? = null,
-    varDecl: VariableDeclarationCstNode? = null
-  ): ExpressionNode {
-    val shouldReturnValue = smartCastType != null && smartCastType != JavaType.void
-    val elseStatement = node.elseStatement
-    if (shouldReturnValue && elseStatement == null) {
-      return exprError(node, "When/switch expression should have an else branch", smartCastType)
-    }
-    if (node.branches.isEmpty()) {
-      if (elseStatement == null || shouldReturnValue) return exprError(
-        node.token,
-        "Switch/When should have at least 1 non else branch", smartCastType
-      )
-      node.branches.add(
-        Pair(
-          BoolCstNode(node.parent, false, node.token),
-          BlockCstNode(emptyList(), node.parent, node.tokenStart, node.tokenEnd)
-        )
-      )
-    }
-
-    val whenReturnType = smartCastType ?: computeWhenReturnType(node)
-
-    val switchExpressionRef = ReferenceCstNode(
-      node.parent,
-      varDecl?.value ?: ("__switch_expression" + node.hashCode().toString().replace('-', '_')),
-      node.token
-    )
-    val switchExpressionLocalVariable =
-      currentMethodScope.addLocalVariable(varDecl?.let { resolve(it.type) } ?: switchExpression?.type
-      ?: JavaType.Object, switchExpressionRef.value, switchExpression?.nullness ?: Nullness.UNKNOWN, token = node.token)
-
-    val rootIfCstNode = node.branches.first().let {
-      toIf(it, switchExpression, switchExpressionRef, node)
-    }
-    var ifCstNode = rootIfCstNode
-    for (i in 1 until node.branches.size) {
-      val branch = node.branches[i]
-      val ifBranch = toIf(branch, switchExpression, switchExpressionRef, node)
-      ifCstNode.falseStatementNode = ifBranch
-      ifCstNode = ifBranch
-    }
-    if (elseStatement != null) ifCstNode.falseStatementNode = elseStatement
-
-    /*
-     * Looking for all local variables used from cst node as we'll need to pass them to the 'when' method
-     */
-    val referencedLocalVariables =
-      findAllReferencedLocalVariables(node, currentMethodScope, switchExpressionLocalVariable)
-
-    val whenMethodParameters = mutableListOf<MethodParameter>()
-    val whenMethodArguments = mutableListOf<ExpressionNode>()
-    if (switchExpression != null) {
-      whenMethodParameters.add(MethodParameter(switchExpressionLocalVariable.type, switchExpressionLocalVariable.nullness, switchExpressionLocalVariable.name))
-      whenMethodArguments.add(switchExpression)
-    }
-    for (lv in referencedLocalVariables) {
-      whenMethodParameters.add(MethodParameter(lv.type, lv.nullness, lv.name, isFinal = true))
-      whenMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
-    }
-
-    /*
-     * generating method
-     */
-    val whenMethod = generateOrGetMethod(WHEN_METHOD_PREFIX, whenMethodParameters, whenReturnType, node, Nullness.UNKNOWN)
-    val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode, smartCastType) }
-    if (shouldReturnValue) {
-      var tmpIfNode: IfStatementNode? = whenStatement
-      val branchTransformer = ReturningWhenIfBranchTransformer(node) { cast(whenReturnType, it) }
-      while (tmpIfNode != null) {
-        tmpIfNode.trueStatementNode = tmpIfNode.trueStatementNode.accept(branchTransformer)
-        if (tmpIfNode.falseStatementNode is IfStatementNode || tmpIfNode.falseStatementNode == null) {
-          tmpIfNode = tmpIfNode.falseStatementNode as? IfStatementNode
-        } else {
-          tmpIfNode.falseStatementNode = tmpIfNode.falseStatementNode!!.accept(branchTransformer)
-          break
-        }
-      }
-    }
-
-    whenMethod.blockStatement.apply {
-      add(whenStatement)
-      // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
-      if (whenReturnType == JavaType.void) add(returnVoid(this))
-    }
-
-    // dispose switch expression variable
-    currentMethodScope.freeLocalVariable(switchExpressionLocalVariable.name)
-
-    // now calling the method
-    return fCall(
-      node = node, owner = ThisReferenceNode(currentScope.classType, node.token),
-      arguments = whenMethodArguments, method = whenMethod
-    )
-  }
-
-  private fun findAllReferencedLocalVariables(
-    node: WhenCstNode, scope: MethodScope,
-    // variable to ignore
-    switchLocalVariable: LocalVariable
-  ): List<LocalVariable> {
-    val localVariables = mutableSetOf<LocalVariable>()
-    val consumer: (CstNode) -> Unit = { cstNode ->
-      if (cstNode is ReferenceCstNode) {
-        val lv = scope.findLocalVariable(cstNode.value)
-        if (lv != null && lv.name != switchLocalVariable.name) localVariables.add(lv)
-      }
-    }
-    for (branch in node.branches) {
-      branch.first.forEach(consumer)
-      branch.second.forEach(consumer)
-    }
-    node.elseStatement?.forEach(consumer)
-    return localVariables.toList() // to list so that order is constant
-  }
-
-  private fun computeWhenReturnType(node: WhenCstNode): JavaType = useInnerScope {
-    val branchTransformer = ReturningWhenIfBranchTransformer(node)
-    node.branches.forEach {
-      it.second.accept(this).accept(branchTransformer)
-    }
-    node.elseStatement?.accept(this)?.accept(branchTransformer)
-    return@useInnerScope JavaType.commonType(branchTransformer.collectedTypes)
-  }
-
-  // TODO handle nullness in when/switch, asyncFunction, lambda, ... everything that generates a function. To stop passing UNKNOWN to this function
   private fun generateOrGetMethod(
     prefix: String,
     parameters: MutableList<MethodParameter>,
@@ -3214,6 +3111,7 @@ abstract class SemanticCstNodeVisitor constructor(
   protected fun recordError(node: CstNode, message: String) = recordError(node.token, message)
 
   protected fun recordError(token: LexToken, message: String) {
+    throw MarcelSemanticException(token, message)
     errors.add(MarcelSemanticException.Error(message, token))
   }
 

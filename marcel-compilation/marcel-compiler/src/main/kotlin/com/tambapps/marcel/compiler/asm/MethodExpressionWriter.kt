@@ -64,10 +64,9 @@ sealed class MethodExpressionWriter(
     mv.visitLineNumber(node.token.line + 1, this)
   }
 
-
   override fun visit(node: YieldExpression) {
     node.statement?.let(this::visitStatement)
-    pushExpression(node.expression)
+    node.expression.accept(this)
   }
 
   override fun visit(node: VariableAssignmentNode) {
