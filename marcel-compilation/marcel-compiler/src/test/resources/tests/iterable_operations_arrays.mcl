@@ -1,0 +1,38 @@
+import static org.junit.jupiter.api.Assertions.assertArrayEquals
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertFalse
+import static org.junit.jupiter.api.Assertions.assertNull
+import static org.junit.jupiter.api.Assertions.assertTrue
+
+int[] list = [1, 2, 3, 4]
+
+/*
+ * map and/or filter
+ */
+assertArrayEquals([2, 3, 4, 5], [for int a in list -> a + 1].toIntArray())
+
+assertArrayEquals([2, 3], [for int a in list -> a + 1 if a <= 2].toIntArray())
+assertArrayEquals([1, 2, 3], [for int a in list if a < 4].toIntArray())
+
+/*
+ * find
+ */
+assertEquals(2, when int a in list -> a % 2 == 0)
+assertNull(when int a in list -> a < 0)
+
+/*
+ * all, any
+ */
+assertFalse(when int a in list &> a % 2 == 0)
+assertTrue(!when int a in list &> a % 2 == 0)
+assertTrue(when int a in list &> a > 0 && a <= 10)
+
+assertTrue(when int a in list |> a % 2 == 0)
+assertFalse(!when int a in list |> a % 2 == 0)
+assertFalse(when int a in list |> a == 25)
+
+/*
+ * chained
+ */
+assertEquals(2, list >> when int a -> a % 2 == 0)
+assertEquals(4, [for int a in list -> a + 3] >> when int a -> a % 2 == 0)

@@ -5,12 +5,21 @@ import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.PRIMITIVE_SET
 
 object PrimitiveCollectionTypes {
 
-  fun fromArrayType(javaType: JavaArrayType) = when (javaType) {
+  fun listOf(javaType: JavaArrayType) = when (javaType) {
     JavaType.intArray -> JavaType.intList
     JavaType.longArray -> JavaType.longList
     JavaType.floatArray -> JavaType.floatList
     JavaType.doubleArray -> JavaType.doubleList
     JavaType.charArray -> JavaType.charList
+    else -> null
+  }
+
+  fun setOf(javaType: JavaArrayType) = when (javaType) {
+    JavaType.intArray -> JavaType.intSet
+    JavaType.longArray -> JavaType.longSet
+    JavaType.floatArray -> JavaType.floatSet
+    JavaType.doubleArray -> JavaType.doubleSet
+    JavaType.charArray -> JavaType.characterSet
     else -> null
   }
 

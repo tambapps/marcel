@@ -383,10 +383,21 @@ abstract class SemanticCstNodeVisitor constructor(
   }
 
   override fun visit(node: MapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
-    val expectedType = smartCastType ?: List::class.javaType
+    var expectedType = smartCastType ?: List::class.javaType
+
+    val varType = resolve(node.varType)
+    if (varType.primitive) {
+      // trying to get a more specific expectedType if possible
+      if (expectedType == List::class.javaType) PrimitiveCollectionTypes.listOf(varType.arrayType)?.let {
+        expectedType = it
+      }
+      else if (expectedType == Set::class.javaType) PrimitiveCollectionTypes.setOf(varType.arrayType)?.let {
+        expectedType = it
+      }
+    }
 
     var collectionType =
-      if (expectedType.isArray) PrimitiveCollectionTypes.fromArrayType(expectedType.asArrayType) ?: List::class.javaType
+      if (expectedType.isArray) PrimitiveCollectionTypes.listOf(expectedType.asArrayType) ?: List::class.javaType
       else if (expectedType.implements(Collection::class.javaType)) expectedType
       else if (expectedType.isAssignableFrom(List::class.javaType)) List::class.javaType
       else if (expectedType == JavaType.void) return exprError(
@@ -430,7 +441,7 @@ abstract class SemanticCstNodeVisitor constructor(
        )
      ), node.tokenStart, node.tokenEnd)
      useInnerScope { forScope ->
-       val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName, Nullness.UNKNOWN)
+       val forVariable = forScope.addLocalVariable(varType, node.varName, Nullness.UNKNOWN)
        val addedExpression = node.mapExpr?.accept(this) ?: ReferenceNode(variable = forVariable, token = node.token)
        if (addedExpression.type.primitive
          && PrimitiveCollectionTypes.hasPrimitiveCollection(addedExpression.type.asPrimitiveType)
@@ -591,6 +602,17 @@ abstract class SemanticCstNodeVisitor constructor(
         )
       ), node.tokenStart, node.tokenEnd)
 
+      val assignFoundValueAndBreakStmt = BlockStatementNode(mutableListOf(
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            variable = resultVariable,
+            expression = cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token)),
+            tokenStart = inNode.tokenStart,
+            tokenEnd = inNode.tokenEnd,
+          )
+        ),
+        BreakNode(node=node) // exit for loop
+      ))
       val forStatement = if (inNodeVarRef.type.isArray) {
         val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
         forInArrayNode(
@@ -602,9 +624,7 @@ abstract class SemanticCstNodeVisitor constructor(
         ) {
           IfStatementNode(
             conditionNode = truthyCast(node.filterExpr.accept(this)),
-            trueStatementNode = ReturnStatementNode(
-              cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
-            ),
+            trueStatementNode = assignFoundValueAndBreakStmt,
             falseStatementNode = null,
             node = node
           )
@@ -613,20 +633,7 @@ abstract class SemanticCstNodeVisitor constructor(
         forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
           IfStatementNode(
             conditionNode = truthyCast(node.filterExpr.accept(this)),
-            trueStatementNode = BlockStatementNode(mutableListOf(
-              ExpressionStatementNode(
-                VariableAssignmentNode(
-                  variable = resultVariable,
-                  // TODO create ForcePushExpression and push value here then break instead of doing a varAssign.
-                  //    then on the below yieldNode, push null instead of resultVariable
-                  //    don't forget to remove resultVariable
-                  expression = cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token)),
-                  tokenStart = inNode.tokenStart,
-                  tokenEnd = inNode.tokenEnd,
-                )
-              ),
-              BreakNode(node=node) // exit for loop
-            )),
+            trueStatementNode = assignFoundValueAndBreakStmt,
             falseStatementNode = null,
             node = node
           )
@@ -647,6 +654,7 @@ abstract class SemanticCstNodeVisitor constructor(
     finalReturnValue: Boolean,
     forBodyGenerator: (ExpressionNode) -> StatementNode
   ): ExpressionNode {
+    // TODO stop generating a function
     return inOperation(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean, Nullness.NOT_NULL) {
                                                                                          methodNode, methodScope ->
 
