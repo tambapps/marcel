@@ -524,16 +524,11 @@ abstract class SemanticCstNodeVisitor constructor(
       ).accept(this)
     }
     return anyAllOperator(
-      node, methodPrefix = "_all_", inExpr = node.inExpr, filterExpr = node.filterExpr,
-      varType = node.varType, varName = node.varName, finalReturnValue = true
-    ) { filterExpr ->
-      IfStatementNode(
-        conditionNode = truthyCast(NotNode(filterExpr)),
-        trueStatementNode = ReturnStatementNode(BoolConstantNode(value = false, token = node.token)),
-        falseStatementNode = null,
-        node = node
-      )
-    }
+      node = node,
+      defaultValue = true,
+      smartCastType = smartCastType,
+      negateCondition = true
+    )
   }
 
   override fun visit(node: AnyInCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -548,16 +543,10 @@ abstract class SemanticCstNodeVisitor constructor(
       ).accept(this)
     }
     return anyAllOperator(
-      node, methodPrefix = "_any_", inExpr = node.inExpr, filterExpr = node.filterExpr,
-      varType = node.varType, varName = node.varName, finalReturnValue = false
-    ) { filterExpr ->
-      IfStatementNode(
-        conditionNode = truthyCast(filterExpr),
-        trueStatementNode = ReturnStatementNode(BoolConstantNode(value = true, token = node.token)),
-        falseStatementNode = null,
-        node = node
-      )
-    }
+      node = node,
+      defaultValue = false,
+      smartCastType = smartCastType
+    )
   }
 
 
@@ -576,12 +565,12 @@ abstract class SemanticCstNodeVisitor constructor(
       return exprError(inCstExpr, "Can only perform IN operation on an Iterable, CharSequence or array")
     }
 
-    return useInnerScope { forScope ->
-      val forVariable = forScope.addLocalVariable(varType, node.varName, Nullness.UNKNOWN)
-      val inNodeVar = forScope.addLocalVariable(inNode.type, Nullness.NOT_NULL)
+    return useInnerScope { scope ->
+      val forVariable = scope.addLocalVariable(varType, node.varName, Nullness.UNKNOWN)
+      val inNodeVar = scope.addLocalVariable(inNode.type, Nullness.NOT_NULL)
       val inNodeVarRef = ReferenceNode(variable = inNodeVar, token = node.token)
 
-      val resultVariable = forScope.addLocalVariable(varType.objectType, Nullness.NULLABLE)
+      val resultVariable = scope.addLocalVariable(varType.objectType, Nullness.NULLABLE)
 
       val blockStatement = BlockStatementNode(mutableListOf(
         ExpressionStatementNode(
@@ -614,10 +603,10 @@ abstract class SemanticCstNodeVisitor constructor(
         BreakNode(node=node) // exit for loop
       ))
       val forStatement = if (inNodeVarRef.type.isArray) {
-        val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
+        val iVar = scope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
         forInArrayNode(
           node = node,
-          forScope = forScope,
+          forScope = scope,
           iVar = iVar,
           inNode = inNodeVarRef,
           forVariable = forVariable
@@ -630,7 +619,7 @@ abstract class SemanticCstNodeVisitor constructor(
           )
         }
       } else { // iterating over iterable
-        forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
+        forInIteratorNode(node = node, forScope = scope, variable = forVariable, inNode = inNodeVarRef) {
           IfStatementNode(
             conditionNode = truthyCast(node.filterExpr.accept(this)),
             trueStatementNode = assignFoundValueAndBreakStmt,
@@ -644,100 +633,93 @@ abstract class SemanticCstNodeVisitor constructor(
     }
   }
 
-  private inline fun anyAllOperator(
-    node: CstNode,
-    methodPrefix: String,
-    inExpr: ExpressionCstNode?,
-    filterExpr: ExpressionCstNode,
-    varType: TypeCstNode,
-    varName: String,
-    finalReturnValue: Boolean,
-    forBodyGenerator: (ExpressionNode) -> StatementNode
+  private fun anyAllOperator(
+    node: InOperationCstNode,
+    defaultValue: Boolean,
+    smartCastType: JavaType?,
+    negateCondition: Boolean = false,
   ): ExpressionNode {
-    // TODO stop generating a function
-    return inOperation(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean, Nullness.NOT_NULL) {
-                                                                                         methodNode, methodScope ->
-
-      val forStatement = useInnerScope { forScope ->
-        val forVariable = forScope.addLocalVariable(resolve(varType), varName, Nullness.UNKNOWN)
-        val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
-
-        if (inNodeVarRef.type.isArray) {
-          val iVar = forScope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
-          forInArrayNode(
-            node = node,
-            forScope = forScope,
-            iVar = iVar,
-            inNode = inNodeVarRef,
-            forVariable = forVariable
-          ) {
-            forBodyGenerator.invoke(filterExpr.accept(this))
-          }
-        } else { // iterating over iterable
-          forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
-            forBodyGenerator.invoke(filterExpr.accept(this))
-          }
-        }
-      }
-
-      methodNode.blockStatement.apply {
-        add(forStatement)
-        add(ReturnStatementNode(BoolConstantNode(value = finalReturnValue, token = node.token)))
-      }
+    val inCstExpr = node.inExpr
+    if (inCstExpr == null) {
+      return exprError(node, "Invalid use of IN operation: missing IN value", smartCastType)
     }
-  }
-
-  private inline fun inOperation(
-    node: CstNode, inExpr: ExpressionCstNode?,
-    methodPrefix: String,
-    bodyCstNodes: List<ExpressionCstNode>,
-    methodReturnType: JavaType,
-    nullness: Nullness,
-    methodFiller: (MethodNode, MethodScope) -> Unit
-  ): ExpressionNode {
-    if (inExpr == null) {
-      return exprError(node, "Invalid use of IN operation: missing IN value", methodReturnType)
+    val filterExpr = node.filterExpr
+    if (filterExpr == null) {
+      return exprError(node, "Invalid use of IN operation: missing filter expression", smartCastType)
     }
-    val inNode = inExpr.accept(this)
+    val inNode = inCstExpr.accept(this)
     if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(
         CharSequence::class.javaType
       )
     ) {
-      return exprError(inExpr, "Can only perform IN operation on an Iterable, CharSequence or array", methodReturnType)
+      return exprError(inCstExpr, "Can only perform IN operation on an Iterable, CharSequence or array")
     }
-    val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
-    /*
-    * Looking for all local variables used from cst node as we'll need to pass them to the 'mapFilter' method
-    */
-    val referencedLocalVariables =
-      LinkedHashSet<LocalVariable>() // want a constant order, so linkedhashset which is retains insertion order
-    val consumer: (CstNode) -> Unit = { cstNode ->
-      if ((cstNode is ReferenceCstNode || cstNode is IncrCstNode) && currentScope.hasLocalVariable(cstNode.value.toString())) {
-        referencedLocalVariables.add(currentScope.findLocalVariable(cstNode.value.toString())!!)
+    return useInnerScope { scope ->
+      val forVariable = scope.addLocalVariable(resolve(node.varType), node.varName, Nullness.UNKNOWN)
+      val inNodeVar = scope.addLocalVariable(inNode.type, Nullness.NOT_NULL)
+      val inNodeVarRef = ReferenceNode(variable = inNodeVar, token = node.token)
+      val resultVariable = scope.addLocalVariable(JavaType.boolean, Nullness.NOT_NULL)
+
+      val assignValueAndBreakStmt = BlockStatementNode(mutableListOf(
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            variable = resultVariable,
+            expression = BoolConstantNode(value = !defaultValue, token = node.token),
+            tokenStart = node.tokenStart,
+            tokenEnd = node.tokenEnd,
+          )
+        ),
+        BreakNode(node=node) // exit for loop
+      ))
+
+      val forStmt = if (inNodeVarRef.type.isArray) {
+        val iVar = scope.addLocalVariable(JavaType.int, Nullness.NOT_NULL, token = node.token)
+        forInArrayNode(
+          node = node,
+          forScope = scope,
+          iVar = iVar,
+          inNode = inNodeVarRef,
+          forVariable = forVariable
+        ) {
+          val condition = truthyCast(filterExpr.accept(this))
+          IfStatementNode(
+            conditionNode = if (negateCondition) NotNode(condition, node = node) else condition,
+            trueStatementNode = assignValueAndBreakStmt,
+            falseStatementNode = null,
+            node = node
+          )
+        }
+      } else { // iterating over iterable
+        forInIteratorNode(node = node, forScope = scope, variable = forVariable, inNode = inNodeVarRef) {
+          val condition = truthyCast(filterExpr.accept(this))
+          IfStatementNode(
+            conditionNode = if (negateCondition) NotNode(condition, node = node) else condition,
+            trueStatementNode = assignValueAndBreakStmt,
+            falseStatementNode = null,
+            node = node
+          )
+        }
       }
+      YieldExpression(
+        statement = BlockStatementNode(mutableListOf(
+          ExpressionStatementNode(
+            VariableAssignmentNode(
+              variable = inNodeVar,
+              expression = inNode,
+              tokenStart = inNode.tokenStart,
+              tokenEnd = inNode.tokenEnd,
+            )
+          ),
+          ExpressionStatementNode(
+            VariableAssignmentNode(
+              variable = resultVariable,
+              expression = BoolConstantNode(node.token, defaultValue))
+          ),
+          forStmt
+        )),
+        expression = ReferenceNode(variable = resultVariable, token = node.token)
+      )
     }
-    bodyCstNodes.forEach { bodyCstNode -> bodyCstNode.forEach(consumer) }
-
-    val inOperatorMethodParameters = mutableListOf(MethodParameter(inNode.type,inNode.nullness,  inValueName))
-    inOperatorMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.nullness, it.name) })
-    // TODO method may not be needed. Use something like YieldValue
-    val inOperatorMethodNode = generateOrGetMethod(methodPrefix, inOperatorMethodParameters, methodReturnType, node,
-      nullness)
-
-    useScope(newMethodScope(inOperatorMethodNode)) { methodScope ->
-      methodFiller.invoke(inOperatorMethodNode, methodScope)
-    }
-    val arguments = mutableListOf(inNode)
-    for (lv in referencedLocalVariables) {
-      arguments.add(ReferenceNode(variable = lv, token = node.token))
-    }
-    return FunctionCallNode(
-      javaMethod = inOperatorMethodNode,
-      owner = ThisReferenceNode(currentScope.classType, node.token),
-      arguments = arguments,
-      tokenStart = node.tokenStart,
-      tokenEnd = node.tokenEnd,
-    )
   }
 
   override fun visit(node: MapCstNode, smartCastType: JavaType?) = MapNode(
