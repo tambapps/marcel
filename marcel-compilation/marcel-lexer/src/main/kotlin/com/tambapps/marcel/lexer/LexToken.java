@@ -31,17 +31,7 @@ public class LexToken {
     this.value = value;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("LexToken(type=")
-        .append(type);
-    if (value != null) {
-      builder.append(" ,value=")
-          .append(value);
-    }
-    return builder.append(")").toString();
-  }
+
   
   public String infoString() {
     return getValue() != null ? String.format("\"%s\"", value) : type.toString();
@@ -71,16 +61,25 @@ public class LexToken {
     return type;
   }
 
+
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof LexToken)) return false;
-    LexToken lexToken = (LexToken) o;
-    return type == lexToken.type && Objects.equals(value, lexToken.value);
+    if (!(o instanceof LexToken lexToken)) return false;
+    return line == lexToken.line && column == lexToken.column && type == lexToken.type && Objects.equals(value, lexToken.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, value);
+    return Objects.hash(line, column, type, value);
+  }
+
+  @Override
+  public String toString() {
+    return "LexToken{" +
+        "line=" + line +
+        ", column=" + column +
+        ", type=" + type +
+        ", value='" + value + '\'' +
+        '}';
   }
 }
