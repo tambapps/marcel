@@ -1,8 +1,8 @@
 package com.tambapps.marcel.semantic.symbol.type
 
 enum class NullSafetyMode {
-  DEFAULT {
-    override val isEnabled get()= true
+  ENABLED {
+    override val isEnabled get() = true
   },
   STRICT {
     override val isEnabled get() = true
@@ -11,5 +11,8 @@ enum class NullSafetyMode {
     override val isEnabled get() = false
   };
 
+  companion object {
+    val DEFAULT = DISABLED
+  }
   abstract val isEnabled: Boolean
 }

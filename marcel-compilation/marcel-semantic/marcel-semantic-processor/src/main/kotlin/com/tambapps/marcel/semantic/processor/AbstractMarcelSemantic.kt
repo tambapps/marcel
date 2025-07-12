@@ -749,7 +749,7 @@ abstract class AbstractMarcelSemantic(
   protected fun checkExpressionNullness(expectedNullness: Nullness, expression: ExpressionNode, message: String) {
     if (nullSafetyMode == NullSafetyMode.STRICT && expectedNullness == Nullness.NOT_NULL && (expression.nullness == Nullness.UNKNOWN || expression.nullness == Nullness.NULLABLE)) {
       throwError(expression.token, message)
-    } else if (nullSafetyMode == NullSafetyMode.DEFAULT && expectedNullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
+    } else if (nullSafetyMode == NullSafetyMode.ENABLED && expectedNullness == Nullness.NOT_NULL && expression.nullness == Nullness.NULLABLE) {
       throwError(expression.token, message)
     }
   }

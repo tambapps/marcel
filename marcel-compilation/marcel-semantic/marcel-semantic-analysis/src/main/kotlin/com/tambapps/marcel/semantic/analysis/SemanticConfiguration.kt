@@ -8,5 +8,5 @@ data class SemanticConfiguration(
   val scriptClass: Class<*> = Script::class.java,
   val purpose: SemanticPurpose = SemanticPurpose.COMPILATION,
   // disabled by default, at least for now, because it is not completely handled
-  val nullSafetyMode: NullSafetyMode = NullSafetyMode.DISABLED
+  val nullSafetyMode: NullSafetyMode = NullSafetyMode.DEFAULT
 )
