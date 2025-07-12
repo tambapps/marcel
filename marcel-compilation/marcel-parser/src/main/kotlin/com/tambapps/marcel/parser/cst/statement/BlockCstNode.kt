@@ -13,16 +13,4 @@ class BlockCstNode(val statements: List<StatementCstNode>, parent: CstNode?, tok
     return statements.joinToString(separator = "\n", prefix = "{\n", postfix = "\n}", transform = {"  $it" })
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is BlockCstNode) return false
-
-    if (statements != other.statements) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return statements.hashCode()
-  }
 }

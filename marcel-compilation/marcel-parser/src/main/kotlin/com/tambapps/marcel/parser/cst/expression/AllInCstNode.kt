@@ -19,20 +19,5 @@ class AllInCstNode(
   override val filterExpr: ExpressionCstNode get() = super.filterExpr!!
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is AllInCstNode) return false
-    if (!super.equals(other)) return false
-
-    if (negate != other.negate) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + negate.hashCode()
-    return result
-  }
 
 }

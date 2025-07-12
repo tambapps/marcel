@@ -21,23 +21,4 @@ class BinaryOperatorCstNode(
     else "$leftOperand $tokenType $rightOperand"
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is BinaryOperatorCstNode) return false
-
-    if (tokenType != other.tokenType) return false
-    if (leftOperand != other.leftOperand) return false
-    if (rightOperand != other.rightOperand) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = tokenType.hashCode()
-    result = 31 * result + leftOperand.hashCode()
-    result = 31 * result + rightOperand.hashCode()
-    return result
-  }
-
-
 }

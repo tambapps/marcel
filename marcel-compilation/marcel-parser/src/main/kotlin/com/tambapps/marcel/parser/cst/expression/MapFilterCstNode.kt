@@ -17,21 +17,5 @@ class MapFilterCstNode(
 ) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is MapFilterCstNode) return false
-    if (!super.equals(other)) return false
-
-    if (mapExpr != other.mapExpr) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + (mapExpr?.hashCode() ?: 0)
-    return result
-  }
-
 
 }

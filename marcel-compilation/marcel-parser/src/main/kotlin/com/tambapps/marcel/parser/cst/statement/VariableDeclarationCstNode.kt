@@ -24,26 +24,4 @@ class VariableDeclarationCstNode constructor(
     return if (expressionNode != null) "$s = $expressionNode;" else "$s;"
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is VariableDeclarationCstNode) return false
-
-    if (isNullable != other.isNullable) return false
-    if (type != other.type) return false
-    // because we only care about the name
-    if (variableToken.value != other.variableToken.value) return false
-    if (expressionNode != other.expressionNode) return false
-    if (value != other.value) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = isNullable.hashCode()
-    result = 31 * result + type.hashCode()
-    result = 31 * result + variableToken.value.hashCode()
-    result = 31 * result + (expressionNode?.hashCode() ?: 0)
-    result = 31 * result + value.hashCode()
-    return result
-  }
 }

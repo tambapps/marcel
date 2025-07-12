@@ -14,19 +14,6 @@ class ExpressionStatementCstNode(parent: CstNode? = null,
       expressionNode.tokenEnd)
   override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = visitor.visit(this)
 
-
-
   override fun toString() = "$expressionNode;"
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ExpressionStatementCstNode) return false
 
-    if (expressionNode != other.expressionNode) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return expressionNode.hashCode()
-  }
 }

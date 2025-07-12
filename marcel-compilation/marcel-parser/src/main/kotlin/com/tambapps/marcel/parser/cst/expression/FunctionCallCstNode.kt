@@ -28,25 +28,5 @@ class FunctionCallCstNode(
     append(")")
   }.toString()
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is FunctionCallCstNode) return false
-
-    if (value != other.value) return false
-    if (castType != other.castType) return false
-    if (positionalArgumentNodes != other.positionalArgumentNodes) return false
-    if (namedArgumentNodes != other.namedArgumentNodes) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = value.hashCode()
-    result = 31 * result + (castType?.hashCode() ?: 0)
-    result = 31 * result + positionalArgumentNodes.hashCode()
-    result = 31 * result + namedArgumentNodes.hashCode()
-    return result
-  }
-
 
 }

@@ -17,16 +17,4 @@ class MapCstNode(
   override fun toString() = entries.joinToString(", ", prefix = "[", postfix = "]") { (key, value) ->
     "(${key}): $value"
   }
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is MapCstNode) return false
-
-    if (entries != other.entries) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return entries.hashCode()
-  }
 }

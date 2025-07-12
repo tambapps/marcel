@@ -12,18 +12,4 @@ class FloatCstNode(parent: CstNode? = null, override val value: Float, token: Le
 
     override fun toString() = "${value}f"
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is FloatCstNode) return false
-
-        if (value != other.value) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return value.hashCode()
-    }
-
-
 }

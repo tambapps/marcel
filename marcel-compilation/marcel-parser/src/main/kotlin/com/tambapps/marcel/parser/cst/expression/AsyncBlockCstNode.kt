@@ -19,16 +19,4 @@ class AsyncBlockCstNode(
     return "async $block"
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is AsyncBlockCstNode) return false
-
-    if (block != other.block) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return block.hashCode()
-  }
 }

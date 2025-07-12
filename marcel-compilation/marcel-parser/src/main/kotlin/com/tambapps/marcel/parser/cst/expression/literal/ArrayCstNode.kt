@@ -13,18 +13,6 @@ class ArrayCstNode(
   tokenEnd: LexToken
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ArrayCstNode) return false
-
-    if (elements != other.elements) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return elements.hashCode()
-  }
 
   override fun toString() = elements.joinToString(", ", prefix = "[", postfix = "]")
 }

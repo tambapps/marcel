@@ -20,6 +20,7 @@ import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
+import com.tambapps.marcel.parser.cst.expression.WrappedExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
@@ -68,6 +69,7 @@ interface ExpressionCstNodeVisitor<T, U> {
 
   fun visit(node: UnaryMinusCstNode, smartCastType: U? = null): T
   fun visit(node: NotCstNode, smartCastType: U? = null): T
+  fun visit(node: WrappedExpressionCstNode, smartCastType: U? = null): T
 
   fun visit(node: BinaryOperatorCstNode, smartCastType: U? = null): T
   fun visit(node: ElvisThrowCstNode, smartCastType: U? = null): T

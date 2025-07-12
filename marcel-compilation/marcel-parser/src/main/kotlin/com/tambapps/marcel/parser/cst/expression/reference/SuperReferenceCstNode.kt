@@ -11,14 +11,4 @@ class SuperReferenceCstNode(parent: CstNode?, token: LexToken): AbstractExpressi
 
   override fun toString() = "super"
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is SuperReferenceCstNode) return false
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return javaClass.hashCode()
-  }
-
 }

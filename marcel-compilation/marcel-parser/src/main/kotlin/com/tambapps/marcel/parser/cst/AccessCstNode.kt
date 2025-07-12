@@ -16,5 +16,17 @@ class AccessCstNode(
   // it is only useful while parsing
   val isExplicit: Boolean,
 ) :
-  AbstractCstNode(parent, tokenStart, tokenEnd) {
+  AbstractCstNode(parent, tokenStart, tokenEnd), IdentifiableCstNode {
+
+  override fun isEqualTo(node: CstNode): Boolean {
+
+    if (node !is AccessCstNode) return false
+
+    if (isStatic != node.isStatic) return false
+    if (isInline != node.isInline) return false
+    if (isFinal != node.isFinal) return false
+    if (isExplicit != node.isExplicit) return false
+    if (visibility != node.visibility) return false
+    return true
+  }
 }

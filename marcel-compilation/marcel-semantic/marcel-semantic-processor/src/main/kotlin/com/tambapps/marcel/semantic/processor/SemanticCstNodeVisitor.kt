@@ -28,6 +28,7 @@ import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
+import com.tambapps.marcel.parser.cst.expression.WrappedExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
@@ -822,6 +823,8 @@ abstract class SemanticCstNodeVisitor constructor(
       )
     ), node
   )
+
+  override fun visit(node: WrappedExpressionCstNode, smartCastType: JavaType?) = node.expressionNode.accept(this, smartCastType)
 
   override fun visit(node: UnaryMinusCstNode, smartCastType: JavaType?): ExpressionNode {
     val expr = node.expression.accept(this)

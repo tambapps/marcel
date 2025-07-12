@@ -14,7 +14,7 @@ class MethodParameterCstNode(
   val thisParameter: Boolean,
   val isNullable: Boolean,
   ) :
-  AbstractCstNode(parent, tokenStart, tokenEnd) {
+  AbstractCstNode(parent, tokenStart, tokenEnd), IdentifiableCstNode {
 
   override fun toString(): String {
     if (thisParameter) return "this.$name"
@@ -29,23 +29,16 @@ class MethodParameterCstNode(
     return builder.toString()
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (javaClass != other?.javaClass) return false
-    if (!super.equals(other)) return false
+  override fun isEqualTo(node: CstNode): Boolean {
 
-    other as MethodParameterCstNode
+    if (node !is MethodParameterCstNode) return false
 
-    if (name != other.name) return false
-    if (type != other.type) return false
-
+    if (thisParameter != node.thisParameter) return false
+    if (isNullable != node.isNullable) return false
+    if (name != node.name) return false
+    if (!type.isEqualTo(node.type)) return false
+    if (!IdentifiableCstNode.isEqualTo(defaultValue, node.defaultValue)) return false
+    if (!IdentifiableCstNode.isEqualTo(annotations, node.annotations)) return false
     return true
-  }
-
-  override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + name.hashCode()
-    result = 31 * result + type.hashCode()
-    return result
   }
 }

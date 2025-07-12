@@ -20,38 +20,26 @@ class TypeCstNode constructor(
   val arrayDimensions: Int,
   tokenStart: LexToken,
   tokenEnd: LexToken
-) : AbstractCstNode(parent, tokenStart, tokenEnd) {
+) : AbstractCstNode(parent, tokenStart, tokenEnd), IdentifiableCstNode {
 
     fun withDimensions(arrayDimensions: Int) = TypeCstNode(parent, value, genericTypes, arrayDimensions, tokenStart, tokenEnd)
 
-    override fun toString(): String {
-        val builder = StringBuilder()
-            .append(value)
-        if (genericTypes.isNotEmpty()) builder.append(genericTypes.joinTo(separator = ", ", prefix = "<", postfix = ">", buffer = builder))
-        for (i in 1..arrayDimensions) {
-            builder.append("[]")
-        }
-        return builder.toString()
+    override fun toString() = buildString {
+      append(value)
+      if (genericTypes.isNotEmpty()) genericTypes.joinTo(separator = ", ", prefix = "<", postfix = ">", buffer = this)
+      repeat(arrayDimensions) {
+        append("[]")
+      }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is TypeCstNode) return false
+  fun toString(nullable: Boolean) = if (nullable) "${toString()}?" else toString()
 
-        if (arrayDimensions != other.arrayDimensions) return false
-        if (value != other.value) return false
-        if (genericTypes != other.genericTypes) return false
+  override fun isEqualTo(node: CstNode): Boolean {
+    if (node !is TypeCstNode) return false
 
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = arrayDimensions
-        result = 31 * result + value.hashCode()
-        result = 31 * result + genericTypes.hashCode()
-        return result
-    }
-
-    fun toString(nullable: Boolean) = if (nullable) "${toString()}?" else toString()
-
+    if (arrayDimensions != node.arrayDimensions) return false
+    if (value != node.value) return false
+    if (!IdentifiableCstNode.isEqualTo(genericTypes, node.genericTypes)) return false
+    return true
+  }
 }

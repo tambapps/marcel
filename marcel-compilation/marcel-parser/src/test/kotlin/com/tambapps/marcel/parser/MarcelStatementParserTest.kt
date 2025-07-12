@@ -1,18 +1,20 @@
 package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.TestUtils.assertIsEqual
+import com.tambapps.marcel.parser.TestUtils.assertIsNotEqual
+import com.tambapps.marcel.parser.TestUtils.parser
 import com.tambapps.marcel.parser.compose.StatementsComposer
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.AccessCstNode
-import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.RegularClassCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
+import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -30,8 +32,8 @@ class MarcelStatementParserTest: StatementsComposer() {
 
     @Test
     fun testVariableDeclaration() {
-        assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
-        assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1").statement())
+        assertIsEqual(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
+        assertIsEqual(varDecl(type("int"), "a", int(1)), parser("int a = 1").statement())
         assertNotEquals(varDecl(type("float"), "a", int(1)), parser("int a = 1").statement())
     }
 
@@ -44,11 +46,11 @@ class MarcelStatementParserTest: StatementsComposer() {
         assertTrue(method is MethodCstNode)
         method as MethodCstNode
         assertEquals("foo", method.name)
-        assertEquals(type("int"), method.returnTypeNode)
-        assertEquals(emptyList<AnnotationCstNode>(), method.annotations)
-        assertEquals(emptyList<MethodParameterCstNode>(), method.parameters)
+        assertIsEqual(type("int"), method.returnTypeNode)
+        assertIsEqual(emptyList<AnnotationCstNode>(), method.annotations)
+        assertIsEqual(emptyList<MethodParameterCstNode>(), method.parameters)
 
-        assertEquals(
+        assertIsEqual(
             listOf(
                 stmt(fCall("println", args = listOf(int(1))))
             ),
@@ -66,7 +68,7 @@ class MarcelStatementParserTest: StatementsComposer() {
     fun testStartingWithComment() {
         val result = parser("// HelloWorld.mcl\n" +
             "println(\"Hello World!\")\n").statement()
-        assertEquals(result, stmt(fCall("println", args = listOf(templateSting("Hello World!")))))
+        assertIsEqual(result, stmt(fCall("println", args = listOf(templateSting("Hello World!")))))
     }
 
     @Test
@@ -75,7 +77,7 @@ class MarcelStatementParserTest: StatementsComposer() {
             returnNode(plus( int(25), ref("zoo"))))
     }
 
-    private fun testMethodWithParameter(text: String, expectedBlock: CstNode) {
+    private fun testMethodWithParameter(text: String, expectedBlock: StatementCstNode) {
         val parser = parser(text)
         val method = parser.method(classNode, emptyList(), defaultAccess)
         assertTrue(method is MethodCstNode)
@@ -83,13 +85,13 @@ class MarcelStatementParserTest: StatementsComposer() {
         assertEquals("bar", method.name)
         assertEquals(1, method.parameters.size)
         val parameter = method.parameters.first()
-        assertEquals(type("int"), parameter.type)
+        assertIsEqual(type("int"), parameter.type)
         assertEquals("zoo", parameter.name)
         assertFalse(parameter.thisParameter)
-        assertEquals(type("int"), method.returnTypeNode)
-        assertEquals(emptyList<AnnotationCstNode>(), method.annotations)
+        assertIsEqual(type("int"), method.returnTypeNode)
+        assertIsEqual(emptyList<AnnotationCstNode>(), method.annotations)
 
-        assertEquals(
+        assertIsEqual(
             listOf(
                 expectedBlock
             ),
@@ -100,8 +102,8 @@ class MarcelStatementParserTest: StatementsComposer() {
     @Test
     fun testManyStatements() {
         val parser = parser("println(1); return null")
-        assertEquals(stmt(fCall(value = "println", args = listOf(int(1)),)), parser.statement())
-        assertEquals(returnNode(nullValue()), parser.statement())
+        assertIsEqual(stmt(fCall(value = "println", args = listOf(int(1)),)), parser.statement())
+        assertIsEqual(returnNode(nullValue()), parser.statement())
     }
 
     @Test
@@ -111,20 +113,20 @@ class MarcelStatementParserTest: StatementsComposer() {
             LexToken.DUMMY, LexToken.DUMMY
         )
 
-        assertEquals(expect, parser("return a(1, 2f, b);").statement())
-        assertEquals(expect, parser("return a(1, 2f, b)").statement())
-        assertNotEquals(expect, parser("return a(1, 2, b)").statement())
+        assertIsEqual(expect, parser("return a(1, 2f, b);").statement())
+        assertIsEqual(expect, parser("return a(1, 2f, b)").statement())
+        assertIsNotEqual(expect, parser("return a(1, 2, b)").statement())
     }
 
     @Test
     fun testStatement() {
-        assertEquals(
+        assertIsEqual(
             ExpressionStatementCstNode(null,
                 fCall(value = "a", args = listOf(int(1), float(2f), ref("b")),),
                 LexToken.DUMMY, LexToken.DUMMY
                 )
             , parser("a(1, 2f, b);").statement())
-        assertNotEquals(
+        assertIsNotEqual(
             ExpressionStatementCstNode(null,
                 int(1),
                 LexToken.DUMMY, LexToken.DUMMY
@@ -132,7 +134,4 @@ class MarcelStatementParserTest: StatementsComposer() {
             , parser("a(1, 2f, b)").statement())
 
     }
-
-
-    private fun parser(text: String) = MarcelParser("Test", MarcelLexer().lex(text))
 }

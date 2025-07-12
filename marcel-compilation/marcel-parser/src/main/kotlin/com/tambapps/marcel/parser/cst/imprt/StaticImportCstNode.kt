@@ -14,4 +14,13 @@ class StaticImportCstNode(
   ) :
   AbstractImportCstNode(parent, tokenStart, tokenEnd) {
   override fun <T> accept(visitor: ImportCstNodeVisitor<T>) = visitor.visit(this)
+
+  override fun isEqualTo(node: CstNode): Boolean {
+    if (node !is StaticImportCstNode) return false
+
+    if (className != node.className) return false
+    if (memberName != node.memberName) return false
+
+    return true
+  }
 }

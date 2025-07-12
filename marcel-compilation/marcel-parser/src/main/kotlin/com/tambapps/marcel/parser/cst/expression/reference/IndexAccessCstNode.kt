@@ -14,28 +14,10 @@ class IndexAccessCstNode(parent: CstNode?,
     AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
     override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
-    override fun toString() = StringBuilder().apply {
+    override fun toString() = buildString {
         append(ownerNode)
         if (isSafeAccess) append("?")
         indexNodes.joinTo(buffer = this, prefix = "[", postfix = "]")
-    }.toString()
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is IndexAccessCstNode) return false
-
-        if (isSafeAccess != other.isSafeAccess) return false
-        if (ownerNode != other.ownerNode) return false
-        if (indexNodes != other.indexNodes) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = isSafeAccess.hashCode()
-        result = 31 * result + ownerNode.hashCode()
-        result = 31 * result + indexNodes.hashCode()
-        return result
     }
 
 }

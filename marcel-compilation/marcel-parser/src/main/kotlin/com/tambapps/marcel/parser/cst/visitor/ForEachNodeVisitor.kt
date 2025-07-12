@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
+import com.tambapps.marcel.parser.cst.expression.WrappedExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
@@ -148,6 +149,11 @@ class ForEachNodeVisitor(
   override fun visit(node: NotCstNode, smartCastType: Unit?) {
     consume(node)
     node.expression.accept(this)
+  }
+
+  override fun visit(node: WrappedExpressionCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.expressionNode.accept(this)
   }
 
   override fun visit(node: BinaryOperatorCstNode, smartCastType: Unit?) {

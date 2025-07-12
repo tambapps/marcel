@@ -14,21 +14,6 @@ class ClassReferenceCstNode(
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
-  override fun toString() = "$value.class"
-
-  override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + type.hashCode()
-    return result
-  }
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ClassReferenceCstNode) return false
-
-    if (type != other.type) return false
-
-    return true
-  }
+  override fun toString() = "$type.class"
 
 }

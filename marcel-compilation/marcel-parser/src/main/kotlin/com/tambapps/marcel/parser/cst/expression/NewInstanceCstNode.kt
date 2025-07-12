@@ -16,22 +16,4 @@ class NewInstanceCstNode(
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is NewInstanceCstNode) return false
-
-    if (type != other.type) return false
-    if (positionalArgumentNodes != other.positionalArgumentNodes) return false
-    if (namedArgumentNodes != other.namedArgumentNodes) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = type.hashCode()
-    result = 31 * result + positionalArgumentNodes.hashCode()
-    result = 31 * result + namedArgumentNodes.hashCode()
-    return result
-  }
-
 }

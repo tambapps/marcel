@@ -13,5 +13,14 @@ class SimpleImportCstNode(
 ) :
   AbstractImportCstNode(parent, tokenStart, tokenEnd) {
 
-    override fun <T> accept(visitor: ImportCstNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ImportCstNodeVisitor<T>) = visitor.visit(this)
+
+  override fun isEqualTo(node: CstNode): Boolean {
+    if (node !is SimpleImportCstNode) return false
+
+    if (className != node.className) return false
+    if (asName != node.asName) return false
+
+    return true
+  }
 }

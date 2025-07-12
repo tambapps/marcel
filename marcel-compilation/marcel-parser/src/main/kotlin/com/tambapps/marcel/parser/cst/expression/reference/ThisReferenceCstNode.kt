@@ -10,14 +10,5 @@ class ThisReferenceCstNode(parent: CstNode?, token: LexToken): AbstractExpressio
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
   override fun toString() = "this"
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ThisReferenceCstNode) return false
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return javaClass.hashCode()
-  }
 
 }

@@ -33,20 +33,4 @@ class RegexCstNode(
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
   override fun toString() = "/$value/"
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is RegexCstNode) return false
-
-    if (value != other.value) return false
-    if (flags != other.flags) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = value.hashCode()
-    result = 31 * result + flags.hashCode()
-    return result
-  }
-
 }

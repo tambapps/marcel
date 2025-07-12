@@ -14,18 +14,4 @@ class ReturnCstNode(parent: CstNode? = null, val expressionNode: ExpressionCstNo
     return if (expressionNode != null) "return $expressionNode;" else "return;"
   }
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ReturnCstNode) return false
-
-    if (expressionNode != other.expressionNode) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return expressionNode?.hashCode() ?: 0
-  }
-
-
 }

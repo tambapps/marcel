@@ -12,14 +12,4 @@ class NullCstNode(parent: CstNode? = null, token: LexToken) : AbstractExpression
 
     override fun toString() = "null"
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is NullCstNode) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
-
 }
