@@ -50,7 +50,7 @@ class MarcelStatementParserTest: StatementsComposer() {
 
         assertEquals(
             listOf(
-                stmt(fCall("println", positionalArgumentNodes = listOf(int(1))))
+                stmt(fCall("println", args = listOf(int(1))))
             ),
             method.statements
         )
@@ -66,7 +66,7 @@ class MarcelStatementParserTest: StatementsComposer() {
     fun testStartingWithComment() {
         val result = parser("// HelloWorld.mcl\n" +
             "println(\"Hello World!\")\n").statement()
-        assertEquals(result, stmt(fCall("println", positionalArgumentNodes = listOf(templateSting("Hello World!")))))
+        assertEquals(result, stmt(fCall("println", args = listOf(templateSting("Hello World!")))))
     }
 
     @Test
@@ -100,14 +100,14 @@ class MarcelStatementParserTest: StatementsComposer() {
     @Test
     fun testManyStatements() {
         val parser = parser("println(1); return null")
-        assertEquals(stmt(fCall(value = "println", positionalArgumentNodes = listOf(int(1)),)), parser.statement())
+        assertEquals(stmt(fCall(value = "println", args = listOf(int(1)),)), parser.statement())
         assertEquals(returnNode(nullValue()), parser.statement())
     }
 
     @Test
     fun testReturn() {
         val expect = ReturnCstNode(null,
-            fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),),
+            fCall(value = "a", args = listOf(int(1), float(2f), ref("b")),),
             LexToken.DUMMY, LexToken.DUMMY
         )
 
@@ -120,7 +120,7 @@ class MarcelStatementParserTest: StatementsComposer() {
     fun testStatement() {
         assertEquals(
             ExpressionStatementCstNode(null,
-                fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),),
+                fCall(value = "a", args = listOf(int(1), float(2f), ref("b")),),
                 LexToken.DUMMY, LexToken.DUMMY
                 )
             , parser("a(1, 2f, b);").statement())

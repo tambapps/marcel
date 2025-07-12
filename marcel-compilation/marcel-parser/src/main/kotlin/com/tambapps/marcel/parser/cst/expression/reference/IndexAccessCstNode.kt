@@ -22,25 +22,20 @@ class IndexAccessCstNode(parent: CstNode?,
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
+        if (other !is IndexAccessCstNode) return false
 
-        other as IndexAccessCstNode
-
+        if (isSafeAccess != other.isSafeAccess) return false
         if (ownerNode != other.ownerNode) return false
         if (indexNodes != other.indexNodes) return false
-        if (isSafeAccess != other.isSafeAccess) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = super.hashCode()
+        var result = isSafeAccess.hashCode()
         result = 31 * result + ownerNode.hashCode()
         result = 31 * result + indexNodes.hashCode()
-        result = 31 * result + isSafeAccess.hashCode()
         return result
     }
-
 
 }

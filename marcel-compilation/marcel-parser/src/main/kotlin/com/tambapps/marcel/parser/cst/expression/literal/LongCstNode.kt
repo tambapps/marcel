@@ -14,7 +14,6 @@ class LongCstNode(parent: CstNode? = null, override val value: Long, token: LexT
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is LongCstNode) return false
-        if (!super.equals(other)) return false
 
         if (value != other.value) return false
 

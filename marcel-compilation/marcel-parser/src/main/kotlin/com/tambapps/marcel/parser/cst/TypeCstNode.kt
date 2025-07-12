@@ -36,23 +36,22 @@ class TypeCstNode constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        if (!super.equals(other)) return false
+        if (other !is TypeCstNode) return false
 
-        other as TypeCstNode
-
+        if (arrayDimensions != other.arrayDimensions) return false
         if (value != other.value) return false
         if (genericTypes != other.genericTypes) return false
-        if (arrayDimensions != other.arrayDimensions) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = super.hashCode()
+        var result = arrayDimensions
         result = 31 * result + value.hashCode()
         result = 31 * result + genericTypes.hashCode()
-        result = 31 * result + arrayDimensions
         return result
     }
+
+    fun toString(nullable: Boolean) = if (nullable) "${toString()}?" else toString()
+
 }

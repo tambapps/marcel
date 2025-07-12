@@ -14,4 +14,17 @@ class ReferenceCstNode(
 
     override fun toString() = value
 
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is ReferenceCstNode) return false
+
+    if (value != other.value) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return value.hashCode()
+  }
+
 }

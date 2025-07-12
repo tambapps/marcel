@@ -17,4 +17,24 @@ class TryCatchCstNode(
 ) :
   AbstractStatementCstNode(parent, tokenStart, tokenEnd) {
   override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = visitor.visit(this)
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is TryCatchCstNode) return false
+
+    if (tryNode != other.tryNode) return false
+    if (resources != other.resources) return false
+    if (catchNodes != other.catchNodes) return false
+    if (finallyNode != other.finallyNode) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = tryNode.hashCode()
+    result = 31 * result + resources.hashCode()
+    result = 31 * result + catchNodes.hashCode()
+    result = 31 * result + (finallyNode?.hashCode() ?: 0)
+    return result
+  }
 }

@@ -14,16 +14,4 @@ abstract class AbstractCstNode(
   override val value: Any? = null
   constructor(parent: CstNode?, token: LexToken): this(parent, token, token)
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (javaClass != other?.javaClass) return false
-
-    other as AbstractCstNode
-
-    if (value != other.value) return false
-
-    return true
-  }
-
-
 }

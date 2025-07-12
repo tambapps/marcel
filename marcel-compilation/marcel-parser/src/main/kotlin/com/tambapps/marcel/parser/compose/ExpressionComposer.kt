@@ -10,6 +10,8 @@ import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TemplateStringCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -29,13 +31,14 @@ open class ExpressionComposer(
     fun compose(composer: ExpressionComposer.() -> ExpressionCstNode) = composer.invoke(ExpressionComposer())
   }
 
-  fun fCall(value: String, castType: TypeCstNode? = null, positionalArgumentNodes: List<ExpressionCstNode> = emptyList(),
-                    namedArgumentNodes: List<Pair<String, ExpressionCstNode>> = emptyList()
+  fun fCall(value: String, castType: TypeCstNode? = null, args: List<ExpressionCstNode> = emptyList(),
+            namedArgs: List<Pair<String, ExpressionCstNode>> = emptyList()
   ) = FunctionCallCstNode(parent = null, value = value, castType = castType,
-    positionalArgumentNodes = positionalArgumentNodes, namedArgumentNodes = namedArgumentNodes,
+    positionalArgumentNodes = args, namedArgumentNodes = namedArgs,
     tokenStart = tokenStart, tokenEnd = tokenEnd
   )
 
+  fun array(vararg expr: ExpressionCstNode) = ArrayCstNode(expr.toList(), parent = null, tokenStart = tokenStart, tokenEnd = tokenEnd)
   fun minus(expr: ExpressionCstNode) = UnaryMinusCstNode(expr, null, tokenStart, tokenEnd)
   fun not(expr: ExpressionCstNode) = NotCstNode(expr, null, tokenStart, tokenEnd)
 
@@ -52,6 +55,7 @@ open class ExpressionComposer(
   fun nullValue() = NullCstNode(token = tokenStart)
   fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, tokenStart, tokenEnd)
   fun int(value: Int) = IntCstNode(value = value, token = tokenStart)
+  fun bool(value: Boolean) = BoolCstNode(value = value, token = tokenStart)
   fun string(value: Any) = StringCstNode(value = value.toString(), token = tokenStart)
   fun templateSting(value: Any) = TemplateStringCstNode(expressions = listOf(string(value)), tokenStart = tokenStart, tokenEnd = tokenEnd, parent = null)
   fun float(value: Float) = FloatCstNode(value = value, token = tokenStart)

@@ -17,7 +17,6 @@ class ReturnCstNode(parent: CstNode? = null, val expressionNode: ExpressionCstNo
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ReturnCstNode) return false
-    if (!super.equals(other)) return false
 
     if (expressionNode != other.expressionNode) return false
 
@@ -25,8 +24,8 @@ class ReturnCstNode(parent: CstNode? = null, val expressionNode: ExpressionCstNo
   }
 
   override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + expressionNode.hashCode()
-    return result
+    return expressionNode?.hashCode() ?: 0
   }
+
+
 }

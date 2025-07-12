@@ -12,7 +12,6 @@ class NotCstNode(val expression: ExpressionCstNode, parent: CstNode?, tokenStart
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is NotCstNode) return false
-    if (!super.equals(other)) return false
 
     if (expression != other.expression) return false
 

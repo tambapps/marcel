@@ -15,4 +15,19 @@ class MultiVarDeclarationCstNode(
   val expressionNode: ExpressionCstNode
 ) : AbstractStatementCstNode(parent, tokenStart, tokenEnd) {
   override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = visitor.visit(this)
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is MultiVarDeclarationCstNode) return false
+
+    if (declarations != other.declarations) return false
+    if (expressionNode != other.expressionNode) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = declarations.hashCode()
+    result = 31 * result + expressionNode.hashCode()
+    return result
+  }
 }

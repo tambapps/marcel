@@ -46,6 +46,12 @@ class MarcelExpressionParserTest: ExpressionComposer() {
     }
 
     @Test
+    fun testArrayNode() {
+        assertEquals(array(int(1), bool(false), string("foo")),
+            parser("[1, false 'foo']").expression())
+    }
+
+    @Test
     fun testNotNode() {
         assertEquals(not(int(1)), parser("!1").expression())
 
@@ -148,7 +154,7 @@ class MarcelExpressionParserTest: ExpressionComposer() {
     @ValueSource(strings = ["a(1, 2f, b)", "a 1, 2f, b"])
     fun testFunctionCall1(source: String) {
         assertEquals(
-            fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),)
+            fCall(value = "a", args = listOf(int(1), float(2f), ref("b")),)
             , parser(source).expression())
     }
 
@@ -156,7 +162,7 @@ class MarcelExpressionParserTest: ExpressionComposer() {
     fun testFunctionCall2() {
         assertEquals(
             fCall(value = "zoo", castType = type("float"),
-                namedArgumentNodes = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
+                namedArgs = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
             , parser("zoo<float>(foo: 123, bar: 23d)").expression())
     }
 
@@ -164,8 +170,8 @@ class MarcelExpressionParserTest: ExpressionComposer() {
     @ValueSource(strings = ["println(await(compute()))", "println(await compute())", "println await(compute())"])
     fun testNestedFunctionCall(source: String) {
         assertEquals(
-            fCall(value = "println", positionalArgumentNodes = listOf(
-                fCall(value = "await", positionalArgumentNodes = listOf(
+            fCall(value = "println", args = listOf(
+                fCall(value = "await", args = listOf(
                     fCall("compute")
                 ),)
             ),)
@@ -175,7 +181,7 @@ class MarcelExpressionParserTest: ExpressionComposer() {
     @Test
     fun testFunctionCall2WithoutParenthesis() { // no cast type here
         assertEquals(
-            fCall(value = "zoo", namedArgumentNodes = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
+            fCall(value = "zoo", namedArgs = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
             , parser("zoo foo: 123, bar: 23d").expression())
     }
 

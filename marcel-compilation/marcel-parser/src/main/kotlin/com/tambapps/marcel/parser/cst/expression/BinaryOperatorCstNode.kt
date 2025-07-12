@@ -17,15 +17,13 @@ class BinaryOperatorCstNode(
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
   override fun toString(): String {
-    return "$leftOperand $tokenType $rightOperand"
+    return if (tokenType == TokenType.DOT) "$leftOperand.$tokenType.$rightOperand"
+    else "$leftOperand $tokenType $rightOperand"
   }
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (javaClass != other?.javaClass) return false
-    if (!super.equals(other)) return false
-
-    other as BinaryOperatorCstNode
+    if (other !is BinaryOperatorCstNode) return false
 
     if (tokenType != other.tokenType) return false
     if (leftOperand != other.leftOperand) return false
@@ -35,10 +33,11 @@ class BinaryOperatorCstNode(
   }
 
   override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + tokenType.hashCode()
+    var result = tokenType.hashCode()
     result = 31 * result + leftOperand.hashCode()
     result = 31 * result + rightOperand.hashCode()
     return result
   }
+
+
 }

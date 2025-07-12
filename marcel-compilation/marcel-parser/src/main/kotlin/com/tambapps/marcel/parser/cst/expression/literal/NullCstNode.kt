@@ -15,7 +15,6 @@ class NullCstNode(parent: CstNode? = null, token: LexToken) : AbstractExpression
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NullCstNode) return false
-        if (!super.equals(other)) return false
         return true
     }
 

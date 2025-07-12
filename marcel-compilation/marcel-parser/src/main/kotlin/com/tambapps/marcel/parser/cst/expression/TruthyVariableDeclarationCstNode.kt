@@ -17,4 +17,23 @@ class TruthyVariableDeclarationCstNode(
   override val value: String = identifierToken.value
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is TruthyVariableDeclarationCstNode) return false
+
+    if (type != other.type) return false
+    if (identifierToken != other.identifierToken) return false
+    if (expression != other.expression) return false
+    if (value != other.value) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = type.hashCode()
+    result = 31 * result + identifierToken.hashCode()
+    result = 31 * result + expression.hashCode()
+    result = 31 * result + value.hashCode()
+    return result
+  }
 }

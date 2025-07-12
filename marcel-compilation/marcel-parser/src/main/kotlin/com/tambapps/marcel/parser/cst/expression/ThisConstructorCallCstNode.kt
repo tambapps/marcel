@@ -24,16 +24,16 @@ class ThisConstructorCallCstNode(
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ThisConstructorCallCstNode) return false
-    if (!super.equals(other)) return false
 
     if (positionalArgumentNodes != other.positionalArgumentNodes) return false
+    if (namedArgumentNodes != other.namedArgumentNodes) return false
 
     return true
   }
 
   override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + positionalArgumentNodes.hashCode()
+    var result = positionalArgumentNodes.hashCode()
+    result = 31 * result + namedArgumentNodes.hashCode()
     return result
   }
 
