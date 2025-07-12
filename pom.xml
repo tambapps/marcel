@@ -31,6 +31,7 @@
     <jackson.version>2.16.1</jackson.version>
     <opencsv.version>5.11</opencsv.version>
     <kotest.version>5.9.1</kotest.version>
+    <kover.version>0.8.3</kover.version>
     <mockk.version>1.14.2</mockk.version>
     <jline.version>3.25.0</jline.version>
     <junit.version>5.1.0</junit.version>
@@ -342,6 +343,41 @@
           </configuration>
         </plugin>
         <plugin>
+          <groupId>org.jetbrains.kotlinx</groupId>
+          <artifactId>kover-maven-plugin</artifactId>
+          <version>${kover.version}</version>
+          <executions>
+            <!-- instrument test tasks -->
+            <execution>
+              <id>instr</id>
+              <goals>
+                <goal>instrumentation</goal>
+              </goals>
+            </execution>
+            <!-- generate XML report in verify phase -->
+            <execution>
+              <id>kover-xml</id>
+              <goals>
+                <goal>report-xml</goal>
+              </goals>
+            </execution>
+            <!-- generate HTML report in verify phase -->
+            <execution>
+              <id>kover-html</id>
+              <goals>
+                <goal>report-html</goal>
+              </goals>
+            </execution>
+            <!-- check coverage rules in verify phase -->
+            <execution>
+              <id>kover-verify</id>
+              <goals>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>com.tambapps.marcel.maven</groupId>
           <artifactId>marcel-maven-plugin</artifactId>
           <version>${revision}</version>
@@ -424,6 +460,41 @@
             <phase>clean</phase>
             <goals>
               <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jetbrains.kotlinx</groupId>
+        <artifactId>kover-maven-plugin</artifactId>
+        <version>${kover.version}</version>
+        <executions>
+          <!-- instrument test tasks -->
+          <execution>
+            <id>instr</id>
+            <goals>
+              <goal>instrumentation</goal>
+            </goals>
+          </execution>
+          <!-- generate XML report in verify phase -->
+          <execution>
+            <id>kover-xml</id>
+            <goals>
+              <goal>report-xml</goal>
+            </goals>
+          </execution>
+          <!-- generate HTML report in verify phase -->
+          <execution>
+            <id>kover-html</id>
+            <goals>
+              <goal>report-html</goal>
+            </goals>
+          </execution>
+          <!-- check coverage rules in verify phase -->
+          <execution>
+            <id>kover-verify</id>
+            <goals>
+              <goal>verify</goal>
             </goals>
           </execution>
         </executions>
