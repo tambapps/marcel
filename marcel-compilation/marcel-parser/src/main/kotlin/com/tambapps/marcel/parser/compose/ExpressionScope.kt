@@ -192,10 +192,6 @@ open class ExpressionScope(
       switchExpr)
   }
 
-  fun identifierToken(name: String): LexToken {
-    return LexToken(0, 0, 0, 0, TokenType.IDENTIFIER, name)
-  }
-
   fun access(isStatic: Boolean = false, isFinal: Boolean = false, isExplicit: Boolean = true,
                        visibility: TokenType = TokenType.VISIBILITY_PUBLIC
   ) = AccessCstNode(
@@ -224,4 +220,8 @@ class WhenScope: ExpressionScope() {
     val stmtComposer = StatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
     elseBranch = compose.invoke(stmtComposer)
   }
+}
+
+fun identifierToken(name: String): LexToken {
+  return LexToken(0, 0, 0, 0, TokenType.IDENTIFIER, name)
 }

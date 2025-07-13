@@ -22,7 +22,7 @@ object CstInstructionComposer {
     tokenEnd: LexToken = LexToken.DUMMY,
     parent: CstNode? = null,
     block: StatementScope.() -> StatementCstNode
-  ) = block.invoke(StatementScope(tokenStart, tokenEnd))
+  ) = block.invoke(StatementScope(tokenStart, tokenEnd, parent))
 
   inline fun block(
     tokenStart: LexToken = LexToken.DUMMY,

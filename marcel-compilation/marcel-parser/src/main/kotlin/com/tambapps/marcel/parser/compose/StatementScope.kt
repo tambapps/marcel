@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
+import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 
@@ -54,6 +55,9 @@ open class StatementScope(
   fun ifStmt(
     condition: ExpressionCstNode, compose: IfElseStatementScope.() -> Unit
   ) = onStatementComposed(IfElseStatementScope(condition).apply(compose).asIfStmt())
+
+  fun tryCatchStmt(compose: TryCatchStatementScope.() -> Unit
+  ) = onStatementComposed(TryCatchStatementScope().apply(compose).asTryCatchStmt())
 
   fun whileStmt(
     condition: ExpressionCstNode, compose: BlockStatementScope.() -> Unit
@@ -122,8 +126,52 @@ class IfElseStatementScope(
     falseStatement = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
-  fun asIfStmt(): IfStatementCstNode {
+  internal fun asIfStmt(): IfStatementCstNode {
     val trueStatement = this.trueStatement ?: throw IllegalStateException("true statement must be set")
     return IfStatementCstNode(condition, trueStatement, falseStatement, parent, tokenStart, tokenEnd)
+  }
+}
+
+class TryCatchStatementScope(
+  private val tokenStart: LexToken = LexToken.DUMMY,
+  private val tokenEnd: LexToken = LexToken.DUMMY,
+  private val parent: CstNode? = null
+) {
+
+  // put here instead of a field because the outer scope might be a BlockScope that records statements
+  private val resources = mutableListOf<VariableDeclarationCstNode>()
+  private val catchNodes = mutableListOf<Triple<List<TypeCstNode>, String, StatementCstNode>>()
+  private var finallyNode: StatementCstNode? = null
+  private var tryStmt: StatementCstNode? = null
+
+  fun resource(type: TypeCstNode, isNullable: Boolean, name: String, expr: ExpressionCstNode) {
+    resources.add(VariableDeclarationCstNode(type, identifierToken(name), expr, isNullable, parent, tokenStart, tokenEnd))
+  }
+
+  fun tryStmt(compose: StatementScope.() -> StatementCstNode) {
+    tryStmt = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
+  }
+  fun tryBlock(compose: BlockStatementScope.() -> Unit) {
+    tryStmt = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
+  }
+
+  fun finallyStmt(compose: StatementScope.() -> StatementCstNode) {
+    finallyNode = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
+  }
+
+  fun finallyBlock(compose: BlockStatementScope.() -> Unit) {
+    finallyNode = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
+  }
+
+  fun catchStmt(types: List<TypeCstNode>, varName: String, compose: StatementScope.() -> StatementCstNode) {
+    catchNodes.add(Triple(types, varName, compose.invoke(StatementScope(tokenStart, tokenEnd, parent))))
+  }
+  fun catchBlock(types: List<TypeCstNode>, varName: String, compose: BlockStatementScope.() -> Unit) {
+    catchNodes.add(Triple(types, varName, BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()))
+  }
+
+  internal fun asTryCatchStmt(): TryCatchCstNode {
+    val tryStmt = this.tryStmt ?: throw IllegalStateException("try statement must be set")
+    return TryCatchCstNode(parent, tokenStart, tokenEnd, tryStmt, resources, catchNodes, finallyNode)
   }
 }

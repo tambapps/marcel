@@ -204,6 +204,40 @@ class MarcelStatementParserTest: StatementScope() {
     }
 
     @Test
+    fun testTryFinally() {
+        assertIsEqual(
+            tryCatchStmt {
+                tryBlock { stmt(fCall("println")) }
+                finallyBlock { stmt(fCall("println", args = listOf(string("finally")))) }
+            }
+            , parser("try { println() } finally { println('finally') }").statement())
+    }
+
+    @Test
+    fun testTryCatch() {
+        assertIsEqual(
+            tryCatchStmt {
+                tryBlock { stmt(fCall("println")) }
+                catchBlock(listOf(type("MyException"), type("MyException2")), "e") { stmt(fCall("println", args = listOf(string("finally")))) }
+                catchBlock(listOf(type("Exception")), "e") {  }
+            }
+            , parser("try { println() } catch (MyException | MyException2 e) { println('finally') } catch (Exception e) {}").statement())
+    }
+
+    @Test
+    fun testTryWithResources() {
+        assertIsEqual(
+            tryCatchStmt {
+                resource(type("int"), false, "i", int(2))
+                resource(type("Object"), true, "o", fCall("foo"))
+
+                tryBlock { stmt(fCall("println")) }
+                catchBlock(listOf(type("Exception")), "e") { stmt(fCall("println", args = listOf(string("noo")))) }
+            }
+            , parser("try (int i = 2; Object? o = foo()) { println() } catch (Exception e) { println('noo') }").statement())
+    }
+
+    @Test
     fun testDoWhile() {
         assertIsEqual(
             doWhileStmt(eq(ref("foo"), ref("bar"))) {
