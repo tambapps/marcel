@@ -6,19 +6,19 @@ import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 
 object CstNodeComposer {
 
-  fun composeExpr(
+  inline fun composeExpr(
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     composer: ExpressionScope.() -> ExpressionCstNode
   ) = composer.invoke(ExpressionScope(tokenStart, tokenEnd))
 
-  fun composeStmt(
+  inline fun composeStmt(
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     block: StatementScope.() -> StatementCstNode
   ) = block.invoke(StatementScope(tokenStart, tokenEnd))
 
-  fun composeBlock(
+  inline fun composeBlock(
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     block: StatementScope.() -> Unit

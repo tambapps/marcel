@@ -58,7 +58,7 @@ open class ExpressionScope(
   fun minus(expr: ExpressionCstNode) = UnaryMinusCstNode(expr, null, tokenStart, tokenEnd)
   fun not(expr: ExpressionCstNode) = NotCstNode(expr, null, tokenStart, tokenEnd)
 
-  fun async(compose: BlockStatementScope.() -> Unit): AsyncBlockCstNode {
+  inline fun async(compose: BlockStatementScope.() -> Unit): AsyncBlockCstNode {
     val stmtComposer = BlockStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
     compose.invoke(stmtComposer)
     return AsyncBlockCstNode(null, tokenStart, tokenEnd, stmtComposer.asBlock())
@@ -138,19 +138,19 @@ open class ExpressionScope(
   fun ref(name: String) = ReferenceCstNode(value = name, token = tokenStart, parent = null)
   fun classReference(type: TypeCstNode) = ClassReferenceCstNode(null, type, tokenStart, tokenEnd)
 
-  fun whenExpr(branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
+  inline fun whenExpr(branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
     val whenScope = WhenScope()
     branchesGenerator.invoke(whenScope)
     return WhenCstNode(null, tokenStart, tokenEnd, whenScope.branches, whenScope.elseBranch)
   }
 
-  fun switchExpr(switchExpr: ExpressionCstNode, branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
+  inline fun switchExpr(switchExpr: ExpressionCstNode, branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
     val whenScope = WhenScope()
     branchesGenerator.invoke(whenScope)
     return SwitchCstNode(null, tokenStart, tokenEnd, whenScope.branches, whenScope.elseBranch, null, switchExpr)
   }
 
-  fun switchExpr(varType: TypeCstNode, isVarNullable: Boolean, varName: String, switchExpr: ExpressionCstNode, branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
+  inline fun switchExpr(varType: TypeCstNode, isVarNullable: Boolean, varName: String, switchExpr: ExpressionCstNode, branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
     val whenScope = WhenScope()
     branchesGenerator.invoke(whenScope)
     return SwitchCstNode(null, tokenStart, tokenEnd, whenScope.branches, whenScope.elseBranch,
@@ -165,7 +165,7 @@ open class ExpressionScope(
       switchExpr)
   }
 
-  private fun identifierToken(name: String): LexToken {
+  fun identifierToken(name: String): LexToken {
     return LexToken(0, 0, 0, 0, TokenType.IDENTIFIER, name)
   }
 }
@@ -174,12 +174,12 @@ class WhenScope: ExpressionScope() {
   val branches = mutableListOf<Pair<ExpressionCstNode, StatementCstNode>>()
   var elseBranch: StatementCstNode? = null
 
-  fun branch(expr: ExpressionCstNode, compose: StatementScope.() -> StatementCstNode) {
+  inline fun branch(expr: ExpressionCstNode, compose: StatementScope.() -> StatementCstNode) {
     val stmtComposer = StatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
     branches.add(expr to compose.invoke(stmtComposer))
   }
 
-  fun elseBranch(compose: StatementScope.() -> StatementCstNode) {
+  inline fun elseBranch(compose: StatementScope.() -> StatementCstNode) {
     val stmtComposer = StatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
     elseBranch = compose.invoke(stmtComposer)
   }
