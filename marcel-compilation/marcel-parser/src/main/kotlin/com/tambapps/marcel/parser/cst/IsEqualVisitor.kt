@@ -412,8 +412,8 @@ class IsEqualVisitor(
 
   override fun visit(node: ForVarCstNode) = eqTo<ForVarCstNode> {
     if (!eq(it.varDecl, node.varDecl)) return@eqTo false
-    if (it.condition != node.condition) return@eqTo false
-    if (it.iteratorStatement != node.iteratorStatement) return@eqTo false
+    if (!eq(it.condition, node.condition)) return@eqTo false
+    if (!eq(it.iteratorStatement, node.iteratorStatement)) return@eqTo false
     if (!eq(it.bodyStatement, node.bodyStatement)) return@eqTo false
     return@eqTo true
   }

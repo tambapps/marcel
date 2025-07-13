@@ -9,6 +9,9 @@ import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
+import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
@@ -38,19 +41,43 @@ open class StatementScope(
 
   fun block(block: StatementScope.() -> Unit) = BlockCstNode(
     BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).statements,
-    null, tokenStart, tokenEnd
+    parent, tokenStart, tokenEnd
   )
 
-  fun multiVarDecl(declarations: List<Triple<TypeCstNode, String, Boolean>>, expr: ExpressionCstNode) = onStatementComposed(
+  fun forInStmt(varType: TypeCstNode, varName: String, isVarNullable: Boolean, inNode: ExpressionCstNode, block: StatementScope.() -> Unit) = ForInCstNode(
+    varType, varName, isVarNullable, inNode, BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
+    parent, tokenStart, tokenEnd
+  )
+
+  fun forMultiVarInStmt(declarations: List<Triple<TypeCstNode, String, Boolean>>, inNode: ExpressionCstNode, block: StatementScope.() -> Unit) =
+    ForInMultiVarCstNode(
+      declarations, inNode, BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
+    parent, tokenStart, tokenEnd
+  )
+
+  fun forVarStmt(
+    varType: TypeCstNode, varName: String, isVarNullable: Boolean,
+    initExpr: ExpressionCstNode,
+    conditionExpr: ExpressionCstNode,
+    iteratorExpr: ExpressionCstNode,
+    block: StatementScope.() -> Unit) =
+    ForVarCstNode(
+      VariableDeclarationCstNode(varType, identifierToken(varName), initExpr, isVarNullable, parent, tokenStart, tokenEnd),
+      conditionExpr, ExpressionStatementCstNode(iteratorExpr),
+      BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
+      parent, tokenStart, tokenEnd
+    )
+
+  fun multiVarDeclStmt(declarations: List<Triple<TypeCstNode, String, Boolean>>, expr: ExpressionCstNode) = onStatementComposed(
     MultiVarDeclarationCstNode(parent, tokenStart, tokenEnd, declarations, expr)
   )
 
-  fun varDecl(typeNode: TypeCstNode, name: String, expr: ExpressionCstNode?, isNullable: Boolean = false) = onStatementComposed(
+  fun varDeclStmt(typeNode: TypeCstNode, name: String, expr: ExpressionCstNode?, isNullable: Boolean = false) = onStatementComposed(
     VariableDeclarationCstNode(typeNode,
       LexToken.dummy(name), expr, isNullable, parent, tokenStart, tokenEnd)
   )
 
-  fun returnStmt(expr: ExpressionCstNode? = null) = onStatementComposed(ReturnCstNode(expressionNode = expr, tokenStart = tokenStart, tokenEnd = tokenEnd))
+  fun returnStmt(expr: ExpressionCstNode? = null) = onStatementComposed(ReturnCstNode(parent = parent, expressionNode = expr, tokenStart = tokenStart, tokenEnd = tokenEnd))
 
   fun ifStmt(
     condition: ExpressionCstNode, compose: IfElseStatementScope.() -> Unit
@@ -60,7 +87,7 @@ open class StatementScope(
   ) = onStatementComposed(TryCatchStatementScope().apply(compose).asTryCatchStmt())
 
   fun whileStmt(
-    condition: ExpressionCstNode, compose: BlockStatementScope.() -> Unit
+    condition: ExpressionCstNode, compose: StatementScope.() -> Unit
   ) = onStatementComposed(
     WhileCstNode(
       parent,
@@ -72,7 +99,7 @@ open class StatementScope(
   )
 
   fun doWhileStmt(
-    condition: ExpressionCstNode, compose: BlockStatementScope.() -> Unit
+    condition: ExpressionCstNode, compose: StatementScope.() -> Unit
   ) = onStatementComposed(
     DoWhileStatementCstNode(
       parent,
@@ -87,6 +114,9 @@ open class StatementScope(
 
 }
 
+/**
+ * BlockStatementScope is a StatementScope that collects composed statements to create the block
+ */
 class BlockStatementScope constructor(
   tokenStart: LexToken = LexToken.DUMMY,
   tokenEnd: LexToken = LexToken.DUMMY,
@@ -118,11 +148,11 @@ class IfElseStatementScope(
     falseStatement = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
   }
 
-  fun trueBlock(compose: BlockStatementScope.() -> Unit) {
+  fun trueBlock(compose: StatementScope.() -> Unit) {
     trueStatement = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
-  fun falseBlock(compose: BlockStatementScope.() -> Unit) {
+  fun falseBlock(compose: StatementScope.() -> Unit) {
     falseStatement = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
@@ -151,7 +181,7 @@ class TryCatchStatementScope(
   fun tryStmt(compose: StatementScope.() -> StatementCstNode) {
     tryStmt = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
   }
-  fun tryBlock(compose: BlockStatementScope.() -> Unit) {
+  fun tryBlock(compose: StatementScope.() -> Unit) {
     tryStmt = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
@@ -159,14 +189,14 @@ class TryCatchStatementScope(
     finallyNode = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
   }
 
-  fun finallyBlock(compose: BlockStatementScope.() -> Unit) {
+  fun finallyBlock(compose: StatementScope.() -> Unit) {
     finallyNode = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
   fun catchStmt(types: List<TypeCstNode>, varName: String, compose: StatementScope.() -> StatementCstNode) {
     catchNodes.add(Triple(types, varName, compose.invoke(StatementScope(tokenStart, tokenEnd, parent))))
   }
-  fun catchBlock(types: List<TypeCstNode>, varName: String, compose: BlockStatementScope.() -> Unit) {
+  fun catchBlock(types: List<TypeCstNode>, varName: String, compose: StatementScope.() -> Unit) {
     catchNodes.add(Triple(types, varName, BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()))
   }
 

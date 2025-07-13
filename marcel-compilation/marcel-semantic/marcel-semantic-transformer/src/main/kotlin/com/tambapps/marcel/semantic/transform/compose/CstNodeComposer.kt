@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.transform.compose
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.compose.BlockStatementScope
+import com.tambapps.marcel.parser.compose.StatementScope
 import com.tambapps.marcel.parser.cst.AccessCstNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode
@@ -32,7 +33,7 @@ open class CstNodeComposer {
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     isReturnTypeNullable: Boolean = false,
-    statementsSupplier: BlockStatementScope.() -> Unit,
+    statementsSupplier: StatementScope.() -> Unit,
   ): MethodCstNode {
 
     val methodNode = MethodCstNode(

@@ -1,18 +1,15 @@
 package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.TestUtils.assertIsEqual
 import com.tambapps.marcel.parser.TestUtils.assertIsNotEqual
 import com.tambapps.marcel.parser.TestUtils.parser
 import com.tambapps.marcel.parser.compose.StatementScope
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
-import com.tambapps.marcel.parser.cst.AccessCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.RegularClassCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
-import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -31,9 +28,9 @@ class MarcelStatementParserTest: StatementScope() {
 
     @Test
     fun testVariableDeclaration() {
-        assertIsEqual(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
-        assertIsEqual(varDecl(type("int"), "a", int(1)), parser("int a = 1").statement())
-        assertNotEquals(varDecl(type("float"), "a", int(1)), parser("int a = 1").statement())
+        assertIsEqual(varDeclStmt(type("int"), "a", int(1)), parser("int a = 1;").statement())
+        assertIsEqual(varDeclStmt(type("int"), "a", int(1)), parser("int a = 1").statement())
+        assertNotEquals(varDeclStmt(type("float"), "a", int(1)), parser("int a = 1").statement())
     }
 
 
@@ -161,7 +158,7 @@ class MarcelStatementParserTest: StatementScope() {
     @Test
     fun testMultiVarDecl() {
         assertIsEqual(
-            multiVarDecl(
+            multiVarDeclStmt(
                 listOf(
                     Triple(type("int"), "foo", false),
                     Triple(type("String"), "bar", true),
@@ -188,6 +185,37 @@ class MarcelStatementParserTest: StatementScope() {
                 trueStmt { stmt(fCall("bar")) }
             }
             , parser("if (true) bar()").statement())
+    }
+
+    @Test
+    fun testForIn() {
+        assertIsEqual(
+            forInStmt(type("int"), "i", false, ref("array")) {
+                stmt(fCall("println", args = listOf(ref("i"))))
+            }
+            , parser("for (int i in array) { println(i) }").statement())
+    }
+
+    @Test
+    fun testForInMulti() {
+        assertIsEqual(
+            forMultiVarInStmt(listOf(
+                Triple(type("int"), "i", false),
+                Triple(type("Object"), "o", true),
+            ), ref("array")) {
+                stmt(fCall("println", args = listOf(ref("i"))))
+            }
+            , parser("for ((int i, Object? o) in array) { println(i) }").statement())
+    }
+
+    @Test
+    fun testForVar() {
+        assertIsEqual(
+            forVarStmt(
+                type("int"), "i", false, int(0), lt(ref("i"), int(10)), incr("i", returnValueBefore = true)) {
+                stmt(fCall("println", args = listOf(ref("i"))))
+            }
+            , parser("for (int i = 0; i < 10; i++) { println(i) }").statement())
     }
 
     @Test

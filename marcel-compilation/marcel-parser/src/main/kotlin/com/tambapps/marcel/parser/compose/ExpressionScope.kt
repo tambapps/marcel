@@ -75,7 +75,7 @@ open class ExpressionScope(
   fun not(expr: ExpressionCstNode) = NotCstNode(expr, parent, tokenStart, tokenEnd)
   fun incr(varName: String, returnValueBefore: Boolean, amount: Int = 1) = IncrCstNode( parent, varName, amount, returnValueBefore,tokenStart, tokenEnd)
 
-  inline fun async(compose: BlockStatementScope.() -> Unit): AsyncBlockCstNode {
+  inline fun async(compose: StatementScope.() -> Unit): AsyncBlockCstNode {
     val stmtComposer = BlockStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd, parent = parent)
     compose.invoke(stmtComposer)
     return AsyncBlockCstNode(parent, tokenStart, tokenEnd, stmtComposer.asBlock())
