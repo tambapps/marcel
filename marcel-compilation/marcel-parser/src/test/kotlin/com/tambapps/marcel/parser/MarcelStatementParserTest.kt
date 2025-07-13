@@ -25,10 +25,9 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class MarcelStatementParserTest: StatementScope() {
 
-    private val defaultAccess = AccessCstNode(null, LexToken.DUMMY, LexToken.DUMMY, false, false, false, TokenType.VISIBILITY_PUBLIC, false)
     private val classNode = RegularClassCstNode(
         SourceFileCstNode(LexToken.DUMMY, LexToken.DUMMY, null, emptyList()),
-        LexToken.DUMMY, LexToken.DUMMY, defaultAccess, "Test", null, emptyList(), false, null)
+        LexToken.DUMMY, LexToken.DUMMY, access(), "Test", null, emptyList(), false, null)
 
     @Test
     fun testVariableDeclaration() {
@@ -42,7 +41,7 @@ class MarcelStatementParserTest: StatementScope() {
     @ValueSource(strings = ["fun int foo() -> println(1)", "fun int foo() { println(1)  }"]) // six numbers
     fun testMethod(text: String) {
         val parser = parser(text)
-        val method = parser.method(classNode, emptyList(), defaultAccess)
+        val method = parser.method(classNode, emptyList(), access())
         assertTrue(method is MethodCstNode)
         method as MethodCstNode
         assertEquals("foo", method.name)
@@ -79,7 +78,7 @@ class MarcelStatementParserTest: StatementScope() {
 
     private fun testMethodWithParameter(text: String, expectedBlock: StatementCstNode) {
         val parser = parser(text)
-        val method = parser.method(classNode, emptyList(), defaultAccess)
+        val method = parser.method(classNode, emptyList(), access())
         assertTrue(method is MethodCstNode)
         method as MethodCstNode
         assertEquals("bar", method.name)
@@ -119,19 +118,98 @@ class MarcelStatementParserTest: StatementScope() {
     }
 
     @Test
-    fun testStatement() {
+    fun testFunctionCall() {
         assertIsEqual(
-            ExpressionStatementCstNode(null,
+            stmt(
                 fCall(value = "a", args = listOf(int(1), float(2f), ref("b")),),
-                LexToken.DUMMY, LexToken.DUMMY
-                )
+            )
             , parser("a(1, 2f, b);").statement())
         assertIsNotEqual(
-            ExpressionStatementCstNode(null,
-                int(1),
-                LexToken.DUMMY, LexToken.DUMMY
-                )
+            stmt(int(1))
             , parser("a(1, 2f, b)").statement())
-
     }
+
+    @Test
+    fun testContinue() {
+        assertIsEqual(
+            continueStmt()
+            , parser("continue;").statement())
+
+        assertIsNotEqual(
+            breakStmt()
+            , parser("continue;").statement())
+    }
+
+    @Test
+    fun testBreak() {
+        assertIsEqual(
+            breakStmt()
+            , parser("break").statement())
+
+        assertIsNotEqual(
+            continueStmt()
+            , parser("break").statement())
+    }
+
+    @Test
+    fun testThrow() {
+        assertIsEqual(
+            throwStmt(new(type("RuntimeException")))
+            , parser("throw new RuntimeException()").statement())
+    }
+
+    @Test
+    fun testMultiVarDecl() {
+        assertIsEqual(
+            multiVarDecl(
+                listOf(
+                    Triple(type("int"), "foo", false),
+                    Triple(type("String"), "bar", true),
+                    Triple(type("DynamicObject"), "zoo", false),
+                ),
+                ref("array")
+            )
+            , parser("def (int foo, String? bar, dynobj zoo) = array").statement())
+    }
+
+    @Test
+    fun testWhile() {
+        assertIsEqual(
+            whileStmt(eq(ref("foo"), ref("bar"))) {
+                stmt(fCall("println", args = listOf(int(1))))
+            }
+            , parser("while(foo == bar) { println(1) }").statement())
+    }
+
+    @Test
+    fun testIf() {
+        assertIsEqual(
+            ifStmt(bool(true)) {
+                trueStmt { stmt(fCall("bar")) }
+            }
+            , parser("if (true) bar()").statement())
+    }
+
+    @Test
+    fun testIfElse() {
+        assertIsEqual(
+            ifStmt(bool(true)) {
+                trueStmt { stmt(fCall("bar")) }
+                falseBlock {
+                    stmt(fCall("println"))
+                    stmt(ref("exit"))
+                }
+            }
+            , parser("if (true) bar() else { println(); exit; }").statement())
+    }
+
+    @Test
+    fun testDoWhile() {
+        assertIsEqual(
+            doWhileStmt(eq(ref("foo"), ref("bar"))) {
+                stmt(fCall("println", args = listOf(int(1))))
+            }
+            , parser("do { println(1) } while (foo == bar)").statement())
+    }
+
 }

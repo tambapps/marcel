@@ -5,11 +5,17 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
+import com.tambapps.marcel.parser.cst.statement.BreakCstNode
+import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
+import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.IfStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
+import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 
 /**
  * Scope of a statement composition
@@ -25,9 +31,17 @@ open class StatementScope(
     ExpressionStatementCstNode(expr)
   )
 
+  fun breakStmt() = onStatementComposed(BreakCstNode(parent, tokenStart))
+  fun continueStmt() = onStatementComposed(ContinueCstNode(parent, tokenStart))
+  fun throwStmt(expr: ExpressionCstNode) = onStatementComposed(ThrowCstNode(parent, tokenStart, tokenEnd, expr))
+
   fun block(block: StatementScope.() -> Unit) = BlockCstNode(
     BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).statements,
     null, tokenStart, tokenEnd
+  )
+
+  fun multiVarDecl(declarations: List<Triple<TypeCstNode, String, Boolean>>, expr: ExpressionCstNode) = onStatementComposed(
+    MultiVarDeclarationCstNode(parent, tokenStart, tokenEnd, declarations, expr)
   )
 
   fun varDecl(typeNode: TypeCstNode, name: String, expr: ExpressionCstNode?, isNullable: Boolean = false) = onStatementComposed(
@@ -40,6 +54,30 @@ open class StatementScope(
   fun ifStmt(
     condition: ExpressionCstNode, compose: IfElseStatementScope.() -> Unit
   ) = onStatementComposed(IfElseStatementScope(condition).apply(compose).asIfStmt())
+
+  fun whileStmt(
+    condition: ExpressionCstNode, compose: BlockStatementScope.() -> Unit
+  ) = onStatementComposed(
+    WhileCstNode(
+      parent,
+      tokenStart,
+      tokenEnd,
+      condition,
+      BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock(),
+    )
+  )
+
+  fun doWhileStmt(
+    condition: ExpressionCstNode, compose: BlockStatementScope.() -> Unit
+  ) = onStatementComposed(
+    DoWhileStatementCstNode(
+      parent,
+      tokenStart,
+      tokenEnd,
+      BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock(),
+      condition,
+    )
+  )
 
   protected open fun <T: StatementCstNode> onStatementComposed(statement: T): T = statement
 

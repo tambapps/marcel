@@ -420,13 +420,13 @@ class IsEqualVisitor(
 
   override fun visit(node: WhileCstNode) = eqTo<WhileCstNode> {
     if (!eq(it.condition, node.condition)) return@eqTo false
-    if (it.statement != node.statement) return@eqTo false
+    if (!eq(it.statement, node.statement)) return@eqTo false
     return@eqTo true
   }
 
-  override fun visit(node: DoWhileStatementCstNode) = eqTo<WhileCstNode> {
+  override fun visit(node: DoWhileStatementCstNode) = eqTo<DoWhileStatementCstNode> {
     if (!eq(it.condition, node.condition)) return@eqTo false
-    if (it.statement != node.statement) return@eqTo false
+    if (!eq(it.statement, node.statement)) return@eqTo false
     return@eqTo true
   }
 
@@ -434,7 +434,7 @@ class IsEqualVisitor(
 
   override fun visit(node: BreakCstNode) = this.node is BreakCstNode
 
-  override fun visit(node: ContinueCstNode) = this.node is BreakCstNode
+  override fun visit(node: ContinueCstNode) = this.node is ContinueCstNode
 
   override fun visit(node: ThrowCstNode) = eqTo<ThrowCstNode> { eq(it.expression, node.expression) }
 

@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.compose
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.AccessCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.AllInCstNode
@@ -194,6 +195,20 @@ open class ExpressionScope(
   fun identifierToken(name: String): LexToken {
     return LexToken(0, 0, 0, 0, TokenType.IDENTIFIER, name)
   }
+
+  fun access(isStatic: Boolean = false, isFinal: Boolean = false, isExplicit: Boolean = true,
+                       visibility: TokenType = TokenType.VISIBILITY_PUBLIC
+  ) = AccessCstNode(
+      parent = parent,
+      tokenStart = LexToken.DUMMY,
+      tokenEnd = LexToken.DUMMY,
+      isStatic = isStatic,
+      isFinal = isFinal,
+      isInline = false,
+      visibility = visibility,
+      isExplicit = isExplicit
+    )
+
 }
 
 class WhenScope: ExpressionScope() {

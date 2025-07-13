@@ -11,8 +11,8 @@ object TestUtils {
 
   fun parser(text: String) = MarcelParser("Test", MarcelLexer().lex(text))
 
-  fun assertIsEqual(node1: IdentifiableCstNode, node2: CstNode) {
-    assertTrue(node1.isEqualTo(node2), "Expected $node1 to be equal to $node2")
+  fun assertIsEqual(expected: IdentifiableCstNode, actual: CstNode) {
+    assertTrue(expected.isEqualTo(actual), "Expected $actual to be equal to $expected")
   }
 
   fun assertIsEqual(node1: List<IdentifiableCstNode>, node2: List<IdentifiableCstNode>) {
