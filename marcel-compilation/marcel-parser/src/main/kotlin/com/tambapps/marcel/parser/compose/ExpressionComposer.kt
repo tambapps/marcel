@@ -106,6 +106,7 @@ open class ExpressionComposer(
 
   fun and(left: ExpressionCstNode, right: ExpressionCstNode) = binaryOperator(TokenType.AND, left, right)
   fun plus(left: ExpressionCstNode, right: ExpressionCstNode) = binaryOperator(TokenType.PLUS, left, right)
+  fun minus(left: ExpressionCstNode, right: ExpressionCstNode) = binaryOperator(TokenType.MINUS, left, right)
   fun mul(left: ExpressionCstNode, right: ExpressionCstNode) = binaryOperator(TokenType.MUL, left, right)
   fun dot(left: ExpressionCstNode, right: ExpressionCstNode) = binaryOperator(TokenType.DOT, left, right)
   fun eq(left: ExpressionCstNode, right: ExpressionCstNode) = binaryOperator(TokenType.EQUAL, left, right)

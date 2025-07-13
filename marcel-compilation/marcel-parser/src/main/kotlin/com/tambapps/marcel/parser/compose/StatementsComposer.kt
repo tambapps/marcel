@@ -16,6 +16,13 @@ open class StatementsComposer(
   ExpressionComposer(tokenStart, tokenEnd) {
     private val statements = mutableListOf<StatementCstNode>()
 
+  companion object {
+    fun compose(tokenStart: LexToken = LexToken.DUMMY, tokenEnd: LexToken = LexToken.DUMMY, block: StatementsComposer.() -> Unit): BlockCstNode {
+      val composer = StatementsComposer(tokenStart, tokenEnd)
+      composer.block()
+      return composer.asBlock()
+    }
+  }
   fun stmt(expr: ExpressionCstNode) = add(
     ExpressionStatementCstNode(expr)
   )
