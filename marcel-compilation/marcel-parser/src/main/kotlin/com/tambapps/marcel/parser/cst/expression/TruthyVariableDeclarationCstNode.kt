@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 
-class TruthyVariableDeclarationCstNode(
+class TruthyVariableDeclarationCstNode constructor(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,

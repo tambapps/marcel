@@ -14,6 +14,129 @@ import org.junit.jupiter.params.provider.ValueSource
 class MarcelExpressionParserTest: ExpressionComposer() {
 
     @Test
+    fun testAllIn() {
+        assertIsEqual(
+            allIn(
+                varType = type("int"),
+                varName = "a",
+                inExpr = ref("list"),
+                filterExpr = goe(ref("a"), int(3))
+            ),
+            parser("when int a in list &> a >= 3").expression())
+    }
+
+    @Test
+    fun testAnyIn() {
+        assertIsEqual(
+            anyIn(
+                varType = type("int"),
+                varName = "a",
+                inExpr = ref("list"),
+                filterExpr = goe(ref("a"), string("goo")),
+                negate = true
+            ),
+            parser("!when int a in list |> a >= 'goo'").expression())
+    }
+
+    @Test
+    fun testFindIn() {
+        assertIsEqual(
+            findIn(
+                varType = type("int"),
+                varName = "a",
+                inExpr = ref("list"),
+                filterExpr = goe(ref("a"), int(8)),
+            ),
+            parser("when int a in list -> a >= 8").expression())
+    }
+
+    @Test
+    fun testMapFilter() {
+        assertIsEqual(
+            mapFilter(
+                varType = type("int"),
+                varName = "i",
+                inExpr = ref("list"),
+                mapExpr = plus(ref("i"), float(0.1f)),
+                filterExpr = loe(ref("i"), int(2)),
+            ),
+            parser("[for int i in list -> i + 0.1f if i <= 2]").expression())
+
+        assertIsEqual(
+            mapFilter(
+                varType = type("int"),
+                varName = "i",
+                inExpr = ref("list"),
+                mapExpr = plus(ref("i"), float(0.1f)),
+            ),
+            parser("[for int i in list -> i + 0.1f]").expression())
+    }
+
+    @Test
+    fun testAsyncBlock() {
+        assertIsEqual(
+            async {  },
+            parser("async {}").expression())
+    }
+
+    @Test
+    fun testInstanceOf() {
+        assertIsEqual(
+            instanceof(ref("a"), type("Foo")),
+            parser("a instanceof Foo").expression())
+
+        assertIsEqual(
+            notInstanceof(ref("b"), type("Bar")),
+            parser("b !instanceof Bar").expression())
+    }
+
+    @Test
+    fun testAs() {
+        assertIsEqual(
+            asType(ref("a"), type("Foo")),
+            parser("a as Foo").expression())
+    }
+
+    @Test
+    fun testElvisThrow() {
+        assertIsEqual(
+            elvisThrow(ref("a"), new(type("RuntimeException"))),
+            parser("a ?: throw new RuntimeException()").expression())
+    }
+
+    @Test
+    fun testNewInstance() {
+        assertIsEqual(
+            new(type("Foo"), args = listOf(int(1)), namedArgs = listOf("bar" to string(""))),
+            parser("new Foo(1, bar: '')").expression())
+    }
+
+    @Test
+    fun testSuperConstructorCall() {
+        assertIsEqual(
+            superConstrCall(args = listOf(int(1))),
+            parser("super(1)").expression())
+    }
+
+    @Test
+    fun testThisConstructorCall() {
+        assertIsEqual(
+            thisConstrCall(args = listOf(int(1))),
+            parser("this(1)").expression())
+    }
+
+    @Test
+    fun testTernary() {
+        assertIsEqual(
+            ternary(
+                test = goe(ref("a"), ref("b")),
+                trueExpr = ref("a"),
+                falseExpr = ref("b")
+            ),
+            parser("a >= b ? a : b").expression())
+    }
+
+    @Test
     fun testUnaryMinusNode() {
         assertIsEqual(minus(int(1)), parser("-1").expression())
         assertIsEqual(
@@ -33,7 +156,7 @@ class MarcelExpressionParserTest: ExpressionComposer() {
 
 
         assertIsEqual(and(
-            left = isEqual(left = int(0), right = minus(int(1))),
+            left = eq(left = int(0), right = minus(int(1))),
             right = gt(
                 left = int(2),
                 right = int(0)
@@ -184,5 +307,89 @@ class MarcelExpressionParserTest: ExpressionComposer() {
         assertIsNotEqual(float(value = 134.45f), parser("1234.45f").atom())
         assertIsNotEqual(double(value = 234.0), parser("1234d").atom())
         assertIsNotEqual(double(value = 1234.4), parser("1234.45d").atom())
+    }
+
+    @Test
+    fun testWhen() {
+        val expected = whenExpr {
+            branch(eq(ref("a"), int(2))) {
+                stmt(string("yay"))
+            }
+            branch(eq(ref("a"), int(3))) {
+                stmt(bool(false))
+            }
+            elseBranch {
+                stmt(int(0))
+            }
+        }
+
+        assertIsEqual(expected, parser(
+            """
+                when {
+                  a == 2 -> 'yay'
+                  a == 3 -> false
+                  else -> 0
+                }
+            """.trimIndent()
+        ).expression())
+    }
+
+    @Test
+    fun testSwitch() {
+        val expected = switchExpr(ref("a")) {
+            branch(int(2)) {
+                stmt(string("yay"))
+            }
+            branch(int(3)) {
+                stmt(bool(false))
+            }
+        }
+
+        assertIsEqual(expected, parser(
+            """
+                switch (a) {
+                  2 -> 'yay'
+                  3 -> false
+                }
+            """.trimIndent()
+        ).expression())
+    }
+
+    @Test
+    fun testSwitchWithVarDecl() {
+        val expected = switchExpr(
+            varType = type("Integer"),
+            varName = "a",
+            isVarNullable = true,
+            switchExpr = fCall("foo")
+        ) {
+            branch(int(2)) {
+                stmt(string("yay"))
+            }
+            branch(int(3)) {
+                stmt(bool(false))
+            }
+            elseBranch {
+                stmt(int(0))
+            }
+        }
+
+        assertIsEqual(expected, parser(
+            """
+                switch (Integer? a = foo()) {
+                  2 -> 'yay'
+                  3 -> false
+                  else -> 0
+                }
+            """.trimIndent()
+        ).expression())
+    }
+
+    @Test
+    fun testTruthyVarDecl() {
+        assertIsEqual(
+            truthyVarDecl(type = type("String"), name = "foo", expr = fCall("bar")),
+            parser("String foo = bar()").ifConditionExpression(null)
+        )
     }
 }

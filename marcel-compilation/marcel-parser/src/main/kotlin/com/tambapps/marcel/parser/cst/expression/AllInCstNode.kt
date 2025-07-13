@@ -20,4 +20,19 @@ class AllInCstNode(
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
+  override fun toString() = buildString {
+    if (negate) append('!')
+    append("when")
+    append(' ')
+    append(varType)
+    append(' ')
+    append(varName)
+    if (inExpr != null) {
+      append(" in ")
+      append(inExpr)
+      append(' ')
+    }
+    append("&> ")
+    append(filterExpr)
+  }
 }

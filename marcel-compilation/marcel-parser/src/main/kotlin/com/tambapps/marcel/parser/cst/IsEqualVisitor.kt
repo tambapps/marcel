@@ -470,8 +470,8 @@ class IsEqualVisitor(
   private fun inOpEq(a: InOperationCstNode, b: InOperationCstNode): Boolean {
     if (!eq(a.varType, b.varType)) return false
     if (a.varName != b.varName) return false
-    if (a.inExpr != b.inExpr) return false
-    if (a.filterExpr != b.filterExpr) return false
+    if (!eq(a.inExpr, b.inExpr)) return false
+    if (!eq(a.filterExpr, b.filterExpr)) return false
     return true
   }
 

@@ -756,7 +756,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
   }
 
-  private fun ifConditionExpression(parentNode: CstNode?): ExpressionCstNode {
+  fun ifConditionExpression(parentNode: CstNode?): ExpressionCstNode {
     return if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == IDENTIFIER) {
       val type = parseType(parentNode)
       val variableToken = accept(IDENTIFIER)
@@ -1061,7 +1061,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         var varDecl: VariableDeclarationCstNode? = null
         if (token.type == TokenType.SWITCH) {
           accept(TokenType.LPAR)
-          if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == IDENTIFIER && lookup(2)?.type == TokenType.ASSIGNMENT) {
+          if (ParserUtils.isTypeToken(current.type) && (
+                lookup(1)?.type == IDENTIFIER && lookup(2)?.type == TokenType.ASSIGNMENT ||
+                    lookup(1)?.type == TokenType.QUESTION_MARK // nullable type for varDecl
+              )) {
             val (type, isNullable) = parseNullableType(parentNode)
             val variableToken = accept(IDENTIFIER)
             varDecl = VariableDeclarationCstNode(type, variableToken, null, isNullable, parentNode, type.tokenStart, current)

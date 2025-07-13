@@ -18,4 +18,11 @@ class SwitchCstNode(
 ) : WhenCstNode(parent, tokenStart, tokenEnd, branches, elseStatement) {
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
+  override fun appendHeader(builder: StringBuilder) {
+    if (varDeclaration != null) {
+      builder.append("switch (${varDeclaration.type.toString(varDeclaration.isNullable)} ${varDeclaration.value} = $switchExpression) {\n")
+    } else {
+      builder.append("switch ($switchExpression) {\n")
+    }
+  }
 }
