@@ -58,9 +58,9 @@ class MarcelExpressionParserTest: ExpressionScope() {
                 varName = "i",
                 inExpr = ref("list"),
                 mapExpr = plus(ref("i"), float(0.1f)),
-                filterExpr = loe(ref("i"), int(2)),
+                filterExpr = loe(ref("i"), char('2')),
             ),
-            parser("[for int i in list -> i + 0.1f if i <= 2]").expression())
+            parser("[for int i in list -> i + 0.1f if i <= `2`]").expression())
 
         assertIsEqual(
             mapFilter(
@@ -112,6 +112,21 @@ class MarcelExpressionParserTest: ExpressionScope() {
     }
 
     @Test
+    fun testSuperRef() {
+        assertIsEqual(
+            superRef(),
+            parser("super").expression())
+    }
+
+    @Test
+    fun testThisRef() {
+        assertIsEqual(
+            thisRef(),
+            parser("this").expression())
+    }
+
+
+    @Test
     fun testSuperConstructorCall() {
         assertIsEqual(
             superConstrCall(args = listOf(int(1))),
@@ -126,6 +141,21 @@ class MarcelExpressionParserTest: ExpressionScope() {
     }
 
     @Test
+    fun testIncr() {
+        assertIsEqual(
+            incr("foo", returnValueBefore = true),
+            parser("foo++").expression())
+
+        assertIsNotEqual(
+            incr("foo", returnValueBefore = true),
+            parser("++foo").expression())
+
+        assertIsEqual(
+            incr("foo", returnValueBefore = false),
+            parser("++foo").expression())
+    }
+
+    @Test
     fun testTernary() {
         assertIsEqual(
             ternary(
@@ -134,6 +164,13 @@ class MarcelExpressionParserTest: ExpressionScope() {
                 falseExpr = ref("b")
             ),
             parser("a >= b ? a : b").expression())
+    }
+
+    @Test
+    fun testDirectFieldRef() {
+        assertIsEqual(
+            directFieldRef("bar"),
+            parser("@bar").expression())
     }
 
     @Test
@@ -169,6 +206,21 @@ class MarcelExpressionParserTest: ExpressionScope() {
     fun testArrayNode() {
         assertIsEqual(array(int(1), bool(false), string("foo")),
             parser("[1, false 'foo']").expression())
+    }
+
+    @Test
+    fun testMapNode() {
+        assertIsEqual(map(
+            WrappedExpressionCstNode(int(1)) to bool(false),
+            string("foo") to string("bar")
+        ),
+            parser("[(1): false, foo: 'bar']").expression())
+    }
+
+    @Test
+    fun testRegexNode() {
+        assertIsEqual(regex("foo"), parser("r/foo/").expression())
+        assertIsEqual(regex("foo", "dix"), parser("r/foo/dix").expression())
     }
 
     @Test

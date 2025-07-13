@@ -32,5 +32,12 @@ class RegexCstNode(
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
-  override fun toString() = "/$value/"
+  override fun toString() = buildString {
+    append("r/$value/")
+    if (flags.isNotEmpty()) {
+      flags.joinTo(buffer = this, separator = "") { char ->
+        FLAGS_MAP.entries.find { it.value == char }?.key?.toString() ?: "?"
+      }
+    }
+  }
 }

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.compose.CstNodeComposer
+import com.tambapps.marcel.parser.compose.CstInstructionComposer
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
@@ -29,7 +29,7 @@ class ForEachNodeVisitorTest {
 
   @Test
   fun testStatementVisitor() {
-    val node = CstNodeComposer.composeBlock {
+    val node = CstInstructionComposer.block {
       returnNode()
       stmt(generateExpression())
     }
@@ -42,7 +42,7 @@ class ForEachNodeVisitorTest {
     assertExpressionNodes(list, otherCount = 3)
   }
 
-  private fun generateExpression() = CstNodeComposer.composeExpr {
+  private fun generateExpression() = CstInstructionComposer.expr {
     plus(
       ref("a"),
       minus(

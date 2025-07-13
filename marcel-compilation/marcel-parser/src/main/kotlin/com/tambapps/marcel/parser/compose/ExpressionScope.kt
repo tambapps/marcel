@@ -25,15 +25,22 @@ import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 
@@ -54,9 +61,16 @@ open class ExpressionScope(
 
   fun truthyVarDecl(type: TypeCstNode, name: String, expr: ExpressionCstNode) = TruthyVariableDeclarationCstNode(null, tokenStart, tokenEnd, type, identifierToken(name), expr)
 
+  fun map(vararg pairs: Pair<ExpressionCstNode, ExpressionCstNode>) = MapCstNode(
+    pairs.toList(),
+    parent = null,
+    tokenStart = tokenStart,
+    tokenEnd = tokenEnd
+  )
   fun array(vararg expr: ExpressionCstNode) = ArrayCstNode(expr.toList(), parent = null, tokenStart = tokenStart, tokenEnd = tokenEnd)
   fun minus(expr: ExpressionCstNode) = UnaryMinusCstNode(expr, null, tokenStart, tokenEnd)
   fun not(expr: ExpressionCstNode) = NotCstNode(expr, null, tokenStart, tokenEnd)
+  fun incr(varName: String, returnValueBefore: Boolean, amount: Int = 1) = IncrCstNode( null, varName, amount, returnValueBefore,tokenStart, tokenEnd)
 
   inline fun async(compose: BlockStatementScope.() -> Unit): AsyncBlockCstNode {
     val stmtComposer = BlockStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
@@ -92,6 +106,9 @@ open class ExpressionScope(
     filterExpr: ExpressionCstNode? = null,
     inExpr: ExpressionCstNode? = null
   ) = MapFilterCstNode(null, tokenStart, tokenEnd, varType, varName, inExpr, mapExpr, filterExpr)
+
+  fun thisRef() = ThisReferenceCstNode(token = tokenStart, parent = null)
+  fun superRef() = SuperReferenceCstNode(token = tokenStart, parent = null)
 
   fun new(type: TypeCstNode, args: List<ExpressionCstNode> = emptyList(),
           namedArgs: List<Pair<String, ExpressionCstNode>> = emptyList()) = NewInstanceCstNode(null, type, args, namedArgs, tokenStart, tokenEnd)
@@ -133,10 +150,17 @@ open class ExpressionScope(
   fun string(value: Any) = StringCstNode(value = value.toString(), token = tokenStart)
   fun templateSting(value: Any) = TemplateStringCstNode(expressions = listOf(string(value)), tokenStart = tokenStart, tokenEnd = tokenEnd, parent = null)
   fun float(value: Float) = FloatCstNode(value = value, token = tokenStart)
+  fun char(value: Char) = CharCstNode(value = value, tokenStart = tokenStart, tokenEnd = tokenEnd)
   fun long(value: Long) = LongCstNode(value = value, token = tokenStart)
   fun double(value: Double) = DoubleCstNode(value = value, token = tokenStart)
   fun ref(name: String) = ReferenceCstNode(value = name, token = tokenStart, parent = null)
+  fun directFieldRef(name: String) = DirectFieldReferenceCstNode(value = name, token = tokenStart, parent = null)
   fun classReference(type: TypeCstNode) = ClassReferenceCstNode(null, type, tokenStart, tokenEnd)
+  fun regex(value: String, flags: String = "") = RegexCstNode(
+    value = value,
+    flags = flags.map { RegexCstNode.FLAGS_MAP.getValue(it) },
+    tokenStart = tokenStart,
+    tokenEnd = tokenEnd)
 
   inline fun whenExpr(branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
     val whenScope = WhenScope()
