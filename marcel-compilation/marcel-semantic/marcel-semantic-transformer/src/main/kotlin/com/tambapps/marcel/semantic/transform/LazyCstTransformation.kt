@@ -57,7 +57,7 @@ class LazyCstTransformation : AbstractCstTransformation() {
       tokenEnd = node.tokenEnd
     ) {
       ifStmt(condition = isNull(ref(fieldName))) {
-        varAssignStmt(fieldName, initialValue)
+        trueStmt { stmt(varAssign(fieldName, initialValue)) }
       }
       returnStmt(ref(fieldName))
     }

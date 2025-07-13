@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.transform.compose
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.compose.BlockStatementScope
 import com.tambapps.marcel.parser.cst.AccessCstNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode
@@ -14,15 +15,9 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
-import com.tambapps.marcel.parser.cst.statement.BlockCstNode
-import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
-import com.tambapps.marcel.parser.cst.statement.IfStatementCstNode
-import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
-import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.type.JavaType
-import com.tambapps.marcel.semantic.symbol.variable.Variable
 import kotlin.reflect.KClass
 
 open class CstNodeComposer {
@@ -37,7 +32,7 @@ open class CstNodeComposer {
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     isReturnTypeNullable: Boolean = false,
-    statementsSupplier: CstStatementsComposer.() -> Unit,
+    statementsSupplier: BlockStatementScope.() -> Unit,
   ): MethodCstNode {
 
     val methodNode = MethodCstNode(
@@ -46,7 +41,7 @@ open class CstNodeComposer {
     )
     methodNode.parameters.addAll(parameters)
     methodNode.annotations.addAll(annotations)
-    val statementsComposer = CstStatementsComposer(methodNode.statements, methodNode)
+    val statementsComposer = BlockStatementScope(methodNode.tokenStart, methodNode.tokenEnd, methodNode, methodNode.statements)
     statementsSupplier.invoke(statementsComposer)
     return methodNode
   }
@@ -95,7 +90,7 @@ open class CstNodeComposer {
 
   protected fun isNull(expr: ExpressionCstNode) = equal(expr, NullCstNode(null, LexToken.DUMMY))
 
-  protected fun varAssignExpr(name: String, expr: ExpressionCstNode): ExpressionCstNode {
+  protected fun varAssign(name: String, expr: ExpressionCstNode): ExpressionCstNode {
     return binaryOperator(
       tokenType = TokenType.ASSIGNMENT,
       ReferenceCstNode(parent = null, value = name, token = LexToken.DUMMY),
@@ -113,63 +108,5 @@ open class CstNodeComposer {
     expr1,
     expr2,
   )
-
-  protected inner class CstStatementsComposer(
-    private val statements: MutableList<StatementCstNode>,
-    private val parent: CstNode
-  ) {
-
-    fun addAllStmt(statements: List<StatementCstNode>) = this.statements.addAll(statements)
-    fun addStmt(statement: StatementCstNode) = this.statements.add(statement)
-
-    fun stmt(expr: ExpressionCstNode, add: Boolean = true): StatementCstNode {
-      val statement = ExpressionStatementCstNode(expr)
-      if (add) statements.add(statement)
-      return statement
-    }
-
-    fun varAssignStmt(variable: Variable, expr: ExpressionCstNode): StatementCstNode {
-      return stmt(varAssignExpr(variable.name, expr))
-    }
-
-    fun varAssignStmt(name: String, expr: ExpressionCstNode): StatementCstNode {
-      return stmt(varAssignExpr(name, expr))
-    }
-
-    fun returnStmt(expr: ExpressionCstNode? = null, add: Boolean = true): StatementCstNode {
-      val statement = ReturnCstNode(parent, expr, LexToken.DUMMY, LexToken.DUMMY)
-      if (add) statements.add(statement)
-      return statement
-    }
-
-    fun ifStmt(
-      condition: ExpressionCstNode, trueStmt: StatementCstNode, falseStmt: StatementCstNode? = null,
-      add: Boolean = true
-    ): IfStatementCstNode {
-      val statement = IfStatementCstNode(condition, trueStmt, falseStmt, parent, LexToken.DUMMY, LexToken.DUMMY)
-      if (add) statements.add(statement)
-      return statement
-    }
-
-    fun ifStmt(
-      condition: ExpressionCstNode,
-      add: Boolean = true, trueStatementsComposerFunc: CstStatementsComposer.() -> Unit
-    ): IfStatementCstNode {
-      val trueStatementsComposer = CstStatementsComposer(mutableListOf(), parent)
-      trueStatementsComposerFunc.invoke(trueStatementsComposer)
-      val trueStatementBlock = trueStatementsComposer.asBlockStatement()
-
-      val statement = IfStatementCstNode(
-        condition,
-        trueStatementBlock, null, parent,
-        LexToken.DUMMY, LexToken.DUMMY
-      )
-
-      if (add) statements.add(statement)
-      return statement
-    }
-
-    private fun asBlockStatement() = BlockCstNode(statements, parent, LexToken.DUMMY, LexToken.DUMMY)
-  }
 
 }

@@ -74,7 +74,7 @@ class MarcelStatementParserTest: StatementScope() {
     @Test
     fun testMethodWithParameter2() {
         testMethodWithParameter("fun int bar(int zoo) { return 25 + zoo }",
-            returnNode(plus( int(25), ref("zoo"))))
+            returnStmt(plus( int(25), ref("zoo"))))
     }
 
     private fun testMethodWithParameter(text: String, expectedBlock: StatementCstNode) {
@@ -103,7 +103,7 @@ class MarcelStatementParserTest: StatementScope() {
     fun testManyStatements() {
         val parser = parser("println(1); return null")
         assertIsEqual(stmt(fCall(value = "println", args = listOf(int(1)),)), parser.statement())
-        assertIsEqual(returnNode(nullValue()), parser.statement())
+        assertIsEqual(returnStmt(nullValue()), parser.statement())
     }
 
     @Test

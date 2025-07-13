@@ -30,7 +30,7 @@ class ForEachNodeVisitorTest {
   @Test
   fun testStatementVisitor() {
     val node = CstInstructionComposer.block {
-      returnNode()
+      returnStmt()
       stmt(generateExpression())
     }
     val list = buildList {
