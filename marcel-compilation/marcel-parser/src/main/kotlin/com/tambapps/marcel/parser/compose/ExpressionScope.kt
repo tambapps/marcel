@@ -37,14 +37,13 @@ import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 
-open class ExpressionComposer(
+/**
+ * Scope of an expression composition
+ */
+open class ExpressionScope(
   val tokenStart: LexToken = LexToken.DUMMY,
   val tokenEnd: LexToken = LexToken.DUMMY,
 ) {
-
-  companion object {
-    fun compose(composer: ExpressionComposer.() -> ExpressionCstNode) = composer.invoke(ExpressionComposer())
-  }
 
   fun fCall(value: String, castType: TypeCstNode? = null, args: List<ExpressionCstNode> = emptyList(),
             namedArgs: List<Pair<String, ExpressionCstNode>> = emptyList()
@@ -59,8 +58,8 @@ open class ExpressionComposer(
   fun minus(expr: ExpressionCstNode) = UnaryMinusCstNode(expr, null, tokenStart, tokenEnd)
   fun not(expr: ExpressionCstNode) = NotCstNode(expr, null, tokenStart, tokenEnd)
 
-  fun async(compose: StatementsComposer.() -> Unit): AsyncBlockCstNode {
-    val stmtComposer = StatementsComposer(tokenStart = tokenStart, tokenEnd = tokenEnd)
+  fun async(compose: BlockStatementScope.() -> Unit): AsyncBlockCstNode {
+    val stmtComposer = BlockStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
     compose.invoke(stmtComposer)
     return AsyncBlockCstNode(null, tokenStart, tokenEnd, stmtComposer.asBlock())
   }
@@ -171,19 +170,17 @@ open class ExpressionComposer(
   }
 }
 
-class WhenScope: ExpressionComposer() {
+class WhenScope: ExpressionScope() {
   val branches = mutableListOf<Pair<ExpressionCstNode, StatementCstNode>>()
   var elseBranch: StatementCstNode? = null
 
-  fun branch(expr: ExpressionCstNode, compose: StatementsComposer.() -> Unit) {
-    val stmtComposer = StatementsComposer(tokenStart = tokenStart, tokenEnd = tokenEnd)
-    compose.invoke(stmtComposer)
-    branches.add(expr to stmtComposer.asStmt())
+  fun branch(expr: ExpressionCstNode, compose: StatementScope.() -> StatementCstNode) {
+    val stmtComposer = StatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
+    branches.add(expr to compose.invoke(stmtComposer))
   }
 
-  fun elseBranch(compose: StatementsComposer.() -> Unit) {
-    val stmtComposer = StatementsComposer(tokenStart = tokenStart, tokenEnd = tokenEnd)
-    compose.invoke(stmtComposer)
-    elseBranch = stmtComposer.asStmt()
+  fun elseBranch(compose: StatementScope.() -> StatementCstNode) {
+    val stmtComposer = StatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
+    elseBranch = compose.invoke(stmtComposer)
   }
 }

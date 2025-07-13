@@ -1,8 +1,7 @@
 package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.compose.ExpressionComposer
-import com.tambapps.marcel.parser.compose.StatementsComposer
+import com.tambapps.marcel.parser.compose.CstNodeComposer
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
@@ -16,7 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class ForEachNodeVisitorTest: ExpressionComposer() {
+class ForEachNodeVisitorTest {
 
   @Test
   fun testExpressionVisitor() {
@@ -30,7 +29,7 @@ class ForEachNodeVisitorTest: ExpressionComposer() {
 
   @Test
   fun testStatementVisitor() {
-    val node = StatementsComposer.compose {
+    val node = CstNodeComposer.composeBlock {
       returnNode()
       stmt(generateExpression())
     }
@@ -43,15 +42,17 @@ class ForEachNodeVisitorTest: ExpressionComposer() {
     assertExpressionNodes(list, otherCount = 3)
   }
 
-  private fun generateExpression() = plus(
-    ref("a"),
-    minus(
-      ternary(
-        int(1), float(2f), double(3.0)
-      ),
-      bool(false)
+  private fun generateExpression() = CstNodeComposer.composeExpr {
+    plus(
+      ref("a"),
+      minus(
+        ternary(
+          int(1), float(2f), double(3.0)
+        ),
+        bool(false)
+      )
     )
-  )
+  }
 
   private fun assertExpressionNodes(list: List<CstNode>, otherCount: Int = 0) {
     assertTrue(list.any { it is BinaryOperatorCstNode && it.tokenType == TokenType.PLUS })

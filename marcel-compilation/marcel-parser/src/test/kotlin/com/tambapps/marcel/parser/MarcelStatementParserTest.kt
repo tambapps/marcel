@@ -5,7 +5,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.TestUtils.assertIsEqual
 import com.tambapps.marcel.parser.TestUtils.assertIsNotEqual
 import com.tambapps.marcel.parser.TestUtils.parser
-import com.tambapps.marcel.parser.compose.StatementsComposer
+import com.tambapps.marcel.parser.compose.StatementScope
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.AccessCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class MarcelStatementParserTest: StatementsComposer() {
+class MarcelStatementParserTest: StatementScope() {
 
     private val defaultAccess = AccessCstNode(null, LexToken.DUMMY, LexToken.DUMMY, false, false, false, TokenType.VISIBILITY_PUBLIC, false)
     private val classNode = RegularClassCstNode(
