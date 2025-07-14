@@ -208,9 +208,9 @@ class AstNodeCaster(
     arguments: List<ExpressionNode>,
     node: ExpressionNode
   ): FunctionCallNode {
-    val method = symbolResolver.findMethodOrThrow(ownerType, name, arguments)
+    val method = symbolResolver.findMethod(ownerType, name, arguments)!!
     return FunctionCallNode(
-      method, if (method.isStatic) null else node, arguments, node.token,
+      method, if (method.isMarcelStatic) null else node, arguments, node.token,
       // passing dummy to inform code highlight that this is not a fCall from the real marcel source code
       LexToken.DUMMY
     )

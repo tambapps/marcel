@@ -1,8 +1,10 @@
 package com.tambapps.marcel.semantic.processor.compose
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
+import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
@@ -11,7 +13,11 @@ import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -21,6 +27,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.processor.AbstractMarcelSemantic
+import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.processor.cast.ExpressionCaster
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.scope.ImportScope
@@ -54,8 +61,8 @@ open class ExpressionComposer constructor(
     methodName: String = "foo",
     methodReturnType: JavaType = JavaType.Object,
     classType: JavaType = JavaType.Object,
-    caster: ExpressionCaster,
     symbolResolver: MarcelSymbolResolver = MarcelSymbolResolver(),
+    caster: ExpressionCaster = AstNodeCaster(symbolResolver),
     importResolver: ImportResolver = ImportResolver.DEFAULT_IMPORTS,
     staticContext: Boolean = false,
     nullSafetyMode: NullSafetyMode = NullSafetyMode.DISABLED,
@@ -130,7 +137,8 @@ open class ExpressionComposer constructor(
   }
 
   fun fCall(
-    name: String, arguments: List<ExpressionNode>,
+    name: String,
+    arguments: List<ExpressionNode> = emptyList(),
     owner: ExpressionNode,
     castType: JavaType? = null
   ): ExpressionNode {
@@ -139,7 +147,8 @@ open class ExpressionComposer constructor(
   }
 
   fun fCall(
-    method: MarcelMethod, arguments: List<ExpressionNode>,
+    method: MarcelMethod,
+    arguments: List<ExpressionNode>,
     owner: ExpressionNode,
     castType: JavaType? = null
   ): ExpressionNode {
@@ -170,8 +179,14 @@ open class ExpressionComposer constructor(
     return NewInstanceNode(method.ownerClass, method, castedArguments(method, arguments), tokenStart)
   }
 
+  fun javaCast(expr: ExpressionNode, type: JavaType) = JavaCastNode(type, expr, tokenStart)
   fun thisRef() = ThisReferenceNode(currentScope.classType, tokenStart)
 
+
+  fun float(value: Float) = FloatConstantNode(value = value, token = tokenStart)
+  fun long(value: Long) = LongConstantNode(value = value, token = tokenStart)
+  fun double(value: Double) = DoubleConstantNode(value = value, token = tokenStart)
+  fun char(value: Char) = CharConstantNode(value = value, token = tokenStart)
   fun bool(b: Boolean) = BoolConstantNode(tokenStart, b)
   fun int(i: Int) = IntConstantNode(tokenStart, i)
 
