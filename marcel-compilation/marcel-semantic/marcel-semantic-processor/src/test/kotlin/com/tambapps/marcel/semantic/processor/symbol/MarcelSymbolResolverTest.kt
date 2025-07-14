@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic.symbol
+package com.tambapps.marcel.semantic.processor.symbol
 
 import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -42,10 +42,10 @@ class MarcelSymbolResolverTest {
     assertTrue(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.String, JavaType.String)))
     assertTrue(symbolResolver.matches(joinMethod, listOf(JavaType.String, CharSequence::class.javaType.arrayType)))
 
-    Assertions.assertFalse(symbolResolver.matches(joinMethod, emptyList()))
-    Assertions.assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.int)))
-    Assertions.assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.String, JavaType.int)))
-    Assertions.assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, Int::class.javaType.arrayType)))
+    assertFalse(symbolResolver.matches(joinMethod, emptyList()))
+    assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.int)))
+    assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.String, JavaType.int)))
+    assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, Int::class.javaType.arrayType)))
   }
 
   @Test

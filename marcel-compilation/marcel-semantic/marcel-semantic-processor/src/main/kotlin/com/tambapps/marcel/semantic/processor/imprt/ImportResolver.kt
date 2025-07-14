@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.processor.imprt
 
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.processor.exception.TypeNotFoundException
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 
@@ -34,7 +34,7 @@ open class ImportResolver internal constructor(
     return typeImports[classSimpleName]
       ?: wildcardTypeImportPrefixes.firstNotNullOfOrNull {
         try { symbolResolver.of("${it}.$classSimpleName") }
-        catch (e: MarcelSemanticException) { null }
+        catch (e: TypeNotFoundException) { null }
       }
   }
 

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic
+package com.tambapps.marcel.semantic.processor
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
@@ -17,37 +17,45 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.processor.SourceFileSemanticProcessor
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.processor.scope.MethodScope
-import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.Visibility
+import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 import marcel.lang.Script
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito
 
 class MarcelSemanticTest {
 
   companion object {
     private val TYPE_RESOLVER = MarcelSymbolResolver()
-    private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, JavaType.Object, null, ImportResolver.DEFAULT_IMPORTS)
-    private val METHOD = MethodNode("foo", Nullness.UNKNOWN, mutableListOf(),  Visibility.PUBLIC, JavaType.int, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, JavaType.Object)
+    private val CLASS_SCOPE =
+      ClassScope(TYPE_RESOLVER, JavaType.Companion.Object, null, ImportResolver.Companion.DEFAULT_IMPORTS)
+    private val METHOD = MethodNode(
+      "foo",
+      Nullness.UNKNOWN,
+      mutableListOf(),
+      Visibility.PUBLIC,
+      JavaType.Companion.int,
+      isStatic = false,
+      LexToken.DUMMY,
+      LexToken.DUMMY,
+      JavaType.Companion.Object
+    )
   }
-  private val sourceFile = mock(SourceFileCstNode::class.java)
+  private val sourceFile = Mockito.mock(SourceFileCstNode::class.java)
 
   @Test
   fun testReturnInvalidType() {
-    val node = mock(ReturnCstNode::class.java)
-    `when`(node.token).thenReturn(token())
-    `when`(node.expressionNode).thenReturn(null)
+    val node = Mockito.mock(ReturnCstNode::class.java)
+    Mockito.`when`(node.token).thenReturn(token())
+    Mockito.`when`(node.expressionNode).thenReturn(null)
     val semantic = semantic()
     semantic.scopeQueue.push(MethodScope(CLASS_SCOPE, METHOD))
     assertThrows<MarcelSemanticException> {
@@ -61,34 +69,34 @@ class MarcelSemanticTest {
     val semantic = semantic()
     semantic.scopeQueue.push(MethodScope(CLASS_SCOPE, METHOD))
 
-    assertEquals(`return`(int(value = 1234)), stmt("return 1234;", semantic = semantic))
+    Assertions.assertEquals(`return`(int(value = 1234)), stmt("return 1234;", semantic = semantic))
   }
 
   @Test
   fun testStatement() {
-    assertEquals(exprStmt(int(value = 1234)), stmt("1234;"))
-    assertEquals(exprStmt(int(value = 1234)), stmt("1234"))
-    assertNotEquals(exprStmt(int(value = 1234)), stmt("1234d;"))
+    Assertions.assertEquals(exprStmt(int(value = 1234)), stmt("1234;"))
+    Assertions.assertEquals(exprStmt(int(value = 1234)), stmt("1234"))
+    Assertions.assertNotEquals(exprStmt(int(value = 1234)), stmt("1234d;"))
   }
 
   @Test
   fun testLiteral() {
-    assertEquals(int(value = 1234), expr("1234"))
-    assertEquals(long(value = 1234L), expr("1234l"))
-    assertEquals(float(value = 1234f), expr("1234f"))
-    assertEquals(float(value = 1234.45f), expr("1234.45f"))
-    assertEquals(double(value = 1234.0), expr("1234d"))
-    assertEquals(double(value = 1234.45), expr("1234.45d"))
+    Assertions.assertEquals(int(value = 1234), expr("1234"))
+    Assertions.assertEquals(long(value = 1234L), expr("1234l"))
+    Assertions.assertEquals(float(value = 1234f), expr("1234f"))
+    Assertions.assertEquals(float(value = 1234.45f), expr("1234.45f"))
+    Assertions.assertEquals(double(value = 1234.0), expr("1234d"))
+    Assertions.assertEquals(double(value = 1234.45), expr("1234.45d"))
 
-    assertEquals(int(value = 10 * 16 + 6), expr("0xA6"))
-    assertEquals(long(value = 0b0101L), expr("0b0101L"))
+    Assertions.assertEquals(int(value = 10 * 16 + 6), expr("0xA6"))
+    Assertions.assertEquals(long(value = 0b0101L), expr("0b0101L"))
 
-    assertNotEquals(int(value = 123), expr("1234"))
-    assertNotEquals(long(value = 123L), expr("1234l"))
-    assertNotEquals(float(value = 134f), expr("1234f"))
-    assertNotEquals(float(value = 134.45f), expr("1234.45f"))
-    assertNotEquals(double(value = 234.0), expr("1234d"))
-    assertNotEquals(double(value = 1234.4), expr("1234.45d"))
+    Assertions.assertNotEquals(int(value = 123), expr("1234"))
+    Assertions.assertNotEquals(long(value = 123L), expr("1234l"))
+    Assertions.assertNotEquals(float(value = 134f), expr("1234f"))
+    Assertions.assertNotEquals(float(value = 134.45f), expr("1234.45f"))
+    Assertions.assertNotEquals(double(value = 234.0), expr("1234d"))
+    Assertions.assertNotEquals(double(value = 1234.4), expr("1234.45d"))
   }
 
   private fun semantic() = SourceFileSemanticProcessor(TYPE_RESOLVER, Script::class.javaType, sourceFile, "Test.mcl", NullSafetyMode.DISABLED)

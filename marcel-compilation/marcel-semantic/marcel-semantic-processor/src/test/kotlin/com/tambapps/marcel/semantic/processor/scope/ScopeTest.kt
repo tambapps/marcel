@@ -1,13 +1,10 @@
-package com.tambapps.marcel.semantic.scope
+package com.tambapps.marcel.semantic.processor.scope
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.symbol.Visibility
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
-import com.tambapps.marcel.semantic.processor.scope.ClassScope
-import com.tambapps.marcel.semantic.processor.scope.MethodInnerScope
-import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.Object
 import com.tambapps.marcel.semantic.symbol.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
