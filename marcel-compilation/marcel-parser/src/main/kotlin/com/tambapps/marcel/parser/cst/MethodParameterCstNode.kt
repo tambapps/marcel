@@ -29,16 +29,16 @@ class MethodParameterCstNode(
     return builder.toString()
   }
 
-  override fun isEqualTo(node: CstNode): Boolean {
+  override fun isEqualTo(other: CstNode): Boolean {
 
-    if (node !is MethodParameterCstNode) return false
+    if (other !is MethodParameterCstNode) return false
 
-    if (thisParameter != node.thisParameter) return false
-    if (isNullable != node.isNullable) return false
-    if (name != node.name) return false
-    if (!type.isEqualTo(node.type)) return false
-    if (!IdentifiableCstNode.isEqualTo(defaultValue, node.defaultValue)) return false
-    if (!IdentifiableCstNode.isEqualTo(annotations, node.annotations)) return false
+    if (thisParameter != other.thisParameter) return false
+    if (isNullable != other.isNullable) return false
+    if (name != other.name) return false
+    if (type notEq other.type) return false
+    if (defaultValue notEq other.defaultValue) return false
+    if (annotations notEq other.annotations) return false
     return true
   }
 }

@@ -15,5 +15,5 @@ interface ExpressionCstNode: IdentifiableCstNode {
 
   fun forEach(consume: (CstNode) -> Unit) = accept(ForEachNodeVisitor(consume))
 
-  override fun isEqualTo(node: CstNode): Boolean = accept(IsEqualVisitor(node))
+  override fun isEqualTo(other: CstNode): Boolean = accept(IsEqualVisitor(other))
 }

@@ -18,6 +18,6 @@ interface StatementCstNode: IdentifiableCstNode {
 
   fun any(predicate: (StatementCstNode) -> Boolean) = accept(AnyStatementCstNodeVisitor(predicate))
 
-  override fun isEqualTo(node: CstNode): Boolean = accept(IsEqualVisitor(node))
+  override fun isEqualTo(other: CstNode): Boolean = accept(IsEqualVisitor(other))
 
 }

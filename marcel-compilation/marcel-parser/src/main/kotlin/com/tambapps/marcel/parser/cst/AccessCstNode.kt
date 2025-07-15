@@ -18,15 +18,15 @@ class AccessCstNode(
 ) :
   AbstractCstNode(parent, tokenStart, tokenEnd), IdentifiableCstNode {
 
-  override fun isEqualTo(node: CstNode): Boolean {
+  override fun isEqualTo(other: CstNode): Boolean {
 
-    if (node !is AccessCstNode) return false
+    if (other !is AccessCstNode) return false
 
-    if (isStatic != node.isStatic) return false
-    if (isInline != node.isInline) return false
-    if (isFinal != node.isFinal) return false
-    if (isExplicit != node.isExplicit) return false
-    if (visibility != node.visibility) return false
+    if (isStatic != other.isStatic) return false
+    if (isInline != other.isInline) return false
+    if (isFinal != other.isFinal) return false
+    if (isExplicit != other.isExplicit) return false
+    if (visibility != other.visibility) return false
     return true
   }
 }

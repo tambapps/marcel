@@ -15,11 +15,11 @@ class SimpleImportCstNode(
 
   override fun <T> accept(visitor: ImportCstNodeVisitor<T>) = visitor.visit(this)
 
-  override fun isEqualTo(node: CstNode): Boolean {
-    if (node !is SimpleImportCstNode) return false
+  override fun isEqualTo(other: CstNode): Boolean {
+    if (other !is SimpleImportCstNode) return false
 
-    if (className != node.className) return false
-    if (asName != node.asName) return false
+    if (className != other.className) return false
+    if (asName != other.asName) return false
 
     return true
   }

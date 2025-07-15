@@ -34,12 +34,12 @@ class TypeCstNode constructor(
 
   fun toString(nullable: Boolean) = if (nullable) "${toString()}?" else toString()
 
-  override fun isEqualTo(node: CstNode): Boolean {
-    if (node !is TypeCstNode) return false
+  override fun isEqualTo(other: CstNode): Boolean {
+    if (other !is TypeCstNode) return false
 
-    if (arrayDimensions != node.arrayDimensions) return false
-    if (value != node.value) return false
-    if (!IdentifiableCstNode.isEqualTo(genericTypes, node.genericTypes)) return false
+    if (arrayDimensions != other.arrayDimensions) return false
+    if (value != other.value) return false
+    if (genericTypes notEq other.genericTypes) return false
     return true
   }
 }

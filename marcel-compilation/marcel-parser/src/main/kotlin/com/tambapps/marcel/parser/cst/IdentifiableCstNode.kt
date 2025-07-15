@@ -1,22 +1,28 @@
 package com.tambapps.marcel.parser.cst
 
+infix fun IdentifiableCstNode?.eq(other: IdentifiableCstNode?) = when {
+  this == null && other == null -> true
+  this == null || other == null -> false
+  else -> this.isEqualTo(other)
+}
+
+infix fun IdentifiableCstNode?.notEq(other: IdentifiableCstNode?) = !eq(other)
+
+infix fun List<IdentifiableCstNode>.eq(other: List<IdentifiableCstNode>): Boolean {
+  if (this.size != other.size) return false
+  for (i in this.indices) {
+    if (!this[i].isEqualTo(other[i])) return false
+  }
+  return true
+}
+
+infix fun List<IdentifiableCstNode>.notEq(other: List<IdentifiableCstNode>) = !eq(other)
+
 interface IdentifiableCstNode: CstNode {
 
-  // useful for testing
-  fun isEqualTo(node: CstNode): Boolean
+  /**
+   * Checks whether this node is considered equal (in terms of syntax) to the other
+   */
+  fun isEqualTo(other: CstNode): Boolean
 
-  companion object {
-    fun isEqualTo(i1: IdentifiableCstNode?, iE: IdentifiableCstNode?) = when {
-      i1 == null && iE == null -> true
-      i1 == null || iE == null -> false
-      else -> i1.isEqualTo(iE)
-    }
-    fun isEqualTo(l1: List<IdentifiableCstNode>, l2: List<IdentifiableCstNode>): Boolean {
-      if (l1.size != l2.size) return false
-      for (i in l1.indices) {
-        if (!l1[i].isEqualTo(l2[i])) return false
-      }
-      return true
-    }
-  }
 }
