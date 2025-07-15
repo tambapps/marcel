@@ -6,10 +6,10 @@ import com.tambapps.marcel.semantic.symbol.type.Nullness
 import com.tambapps.marcel.semantic.symbol.variable.Variable
 import com.tambapps.marcel.semantic.symbol.variable.VariableVisitor
 
-class MarcelArrayLengthField(override val owner: JavaType, override val name: String): MarcelField {
+class MarcelArrayLengthField(override val owner: JavaType, override val name: String = "length"): MarcelField {
 
   override val type = JavaType.int
-  override val isFinal = false
+  override val isFinal = true
   override val visibility = Visibility.PUBLIC
   override val isStatic = false
   override val isGettable = true

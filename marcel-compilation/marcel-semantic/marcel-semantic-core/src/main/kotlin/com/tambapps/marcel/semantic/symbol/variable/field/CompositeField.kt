@@ -51,6 +51,10 @@ open class CompositeField(override val name: String): MarcelField {
 
   override val type get() =  JavaType.commonType((getters + setters).map { it.type })
 
+  constructor(fields: Collection<MarcelField>): this(fields.first().name) {
+    fields.forEach { mergeWith(it) }
+  }
+
   constructor(field: MarcelField): this(field.name) {
     mergeWith(field)
   }
