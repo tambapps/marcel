@@ -55,8 +55,9 @@ open class ExpressionScope(
   val parent: CstNode? = null
 ) {
 
-  fun fCall(value: String, castType: TypeCstNode? = null, args: List<ExpressionCstNode> = emptyList(),
-            namedArgs: List<Pair<String, ExpressionCstNode>> = emptyList()
+  fun fCall(value: String, args: List<ExpressionCstNode> = emptyList(),
+            namedArgs: List<Pair<String, ExpressionCstNode>> = emptyList(),
+            castType: TypeCstNode? = null
   ) = FunctionCallCstNode(parent = parent, value = value, castType = castType,
     positionalArgumentNodes = args, namedArgumentNodes = namedArgs,
     tokenStart = tokenStart, tokenEnd = tokenEnd

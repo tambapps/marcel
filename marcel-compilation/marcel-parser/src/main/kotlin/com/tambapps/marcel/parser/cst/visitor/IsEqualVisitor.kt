@@ -1,5 +1,7 @@
-package com.tambapps.marcel.parser.cst
+package com.tambapps.marcel.parser.cst.visitor
 
+import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.IdentifiableCstNode
 import com.tambapps.marcel.parser.cst.expression.AllInCstNode
 import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
@@ -55,8 +57,6 @@ import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
-import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
-import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 
 /**
  * Visitor checking if the node supplied is equal to the visited node, in terms of parsing meaning
@@ -179,8 +179,7 @@ class IsEqualVisitor(
     node: BinaryOperatorCstNode,
     smartCastType: Unit?
   ) = eqTo<BinaryOperatorCstNode> { a ->
-
-    eq(a.leftOperand, node.leftOperand)
+    a.tokenType == node.tokenType && eq(a.leftOperand, node.leftOperand) && eq(a.rightOperand, node.rightOperand)
   }
 
   override fun visit(
