@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.semantic.ast.AstNode
+import com.tambapps.marcel.semantic.ast.visitor.StatementNodeVisitor
 
 interface StatementNode : AstNode {
 

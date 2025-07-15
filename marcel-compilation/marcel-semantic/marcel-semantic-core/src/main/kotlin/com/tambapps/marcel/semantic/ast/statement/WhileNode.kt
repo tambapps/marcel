@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.visitor.StatementNodeVisitor
 
 class WhileNode(
   node: CstNode,

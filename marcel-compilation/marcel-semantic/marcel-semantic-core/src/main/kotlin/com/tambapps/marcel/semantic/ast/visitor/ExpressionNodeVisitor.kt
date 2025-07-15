@@ -1,5 +1,22 @@
-package com.tambapps.marcel.semantic.ast.expression
+package com.tambapps.marcel.semantic.ast.visitor
 
+import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
+import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.ConditionalExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.DupNode
+import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
+import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
+import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
+import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
+import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.StringNode
+import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.TernaryNode
+import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
+import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.YieldExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode

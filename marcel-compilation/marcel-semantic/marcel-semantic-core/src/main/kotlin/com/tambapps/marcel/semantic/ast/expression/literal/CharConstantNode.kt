@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.ast.expression.literal
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
+import com.tambapps.marcel.semantic.ast.visitor.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 
 class CharConstantNode(token: LexToken, override val value: Char) :

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.ast.expression.operator
 
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
+import com.tambapps.marcel.semantic.ast.visitor.ExpressionNodeVisitor
 
 class MulNode(
   leftOperand: ExpressionNode,

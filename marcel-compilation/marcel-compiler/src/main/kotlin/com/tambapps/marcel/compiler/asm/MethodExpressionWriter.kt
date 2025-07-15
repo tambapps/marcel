@@ -8,7 +8,7 @@ import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.expression.ConditionalExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExprErrorNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
+import com.tambapps.marcel.semantic.ast.visitor.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode

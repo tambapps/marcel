@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.semantic.ast.visitor.StatementNodeVisitor
 
 /**
  * Node for a block of statements

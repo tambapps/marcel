@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.ast.expression
 
+import com.tambapps.marcel.semantic.ast.visitor.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
 /**
