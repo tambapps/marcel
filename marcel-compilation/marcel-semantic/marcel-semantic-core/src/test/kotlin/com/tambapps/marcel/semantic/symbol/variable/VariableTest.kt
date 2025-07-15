@@ -168,4 +168,82 @@ class VariableTest {
     assertEquals("LocalVariable", localVar.accept(visitor))
     assertEquals("MarcelArrayLengthField", arrayLengthField.accept(visitor))
   }
+
+
+  @Test
+  fun testFieldEquals() {
+    // Fields consider name and owner for equals/hashCode
+    val field1 = JavaClassFieldImpl(
+      visibility = Visibility.PUBLIC,
+      type = JavaType.int,
+      name = "myField",
+      owner = JavaType.String,
+      isStatic = true,
+      isFinal = true,
+      nullness = Nullness.NOT_NULL,
+      isSettable = false
+    )
+
+    val field2 = JavaClassFieldImpl(
+      visibility = Visibility.PRIVATE, // Different visibility
+      type = JavaType.int,
+      name = "myField", // Same name
+      owner = JavaType.String, // Same owner
+      isStatic = false, // Different static flag
+      isFinal = false, // Different final flag
+      nullness = Nullness.NULLABLE, // Different nullness
+      isSettable = true // Different settable flag
+    )
+
+    val field3 = JavaClassFieldImpl(
+      visibility = Visibility.PUBLIC,
+      type = JavaType.int,
+      name = "differentFieldName", // Different name
+      owner = JavaType.String,
+      isStatic = true,
+      isFinal = true,
+      nullness = Nullness.NOT_NULL,
+      isSettable = false
+    )
+
+    val field4 = JavaClassFieldImpl(
+      visibility = Visibility.PUBLIC,
+      type = JavaType.int,
+      name = "myField",
+      owner = JavaType.int, // Different owner
+      isStatic = true,
+      isFinal = true,
+      nullness = Nullness.NOT_NULL,
+      isSettable = false
+    )
+
+    // Same type, name and owner means equal, regardless of other properties
+    assertEquals(field1, field2)
+    assertEquals(field1.hashCode(), field2.hashCode())
+
+    // Different name means not equal
+    assertNotEquals(field1, field3)
+    assertNotEquals(field1.hashCode(), field3.hashCode())
+
+    // Different owner means not equal
+    assertNotEquals(field1, field4)
+    assertNotEquals(field1.hashCode(), field4.hashCode())
+
+    // Different field implementations with same name and owner should be equal
+    val methodField = MethodField.fromGetter(
+      MarcelMethodImpl(
+        ownerClass = JavaType.String, // Same owner as field1
+        visibility = Visibility.PUBLIC,
+        name = "getMyField", // will be transformed to field name "myField"
+        nullness = Nullness.NOT_NULL,
+        parameters = emptyList(),
+        returnType = JavaType.int,
+      )
+    )
+
+    assertEquals(field1, methodField)
+
+    // Different types of variables are never equal
+    assertNotEquals(field1, "not a field")
+  }
 }

@@ -53,21 +53,5 @@ open class MethodField constructor(override val type: JavaType, override val nam
       Variable.Access.ANY -> _setterMethod?.visibility?.canAccess(javaType, owner) == true || _getterMethod?.visibility?.canAccess(javaType, owner) == true
     }
   }
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is MethodField) return false
-    if (!super.equals(other)) return false
 
-    if (_getterMethod != other._getterMethod) return false
-    if (_setterMethod != other._setterMethod) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    var result = super.hashCode()
-    result = 31 * result + (_getterMethod?.hashCode() ?: 0)
-    result = 31 * result + (_setterMethod?.hashCode() ?: 0)
-    return result
-  }
 }
