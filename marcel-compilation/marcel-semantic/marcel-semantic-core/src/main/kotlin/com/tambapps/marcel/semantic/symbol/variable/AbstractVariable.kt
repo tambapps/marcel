@@ -1,4 +1,4 @@
 package com.tambapps.marcel.semantic.symbol.variable
 
-abstract class AbstractVariable: Variable {
+abstract class AbstractVariable: Variable
 

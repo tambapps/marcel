@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.symbol.Symbol
 import com.tambapps.marcel.semantic.symbol.type.JavaType
 import com.tambapps.marcel.semantic.symbol.type.Nullness
 
-open class MethodParameter constructor(override val type: JavaType,
+class MethodParameter constructor(override val type: JavaType,
                                        val rawType: JavaType,
                                        override val nullness: Nullness,
                                        override val name: String,

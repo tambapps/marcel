@@ -12,7 +12,7 @@ abstract class AbstractMethod: MarcelMethod {
     if (this === other) return true
     if (other !is MarcelMethod) return false
     if (name != other.name) return false
-    if (isConstructor && ownerClass != other.ownerClass) return false
+    if (ownerClass != other.ownerClass) return false
     if (parameters != other.parameters) return false
     if (returnType != other.returnType) return false
     return true
