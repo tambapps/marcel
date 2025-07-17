@@ -47,9 +47,9 @@ import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 
 /**
- * Scope of an expression composition
+ * Scope of a CST expression composition
  */
-open class ExpressionScope(
+open class CstExpressionScope(
   val tokenStart: LexToken = LexToken.DUMMY,
   val tokenEnd: LexToken = LexToken.DUMMY,
   val parent: CstNode? = null
@@ -208,7 +208,7 @@ open class ExpressionScope(
 
 }
 
-class WhenScope: ExpressionScope() {
+class WhenScope: CstExpressionScope() {
   val branches = mutableListOf<Pair<ExpressionCstNode, StatementCstNode>>()
   var elseBranch: StatementCstNode? = null
 

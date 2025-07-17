@@ -8,13 +8,10 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.compose.AstExpressionScope
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
@@ -31,7 +28,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 
-class MarcelSemanticTest {
+class MarcelSemanticTest: AstExpressionScope() {
 
   companion object {
     private val TYPE_RESOLVER = MarcelSymbolResolver()
@@ -101,10 +98,6 @@ class MarcelSemanticTest {
 
   private fun semantic() = SourceFileSemanticProcessor(TYPE_RESOLVER, Script::class.javaType, sourceFile, "Test.mcl", NullSafetyMode.DISABLED)
 
-  private fun int(value: Int) = IntConstantNode(value = value, token = token())
-  private fun float(value: Float) = FloatConstantNode(value = value, token = token())
-  private fun long(value: Long) = LongConstantNode(value = value, token = token())
-  private fun double(value: Double) = DoubleConstantNode(value = value, token = token())
 
   private fun `return`(node: ExpressionNode) = ReturnStatementNode(node, token(), token())
   private fun exprStmt(node: ExpressionNode) = ExpressionStatementNode(node, token(), token())
