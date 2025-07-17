@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.IdentifiableAstNode
-import com.tambapps.marcel.semantic.ast.visitor.IsEqualVisitor
+import com.tambapps.marcel.semantic.ast.visitor.IsSemanticallyEqualVisitor
 import com.tambapps.marcel.semantic.ast.visitor.StatementNodeVisitor
 
 interface StatementNode : AstNode, IdentifiableAstNode {
@@ -14,6 +14,6 @@ interface StatementNode : AstNode, IdentifiableAstNode {
    */
   val isEmpty: Boolean get() = false
 
-  override fun isEqualTo(other: AstNode) = accept(IsEqualVisitor(other))
+  override fun isSemanticEqualTo(other: AstNode) = accept(IsSemanticallyEqualVisitor(other))
 
 }

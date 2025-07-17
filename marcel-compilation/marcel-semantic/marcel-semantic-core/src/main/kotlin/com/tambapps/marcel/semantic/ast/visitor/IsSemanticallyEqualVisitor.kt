@@ -69,7 +69,7 @@ import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 
 // TODO test
-class IsEqualVisitor(
+class IsSemanticallyEqualVisitor(
   private val node: AstNode
 ): ExpressionNodeVisitor<Boolean>, StatementNodeVisitor<Boolean> {
   override fun visit(node: NotNode) = eqTo<NotNode> { it.expressionNode eq node.expressionNode }

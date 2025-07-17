@@ -26,7 +26,7 @@ import marcel.lang.Script
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class MarcelSemanticTest: AstStatementScope() {
+class SourceFileSemanticProcessorTest: AstStatementScope() {
 
   @Test
   fun testReturn() {
