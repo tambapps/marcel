@@ -1,11 +1,11 @@
 package com.tambapps.marcel.parser.cst
 
-import com.tambapps.marcel.parser.compose.StatementScope
+import com.tambapps.marcel.parser.compose.CstStatementScope
 import com.tambapps.marcel.parser.cst.expression.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class IsEqualVisitorTest : StatementScope() {
+class IsEqualVisitorTest : CstStatementScope() {
 
   @Test
   fun testPrimitiveValueNodesEquality() {

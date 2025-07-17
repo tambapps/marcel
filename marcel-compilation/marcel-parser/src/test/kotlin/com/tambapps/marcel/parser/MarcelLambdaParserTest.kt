@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.parser.TestUtils.assertIsEqual
 import com.tambapps.marcel.parser.TestUtils.parser
-import com.tambapps.marcel.parser.compose.ExpressionScope
+import com.tambapps.marcel.parser.compose.CstExpressionScope
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class MarcelLambdaParserTest: ExpressionScope() {
+class MarcelLambdaParserTest: CstExpressionScope() {
 
   @Test
   fun testLambdaArgs() {

@@ -24,12 +24,12 @@ import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 /**
  * Scope of a statement composition
  */
-open class StatementScope(
+open class  CstStatementScope(
   tokenStart: LexToken = LexToken.DUMMY,
   tokenEnd: LexToken = LexToken.DUMMY,
   parent: CstNode? = null
 ) :
-  ExpressionScope(tokenStart, tokenEnd, parent) {
+  CstExpressionScope(tokenStart, tokenEnd, parent) {
 
   fun stmt(expr: ExpressionCstNode) = onStatementComposed(
     ExpressionStatementCstNode(expr)
@@ -39,19 +39,19 @@ open class StatementScope(
   fun continueStmt() = onStatementComposed(ContinueCstNode(parent, tokenStart))
   fun throwStmt(expr: ExpressionCstNode) = onStatementComposed(ThrowCstNode(parent, tokenStart, tokenEnd, expr))
 
-  fun block(block: StatementScope.() -> Unit) = BlockCstNode(
-    BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).statements,
+  fun block(block: CstStatementScope.() -> Unit) = BlockCstNode(
+    CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(block).statements,
     parent, tokenStart, tokenEnd
   )
 
-  fun forInStmt(varType: TypeCstNode, varName: String, isVarNullable: Boolean, inNode: ExpressionCstNode, block: StatementScope.() -> Unit) = ForInCstNode(
-    varType, varName, isVarNullable, inNode, BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
+  fun forInStmt(varType: TypeCstNode, varName: String, isVarNullable: Boolean, inNode: ExpressionCstNode, block: CstStatementScope.() -> Unit) = ForInCstNode(
+    varType, varName, isVarNullable, inNode, CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
     parent, tokenStart, tokenEnd
   )
 
-  fun forMultiVarInStmt(declarations: List<Triple<TypeCstNode, String, Boolean>>, inNode: ExpressionCstNode, block: StatementScope.() -> Unit) =
+  fun forMultiVarInStmt(declarations: List<Triple<TypeCstNode, String, Boolean>>, inNode: ExpressionCstNode, block: CstStatementScope.() -> Unit) =
     ForInMultiVarCstNode(
-      declarations, inNode, BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
+      declarations, inNode, CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
     parent, tokenStart, tokenEnd
   )
 
@@ -60,11 +60,11 @@ open class StatementScope(
     initExpr: ExpressionCstNode,
     conditionExpr: ExpressionCstNode,
     iteratorExpr: ExpressionCstNode,
-    block: StatementScope.() -> Unit) =
+    block: CstStatementScope.() -> Unit) =
     ForVarCstNode(
       VariableDeclarationCstNode(varType, identifierToken(varName), initExpr, isVarNullable, parent, tokenStart, tokenEnd),
       conditionExpr, ExpressionStatementCstNode(iteratorExpr),
-      BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
+      CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock(),
       parent, tokenStart, tokenEnd
     )
 
@@ -80,32 +80,32 @@ open class StatementScope(
   fun returnStmt(expr: ExpressionCstNode? = null) = onStatementComposed(ReturnCstNode(parent = parent, expressionNode = expr, tokenStart = tokenStart, tokenEnd = tokenEnd))
 
   fun ifStmt(
-    condition: ExpressionCstNode, compose: IfElseStatementScope.() -> Unit
-  ) = onStatementComposed(IfElseStatementScope(condition).apply(compose).asIfStmt())
+    condition: ExpressionCstNode, compose: CstIfElseStatementScope.() -> Unit
+  ) = onStatementComposed(CstIfElseStatementScope(condition).apply(compose).asIfStmt())
 
-  fun tryCatchStmt(compose: TryCatchStatementScope.() -> Unit
-  ) = onStatementComposed(TryCatchStatementScope().apply(compose).asTryCatchStmt())
+  fun tryCatchStmt(compose: CstTryCatchStatementScope.() -> Unit
+  ) = onStatementComposed(CstTryCatchStatementScope().apply(compose).asTryCatchStmt())
 
   fun whileStmt(
-    condition: ExpressionCstNode, compose: StatementScope.() -> Unit
+    condition: ExpressionCstNode, compose: CstStatementScope.() -> Unit
   ) = onStatementComposed(
     WhileCstNode(
       parent,
       tokenStart,
       tokenEnd,
       condition,
-      BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock(),
+      CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock(),
     )
   )
 
   fun doWhileStmt(
-    condition: ExpressionCstNode, compose: StatementScope.() -> Unit
+    condition: ExpressionCstNode, compose: CstStatementScope.() -> Unit
   ) = onStatementComposed(
     DoWhileStatementCstNode(
       parent,
       tokenStart,
       tokenEnd,
-      BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock(),
+      CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock(),
       condition,
     )
   )
@@ -117,13 +117,13 @@ open class StatementScope(
 /**
  * BlockStatementScope is a StatementScope that collects composed statements to create the block
  */
-class BlockStatementScope constructor(
+class CstBlockStatementScope constructor(
   tokenStart: LexToken = LexToken.DUMMY,
   tokenEnd: LexToken = LexToken.DUMMY,
   parent: CstNode? = null,
   val statements: MutableList<StatementCstNode> = mutableListOf(),
 ) :
-  StatementScope(tokenStart, tokenEnd, parent) {
+  CstStatementScope(tokenStart, tokenEnd, parent) {
 
   override fun <T: StatementCstNode> onStatementComposed(statement: T): T = statement.also { statements.add(it) }
 
@@ -131,7 +131,7 @@ class BlockStatementScope constructor(
 
 }
 
-class IfElseStatementScope(
+class CstIfElseStatementScope(
   private val condition: ExpressionCstNode,
   private val tokenStart: LexToken = LexToken.DUMMY,
   private val tokenEnd: LexToken = LexToken.DUMMY,
@@ -140,20 +140,20 @@ class IfElseStatementScope(
   private var trueStatement: StatementCstNode? = null
   private var falseStatement: StatementCstNode? = null
 
-  fun trueStmt(compose: StatementScope.() -> StatementCstNode) {
-    trueStatement = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
+  fun trueStmt(compose: CstStatementScope.() -> StatementCstNode) {
+    trueStatement = compose.invoke(CstStatementScope(tokenStart, tokenEnd, parent))
   }
 
-  fun falseStmt(compose: StatementScope.() -> StatementCstNode) {
-    falseStatement = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
+  fun falseStmt(compose: CstStatementScope.() -> StatementCstNode) {
+    falseStatement = compose.invoke(CstStatementScope(tokenStart, tokenEnd, parent))
   }
 
-  fun trueBlock(compose: StatementScope.() -> Unit) {
-    trueStatement = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
+  fun trueBlock(compose: CstStatementScope.() -> Unit) {
+    trueStatement = CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
-  fun falseBlock(compose: StatementScope.() -> Unit) {
-    falseStatement = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
+  fun falseBlock(compose: CstStatementScope.() -> Unit) {
+    falseStatement = CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
   internal fun asIfStmt(): IfStatementCstNode {
@@ -162,7 +162,7 @@ class IfElseStatementScope(
   }
 }
 
-class TryCatchStatementScope(
+class CstTryCatchStatementScope(
   private val tokenStart: LexToken = LexToken.DUMMY,
   private val tokenEnd: LexToken = LexToken.DUMMY,
   private val parent: CstNode? = null
@@ -178,26 +178,26 @@ class TryCatchStatementScope(
     resources.add(VariableDeclarationCstNode(type, identifierToken(name), expr, isNullable, parent, tokenStart, tokenEnd))
   }
 
-  fun tryStmt(compose: StatementScope.() -> StatementCstNode) {
-    tryStmt = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
+  fun tryStmt(compose: CstStatementScope.() -> StatementCstNode) {
+    tryStmt = compose.invoke(CstStatementScope(tokenStart, tokenEnd, parent))
   }
-  fun tryBlock(compose: StatementScope.() -> Unit) {
-    tryStmt = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
-  }
-
-  fun finallyStmt(compose: StatementScope.() -> StatementCstNode) {
-    finallyNode = compose.invoke(StatementScope(tokenStart, tokenEnd, parent))
+  fun tryBlock(compose: CstStatementScope.() -> Unit) {
+    tryStmt = CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
 
-  fun finallyBlock(compose: StatementScope.() -> Unit) {
-    finallyNode = BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
+  fun finallyStmt(compose: CstStatementScope.() -> StatementCstNode) {
+    finallyNode = compose.invoke(CstStatementScope(tokenStart, tokenEnd, parent))
   }
 
-  fun catchStmt(types: List<TypeCstNode>, varName: String, compose: StatementScope.() -> StatementCstNode) {
-    catchNodes.add(Triple(types, varName, compose.invoke(StatementScope(tokenStart, tokenEnd, parent))))
+  fun finallyBlock(compose: CstStatementScope.() -> Unit) {
+    finallyNode = CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()
   }
-  fun catchBlock(types: List<TypeCstNode>, varName: String, compose: StatementScope.() -> Unit) {
-    catchNodes.add(Triple(types, varName, BlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()))
+
+  fun catchStmt(types: List<TypeCstNode>, varName: String, compose: CstStatementScope.() -> StatementCstNode) {
+    catchNodes.add(Triple(types, varName, compose.invoke(CstStatementScope(tokenStart, tokenEnd, parent))))
+  }
+  fun catchBlock(types: List<TypeCstNode>, varName: String, compose: CstStatementScope.() -> Unit) {
+    catchNodes.add(Triple(types, varName, CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(compose).asBlock()))
   }
 
   internal fun asTryCatchStmt(): TryCatchCstNode {

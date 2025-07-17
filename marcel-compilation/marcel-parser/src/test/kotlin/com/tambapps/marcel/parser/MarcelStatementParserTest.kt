@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.TestUtils.assertIsEqual
 import com.tambapps.marcel.parser.TestUtils.assertIsNotEqual
 import com.tambapps.marcel.parser.TestUtils.parser
-import com.tambapps.marcel.parser.compose.StatementScope
+import com.tambapps.marcel.parser.compose.CstStatementScope
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class MarcelStatementParserTest: StatementScope() {
+class MarcelStatementParserTest: CstStatementScope() {
 
     private val classNode = RegularClassCstNode(
         SourceFileCstNode(LexToken.DUMMY, LexToken.DUMMY, null, emptyList()),

@@ -14,21 +14,21 @@ object CstInstructionComposer {
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     parent: CstNode? = null,
-    composer: ExpressionScope.() -> ExpressionCstNode
-  ) = composer.invoke(ExpressionScope(tokenStart, tokenEnd, parent))
+    composer: CstExpressionScope.() -> ExpressionCstNode
+  ) = composer.invoke(CstExpressionScope(tokenStart, tokenEnd, parent))
 
   inline fun stmt(
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     parent: CstNode? = null,
-    block: StatementScope.() -> StatementCstNode
-  ) = block.invoke(StatementScope(tokenStart, tokenEnd, parent))
+    block: CstStatementScope.() -> StatementCstNode
+  ) = block.invoke(CstStatementScope(tokenStart, tokenEnd, parent))
 
   inline fun block(
     tokenStart: LexToken = LexToken.DUMMY,
     tokenEnd: LexToken = LexToken.DUMMY,
     parent: CstNode? = null,
-    block: StatementScope.() -> Unit
-  ) = BlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock()
+    block: CstStatementScope.() -> Unit
+  ) = CstBlockStatementScope(tokenStart, tokenEnd, parent).apply(block).asBlock()
 
 }

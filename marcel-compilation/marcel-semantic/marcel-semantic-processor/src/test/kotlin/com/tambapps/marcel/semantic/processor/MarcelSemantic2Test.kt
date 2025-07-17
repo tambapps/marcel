@@ -1,17 +1,14 @@
 package com.tambapps.marcel.semantic.processor
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.compose.StatementScope
+import com.tambapps.marcel.parser.compose.CstStatementScope
 import com.tambapps.marcel.parser.cst.IdentifiableCstNode
-import com.tambapps.marcel.parser.compose.CstInstructionComposer as CstComposer
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.semantic.ast.IdentifiableAstNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.compose.AstStatementScope
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.processor.TestUtils.assertIsEqual
 import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.symbol.type.NullSafetyMode
 import marcel.lang.Script
@@ -25,8 +22,8 @@ class MarcelSemantic2Test: AstStatementScope() {
     assertIsEqual(int(123)) { int(123) }
   }
 
-  fun assertIsEqual(expected: IdentifiableAstNode, cstComposer: StatementScope.() -> IdentifiableCstNode) {
-    val cst = cstComposer.invoke(StatementScope())
+  fun assertIsEqual(expected: IdentifiableAstNode, cstComposer: CstStatementScope.() -> IdentifiableCstNode) {
+    val cst = cstComposer.invoke(CstStatementScope())
     val actual = when (cst) {
       is ExpressionCstNode ->  cst.accept(processor())
       is StatementCstNode ->  cst.accept(processor())

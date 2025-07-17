@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.parser.TestUtils.assertIsEqual
 import com.tambapps.marcel.parser.TestUtils.assertIsNotEqual
 import com.tambapps.marcel.parser.TestUtils.parser
-import com.tambapps.marcel.parser.compose.ExpressionScope
+import com.tambapps.marcel.parser.compose.CstExpressionScope
 import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.WrappedExpressionCstNode
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class MarcelExpressionParserTest: ExpressionScope() {
+class MarcelExpressionParserTest: CstExpressionScope() {
 
     @Test
     fun testAllIn() {

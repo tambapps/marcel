@@ -76,8 +76,8 @@ open class CstExpressionScope(
   fun not(expr: ExpressionCstNode) = NotCstNode(expr, parent, tokenStart, tokenEnd)
   fun incr(varName: String, returnValueBefore: Boolean, amount: Int = 1) = IncrCstNode( parent, varName, amount, returnValueBefore,tokenStart, tokenEnd)
 
-  inline fun async(compose: StatementScope.() -> Unit): AsyncBlockCstNode {
-    val stmtComposer = BlockStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd, parent = parent)
+  inline fun async(compose: CstStatementScope.() -> Unit): AsyncBlockCstNode {
+    val stmtComposer = CstBlockStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd, parent = parent)
     compose.invoke(stmtComposer)
     return AsyncBlockCstNode(parent, tokenStart, tokenEnd, stmtComposer.asBlock())
   }
@@ -166,20 +166,20 @@ open class CstExpressionScope(
     tokenStart = tokenStart,
     tokenEnd = tokenEnd)
 
-  inline fun whenExpr(branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
-    val whenScope = WhenScope()
+  inline fun whenExpr(branchesGenerator: CstWhenScope.() -> Unit): WhenCstNode {
+    val whenScope = CstWhenScope()
     branchesGenerator.invoke(whenScope)
     return WhenCstNode(parent, tokenStart, tokenEnd, whenScope.branches, whenScope.elseBranch)
   }
 
-  inline fun switchExpr(switchExpr: ExpressionCstNode, branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
-    val whenScope = WhenScope()
+  inline fun switchExpr(switchExpr: ExpressionCstNode, branchesGenerator: CstWhenScope.() -> Unit): WhenCstNode {
+    val whenScope = CstWhenScope()
     branchesGenerator.invoke(whenScope)
     return SwitchCstNode(parent, tokenStart, tokenEnd, whenScope.branches, whenScope.elseBranch, null, switchExpr)
   }
 
-  inline fun switchExpr(varType: TypeCstNode, isVarNullable: Boolean, varName: String, switchExpr: ExpressionCstNode, branchesGenerator: WhenScope.() -> Unit): WhenCstNode {
-    val whenScope = WhenScope()
+  inline fun switchExpr(varType: TypeCstNode, isVarNullable: Boolean, varName: String, switchExpr: ExpressionCstNode, branchesGenerator: CstWhenScope.() -> Unit): WhenCstNode {
+    val whenScope = CstWhenScope()
     branchesGenerator.invoke(whenScope)
     return SwitchCstNode(parent, tokenStart, tokenEnd, whenScope.branches, whenScope.elseBranch,
       VariableDeclarationCstNode(
@@ -208,17 +208,17 @@ open class CstExpressionScope(
 
 }
 
-class WhenScope: CstExpressionScope() {
+class CstWhenScope: CstExpressionScope() {
   val branches = mutableListOf<Pair<ExpressionCstNode, StatementCstNode>>()
   var elseBranch: StatementCstNode? = null
 
-  inline fun branch(expr: ExpressionCstNode, compose: StatementScope.() -> StatementCstNode) {
-    val stmtComposer = StatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
+  inline fun branch(expr: ExpressionCstNode, compose: CstStatementScope.() -> StatementCstNode) {
+    val stmtComposer = CstStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
     branches.add(expr to compose.invoke(stmtComposer))
   }
 
-  inline fun elseBranch(compose: StatementScope.() -> StatementCstNode) {
-    val stmtComposer = StatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
+  inline fun elseBranch(compose: CstStatementScope.() -> StatementCstNode) {
+    val stmtComposer = CstStatementScope(tokenStart = tokenStart, tokenEnd = tokenEnd)
     elseBranch = compose.invoke(stmtComposer)
   }
 }
