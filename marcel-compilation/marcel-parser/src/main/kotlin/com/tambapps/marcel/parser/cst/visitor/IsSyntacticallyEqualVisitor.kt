@@ -62,7 +62,7 @@ import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 /**
  * Visitor checking if the node supplied is equal to the visited node, in terms of parsing meaning
  */
-class IsEqualVisitor(
+class IsSyntacticallyEqualVisitor(
   val node: CstNode,
 ): ExpressionCstNodeVisitor<Boolean, Unit>, StatementCstNodeVisitor<Boolean> {
 

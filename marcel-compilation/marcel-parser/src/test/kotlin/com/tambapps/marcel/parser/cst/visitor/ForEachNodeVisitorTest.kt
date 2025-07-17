@@ -1,7 +1,8 @@
-package com.tambapps.marcel.parser.cst
+package com.tambapps.marcel.parser.cst.visitor
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.compose.CstInstructionComposer
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode

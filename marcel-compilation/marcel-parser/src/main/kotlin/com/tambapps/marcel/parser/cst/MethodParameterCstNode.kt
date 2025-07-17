@@ -29,7 +29,7 @@ class MethodParameterCstNode(
     return builder.toString()
   }
 
-  override fun isEqualTo(other: CstNode): Boolean {
+  override fun isSyntaxEqualTo(other: CstNode): Boolean {
 
     if (other !is MethodParameterCstNode) return false
 

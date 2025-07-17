@@ -1,11 +1,11 @@
-package com.tambapps.marcel.parser.cst
+package com.tambapps.marcel.parser.cst.visitor
 
 import com.tambapps.marcel.parser.compose.CstStatementScope
 import com.tambapps.marcel.parser.cst.expression.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class IsEqualVisitorTest : CstStatementScope() {
+class IsSyntacticallyEqualVisitorTest : CstStatementScope() {
 
   @Test
   fun testPrimitiveValueNodesEquality() {
@@ -14,54 +14,54 @@ class IsEqualVisitorTest : CstStatementScope() {
     val bool2 = bool(true)
     val bool3 = bool(false)
 
-    assertTrue(bool1.isEqualTo(bool2))
-    assertFalse(bool1.isEqualTo(bool3))
+    assertTrue(bool1.isSyntaxEqualTo(bool2))
+    assertFalse(bool1.isSyntaxEqualTo(bool3))
 
     // Test DoubleCstNode
     val double1 = double(1.5)
     val double2 = double(1.5)
     val double3 = double(2.5)
 
-    assertTrue(double1.isEqualTo(double2))
-    assertFalse(double1.isEqualTo(double3))
+    assertTrue(double1.isSyntaxEqualTo(double2))
+    assertFalse(double1.isSyntaxEqualTo(double3))
 
     // Test FloatCstNode
     val float1 = float(1.5f)
     val float2 = float(1.5f)
     val float3 = float(2.5f)
 
-    assertTrue(float1.isEqualTo(float2))
-    assertFalse(float1.isEqualTo(float3))
+    assertTrue(float1.isSyntaxEqualTo(float2))
+    assertFalse(float1.isSyntaxEqualTo(float3))
 
     // Test IntCstNode
     val int1 = int(42)
     val int2 = int(42)
     val int3 = int(43)
 
-    assertTrue(int1.isEqualTo(int2))
-    assertFalse(int1.isEqualTo(int3))
+    assertTrue(int1.isSyntaxEqualTo(int2))
+    assertFalse(int1.isSyntaxEqualTo(int3))
 
     // Test LongCstNode
     val long1 = long(42L)
     val long2 = long(42L)
     val long3 = long(43L)
 
-    assertTrue(long1.isEqualTo(long2))
-    assertFalse(long1.isEqualTo(long3))
+    assertTrue(long1.isSyntaxEqualTo(long2))
+    assertFalse(long1.isSyntaxEqualTo(long3))
 
     // Test NullCstNode
     val null1 = nullValue()
     val null2 = nullValue()
 
-    assertTrue(null1.isEqualTo(null2))
+    assertTrue(null1.isSyntaxEqualTo(null2))
 
     // Test StringCstNode
     val string1 = string("hello")
     val string2 = string("hello")
     val string3 = string("world")
 
-    assertTrue(string1.isEqualTo(string2))
-    assertFalse(string1.isEqualTo(string3))
+    assertTrue(string1.isSyntaxEqualTo(string2))
+    assertFalse(string1.isSyntaxEqualTo(string3))
 
     // Test RegexCstNode
     val regex1 = regex("[a-z]+", "i")
@@ -69,17 +69,17 @@ class IsEqualVisitorTest : CstStatementScope() {
     val regex3 = regex("[a-z]+", "l")
     val regex4 = regex("[0-9]+", "i")
 
-    assertTrue(regex1.isEqualTo(regex2))
-    assertFalse(regex1.isEqualTo(regex3))
-    assertFalse(regex1.isEqualTo(regex4))
+    assertTrue(regex1.isSyntaxEqualTo(regex2))
+    assertFalse(regex1.isSyntaxEqualTo(regex3))
+    assertFalse(regex1.isSyntaxEqualTo(regex4))
 
     // Test CharCstNode
     val char1 = char('a')
     val char2 = char('a')
     val char3 = char('b')
 
-    assertTrue(char1.isEqualTo(char2))
-    assertFalse(char1.isEqualTo(char3))
+    assertTrue(char1.isSyntaxEqualTo(char2))
+    assertFalse(char1.isSyntaxEqualTo(char3))
   }
 
   @Test
@@ -88,9 +88,9 @@ class IsEqualVisitorTest : CstStatementScope() {
     val boolNode = bool(true)
     val stringNode = string("hello")
 
-    assertFalse(intNode.isEqualTo(boolNode))
-    assertFalse(intNode.isEqualTo(stringNode))
-    assertFalse(boolNode.isEqualTo(stringNode))
+    assertFalse(intNode.isSyntaxEqualTo(boolNode))
+    assertFalse(intNode.isSyntaxEqualTo(stringNode))
+    assertFalse(boolNode.isSyntaxEqualTo(stringNode))
   }
 
   @Test
@@ -99,8 +99,8 @@ class IsEqualVisitorTest : CstStatementScope() {
     val template2 = templateSting("hello")
     val template3 = templateSting("world")
 
-    assertTrue(template1.isEqualTo(template2))
-    assertFalse(template1.isEqualTo(template3))
+    assertTrue(template1.isSyntaxEqualTo(template2))
+    assertFalse(template1.isSyntaxEqualTo(template3))
   }
 
   @Test
@@ -125,9 +125,9 @@ class IsEqualVisitorTest : CstStatementScope() {
       string("key2") to int(3) // different value
     )
 
-    assertTrue(map1.isEqualTo(map2))
-    assertFalse(map1.isEqualTo(map3))
-    assertFalse(map1.isEqualTo(map4))
+    assertTrue(map1.isSyntaxEqualTo(map2))
+    assertFalse(map1.isSyntaxEqualTo(map3))
+    assertFalse(map1.isSyntaxEqualTo(map4))
   }
 
   @Test
@@ -137,9 +137,9 @@ class IsEqualVisitorTest : CstStatementScope() {
     val array3 = array(int(1), int(2), int(4)) // different value
     val array4 = array(int(1), int(2)) // different size
 
-    assertTrue(array1.isEqualTo(array2))
-    assertFalse(array1.isEqualTo(array3))
-    assertFalse(array1.isEqualTo(array4))
+    assertTrue(array1.isSyntaxEqualTo(array2))
+    assertFalse(array1.isSyntaxEqualTo(array3))
+    assertFalse(array1.isSyntaxEqualTo(array4))
   }
 
   @Test
@@ -152,9 +152,9 @@ class IsEqualVisitorTest : CstStatementScope() {
     val mapFilter3 = mapFilter(varType, "y", plus(ref("y"), int(1)), gt(ref("y"), int(0)), inExpr) // different variable name
     val mapFilter4 = mapFilter(varType, "x", plus(ref("x"), int(2)), gt(ref("x"), int(0)), inExpr) // different map expression
 
-    assertTrue(mapFilter1.isEqualTo(mapFilter2))
-    assertFalse(mapFilter1.isEqualTo(mapFilter3))
-    assertFalse(mapFilter1.isEqualTo(mapFilter4))
+    assertTrue(mapFilter1.isSyntaxEqualTo(mapFilter2))
+    assertFalse(mapFilter1.isSyntaxEqualTo(mapFilter3))
+    assertFalse(mapFilter1.isSyntaxEqualTo(mapFilter4))
   }
 
   @Test
@@ -168,10 +168,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val allIn4 = allIn(varType, "x", gt(ref("x"), int(1)), inExpr) // different filter expression
     val allIn5 = allIn(varType, "x", gt(ref("x"), int(0)), inExpr, true) // with negate = true
 
-    assertTrue(allIn1.isEqualTo(allIn2))
-    assertFalse(allIn1.isEqualTo(allIn3))
-    assertFalse(allIn1.isEqualTo(allIn4))
-    assertFalse(allIn1.isEqualTo(allIn5))
+    assertTrue(allIn1.isSyntaxEqualTo(allIn2))
+    assertFalse(allIn1.isSyntaxEqualTo(allIn3))
+    assertFalse(allIn1.isSyntaxEqualTo(allIn4))
+    assertFalse(allIn1.isSyntaxEqualTo(allIn5))
   }
 
   @Test
@@ -185,10 +185,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val anyIn4 = anyIn(varType, "x", gt(ref("x"), int(1)), inExpr) // different filter expression
     val anyIn5 = anyIn(varType, "x", gt(ref("x"), int(0)), inExpr, true) // with negate = true
 
-    assertTrue(anyIn1.isEqualTo(anyIn2))
-    assertFalse(anyIn1.isEqualTo(anyIn3))
-    assertFalse(anyIn1.isEqualTo(anyIn4))
-    assertFalse(anyIn1.isEqualTo(anyIn5))
+    assertTrue(anyIn1.isSyntaxEqualTo(anyIn2))
+    assertFalse(anyIn1.isSyntaxEqualTo(anyIn3))
+    assertFalse(anyIn1.isSyntaxEqualTo(anyIn4))
+    assertFalse(anyIn1.isSyntaxEqualTo(anyIn5))
   }
 
   @Test
@@ -201,9 +201,9 @@ class IsEqualVisitorTest : CstStatementScope() {
     val findIn3 = findIn(varType, "y", gt(ref("y"), int(0)), inExpr) // different variable name
     val findIn4 = findIn(varType, "x", gt(ref("x"), int(1)), inExpr) // different filter expression
 
-    assertTrue(findIn1.isEqualTo(findIn2))
-    assertFalse(findIn1.isEqualTo(findIn3))
-    assertFalse(findIn1.isEqualTo(findIn4))
+    assertTrue(findIn1.isSyntaxEqualTo(findIn2))
+    assertFalse(findIn1.isSyntaxEqualTo(findIn3))
+    assertFalse(findIn1.isSyntaxEqualTo(findIn4))
   }
 
   @Test
@@ -212,8 +212,8 @@ class IsEqualVisitorTest : CstStatementScope() {
     val minus2 = minus(int(42))
     val minus3 = minus(int(43))
 
-    assertTrue(minus1.isEqualTo(minus2))
-    assertFalse(minus1.isEqualTo(minus3))
+    assertTrue(minus1.isSyntaxEqualTo(minus2))
+    assertFalse(minus1.isSyntaxEqualTo(minus3))
   }
 
   @Test
@@ -222,8 +222,8 @@ class IsEqualVisitorTest : CstStatementScope() {
     val not2 = not(bool(true))
     val not3 = not(bool(false))
 
-    assertTrue(not1.isEqualTo(not2))
-    assertFalse(not1.isEqualTo(not3))
+    assertTrue(not1.isSyntaxEqualTo(not2))
+    assertFalse(not1.isSyntaxEqualTo(not3))
   }
 
   @Test
@@ -232,8 +232,8 @@ class IsEqualVisitorTest : CstStatementScope() {
     val wrapped2 = WrappedExpressionCstNode(int(42))
     val wrapped3 = WrappedExpressionCstNode(int(43))
 
-    assertTrue(wrapped1.isEqualTo(wrapped2))
-    assertFalse(wrapped1.isEqualTo(wrapped3))
+    assertTrue(wrapped1.isSyntaxEqualTo(wrapped2))
+    assertFalse(wrapped1.isSyntaxEqualTo(wrapped3))
   }
 
   @Test
@@ -244,10 +244,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val binOp4 = plus(int(2), int(2)) // different left operand
     val binOp5 = minus(int(1), int(2)) // different operator
 
-    assertTrue(binOp1.isEqualTo(binOp2))
-    assertFalse(binOp1.isEqualTo(binOp3))
-    assertFalse(binOp1.isEqualTo(binOp4))
-    assertFalse(binOp1.isEqualTo(binOp5))
+    assertTrue(binOp1.isSyntaxEqualTo(binOp2))
+    assertFalse(binOp1.isSyntaxEqualTo(binOp3))
+    assertFalse(binOp1.isSyntaxEqualTo(binOp4))
+    assertFalse(binOp1.isSyntaxEqualTo(binOp5))
   }
 
   @Test
@@ -257,9 +257,9 @@ class IsEqualVisitorTest : CstStatementScope() {
     val elvisThrow3 = elvisThrow(ref("y"), new(type("Exception"))) // different expression
     val elvisThrow4 = elvisThrow(ref("x"), new(type("RuntimeException"))) // different throwable
 
-    assertTrue(elvisThrow1.isEqualTo(elvisThrow2))
-    assertFalse(elvisThrow1.isEqualTo(elvisThrow3))
-    assertFalse(elvisThrow1.isEqualTo(elvisThrow4))
+    assertTrue(elvisThrow1.isSyntaxEqualTo(elvisThrow2))
+    assertFalse(elvisThrow1.isSyntaxEqualTo(elvisThrow3))
+    assertFalse(elvisThrow1.isSyntaxEqualTo(elvisThrow4))
   }
 
   @Test
@@ -270,10 +270,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val binTypeOp4 = instanceof(ref("x"), type("Integer")) // different right operand
     val binTypeOp5 = asType(ref("x"), type("String")) // different operator
 
-    assertTrue(binTypeOp1.isEqualTo(binTypeOp2))
-    assertFalse(binTypeOp1.isEqualTo(binTypeOp3))
-    assertFalse(binTypeOp1.isEqualTo(binTypeOp4))
-    assertFalse(binTypeOp1.isEqualTo(binTypeOp5))
+    assertTrue(binTypeOp1.isSyntaxEqualTo(binTypeOp2))
+    assertFalse(binTypeOp1.isSyntaxEqualTo(binTypeOp3))
+    assertFalse(binTypeOp1.isSyntaxEqualTo(binTypeOp4))
+    assertFalse(binTypeOp1.isSyntaxEqualTo(binTypeOp5))
   }
 
   @Test
@@ -284,10 +284,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val ternary4 = ternary(eq(ref("x"), int(0)), string("0"), string("not zero")) // different true expr
     val ternary5 = ternary(eq(ref("x"), int(0)), string("zero"), string("nonzero")) // different false expr
 
-    assertTrue(ternary1.isEqualTo(ternary2))
-    assertFalse(ternary1.isEqualTo(ternary3))
-    assertFalse(ternary1.isEqualTo(ternary4))
-    assertFalse(ternary1.isEqualTo(ternary5))
+    assertTrue(ternary1.isSyntaxEqualTo(ternary2))
+    assertFalse(ternary1.isSyntaxEqualTo(ternary3))
+    assertFalse(ternary1.isSyntaxEqualTo(ternary4))
+    assertFalse(ternary1.isSyntaxEqualTo(ternary5))
   }
 
   @Test
@@ -296,8 +296,8 @@ class IsEqualVisitorTest : CstStatementScope() {
     val classRef2 = classReference(type("String"))
     val classRef3 = classReference(type("Integer"))
 
-    assertTrue(classRef1.isEqualTo(classRef2))
-    assertFalse(classRef1.isEqualTo(classRef3))
+    assertTrue(classRef1.isSyntaxEqualTo(classRef2))
+    assertFalse(classRef1.isSyntaxEqualTo(classRef3))
   }
 
   @Test
@@ -307,9 +307,9 @@ class IsEqualVisitorTest : CstStatementScope() {
     val superRef1 = superRef()
     val superRef2 = superRef()
 
-    assertTrue(thisRef1.isEqualTo(thisRef2))
-    assertTrue(superRef1.isEqualTo(superRef2))
-    assertFalse(thisRef1.isEqualTo(superRef1))
+    assertTrue(thisRef1.isSyntaxEqualTo(thisRef2))
+    assertTrue(superRef1.isSyntaxEqualTo(superRef2))
+    assertFalse(thisRef1.isSyntaxEqualTo(superRef1))
   }
 
   @Test
@@ -318,8 +318,8 @@ class IsEqualVisitorTest : CstStatementScope() {
     val fieldRef2 = directFieldRef("field1")
     val fieldRef3 = directFieldRef("field2")
 
-    assertTrue(fieldRef1.isEqualTo(fieldRef2))
-    assertFalse(fieldRef1.isEqualTo(fieldRef3))
+    assertTrue(fieldRef1.isSyntaxEqualTo(fieldRef2))
+    assertFalse(fieldRef1.isSyntaxEqualTo(fieldRef3))
   }
 
   @Test
@@ -330,10 +330,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val incr4 = incr("i", false) // different returnValueBefore
     val incr5 = incr("i", true, 2) // different amount
 
-    assertTrue(incr1.isEqualTo(incr2))
-    assertFalse(incr1.isEqualTo(incr3))
-    assertFalse(incr1.isEqualTo(incr4))
-    assertFalse(incr1.isEqualTo(incr5))
+    assertTrue(incr1.isSyntaxEqualTo(incr2))
+    assertFalse(incr1.isSyntaxEqualTo(incr3))
+    assertFalse(incr1.isSyntaxEqualTo(incr4))
+    assertFalse(incr1.isSyntaxEqualTo(incr5))
   }
 
   @Test
@@ -344,10 +344,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val indexAccess4 = indexAccess(ref("array"), listOf(int(1))) // different index
     val indexAccess5 = indexAccess(ref("array"), listOf(int(0)), true) // safe access
 
-    assertTrue(indexAccess1.isEqualTo(indexAccess2))
-    assertFalse(indexAccess1.isEqualTo(indexAccess3))
-    assertFalse(indexAccess1.isEqualTo(indexAccess4))
-    assertFalse(indexAccess1.isEqualTo(indexAccess5))
+    assertTrue(indexAccess1.isSyntaxEqualTo(indexAccess2))
+    assertFalse(indexAccess1.isSyntaxEqualTo(indexAccess3))
+    assertFalse(indexAccess1.isSyntaxEqualTo(indexAccess4))
+    assertFalse(indexAccess1.isSyntaxEqualTo(indexAccess5))
   }
 
   @Test
@@ -356,8 +356,8 @@ class IsEqualVisitorTest : CstStatementScope() {
     val ref2 = ref("variable")
     val ref3 = ref("anotherVariable")
 
-    assertTrue(ref1.isEqualTo(ref2))
-    assertFalse(ref1.isEqualTo(ref3))
+    assertTrue(ref1.isSyntaxEqualTo(ref2))
+    assertFalse(ref1.isSyntaxEqualTo(ref3))
   }
 
   @Test
@@ -373,14 +373,14 @@ class IsEqualVisitorTest : CstStatementScope() {
     val namedFuncCall3 = fCall("function", namedArgs = listOf("different" to int(1), "arg2" to string("hello"))) // different name
     val namedFuncCall4 = fCall("function", namedArgs = listOf("arg1" to int(2), "arg2" to string("hello"))) // different value
 
-    assertTrue(funcCall1.isEqualTo(funcCall2))
-    assertFalse(funcCall1.isEqualTo(funcCall3))
-    assertFalse(funcCall1.isEqualTo(funcCall4))
-    assertFalse(funcCall1.isEqualTo(funcCall5))
+    assertTrue(funcCall1.isSyntaxEqualTo(funcCall2))
+    assertFalse(funcCall1.isSyntaxEqualTo(funcCall3))
+    assertFalse(funcCall1.isSyntaxEqualTo(funcCall4))
+    assertFalse(funcCall1.isSyntaxEqualTo(funcCall5))
 
-    assertTrue(namedFuncCall1.isEqualTo(namedFuncCall2))
-    assertFalse(namedFuncCall1.isEqualTo(namedFuncCall3))
-    assertFalse(namedFuncCall1.isEqualTo(namedFuncCall4))
+    assertTrue(namedFuncCall1.isSyntaxEqualTo(namedFuncCall2))
+    assertFalse(namedFuncCall1.isSyntaxEqualTo(namedFuncCall3))
+    assertFalse(namedFuncCall1.isSyntaxEqualTo(namedFuncCall4))
   }
 
   @Test
@@ -393,11 +393,11 @@ class IsEqualVisitorTest : CstStatementScope() {
     val thisConstrCall2 = thisConstrCall(listOf(int(1), string("hello")))
     val thisConstrCall3 = thisConstrCall(listOf(int(2), string("hello"))) // different args
 
-    assertTrue(superConstrCall1.isEqualTo(superConstrCall2))
-    assertFalse(superConstrCall1.isEqualTo(superConstrCall3))
-    assertTrue(thisConstrCall1.isEqualTo(thisConstrCall2))
-    assertFalse(thisConstrCall1.isEqualTo(thisConstrCall3))
-    assertFalse(superConstrCall1.isEqualTo(thisConstrCall1))
+    assertTrue(superConstrCall1.isSyntaxEqualTo(superConstrCall2))
+    assertFalse(superConstrCall1.isSyntaxEqualTo(superConstrCall3))
+    assertTrue(thisConstrCall1.isSyntaxEqualTo(thisConstrCall2))
+    assertFalse(thisConstrCall1.isSyntaxEqualTo(thisConstrCall3))
+    assertFalse(superConstrCall1.isSyntaxEqualTo(thisConstrCall1))
   }
 
   @Test
@@ -411,12 +411,12 @@ class IsEqualVisitorTest : CstStatementScope() {
     val namedNewInstance2 = new(type("MyClass"), namedArgs = listOf("arg1" to int(1), "arg2" to string("hello")))
     val namedNewInstance3 = new(type("MyClass"), namedArgs = listOf("different" to int(1), "arg2" to string("hello"))) // different name
 
-    assertTrue(newInstance1.isEqualTo(newInstance2))
-    assertFalse(newInstance1.isEqualTo(newInstance3))
-    assertFalse(newInstance1.isEqualTo(newInstance4))
+    assertTrue(newInstance1.isSyntaxEqualTo(newInstance2))
+    assertFalse(newInstance1.isSyntaxEqualTo(newInstance3))
+    assertFalse(newInstance1.isSyntaxEqualTo(newInstance4))
 
-    assertTrue(namedNewInstance1.isEqualTo(namedNewInstance2))
-    assertFalse(namedNewInstance1.isEqualTo(namedNewInstance3))
+    assertTrue(namedNewInstance1.isSyntaxEqualTo(namedNewInstance2))
+    assertFalse(namedNewInstance1.isSyntaxEqualTo(namedNewInstance3))
   }
 
   @Test
@@ -491,13 +491,13 @@ class IsEqualVisitorTest : CstStatementScope() {
       elseBranch { stmt(string("other")) }
     }
 
-    assertTrue(whenNode1.isEqualTo(whenNode2))
-    assertFalse(whenNode1.isEqualTo(whenNode3))
-    assertFalse(whenNode1.isEqualTo(whenNode4))
+    assertTrue(whenNode1.isSyntaxEqualTo(whenNode2))
+    assertFalse(whenNode1.isSyntaxEqualTo(whenNode3))
+    assertFalse(whenNode1.isSyntaxEqualTo(whenNode4))
 
-    assertTrue(switchNode1.isEqualTo(switchNode2))
-    assertFalse(switchNode1.isEqualTo(switchNode3))
-    assertFalse(whenNode1.isEqualTo(switchNode1)) // when and switch are different
+    assertTrue(switchNode1.isSyntaxEqualTo(switchNode2))
+    assertFalse(switchNode1.isSyntaxEqualTo(switchNode3))
+    assertFalse(whenNode1.isSyntaxEqualTo(switchNode1)) // when and switch are different
   }
 
   @Test
@@ -517,8 +517,8 @@ class IsEqualVisitorTest : CstStatementScope() {
       returnStmt(int(42))
     }
 
-    assertTrue(asyncBlock1.isEqualTo(asyncBlock2))
-    assertFalse(asyncBlock1.isEqualTo(asyncBlock3))
+    assertTrue(asyncBlock1.isSyntaxEqualTo(asyncBlock2))
+    assertFalse(asyncBlock1.isSyntaxEqualTo(asyncBlock3))
   }
 
   @Test
@@ -528,9 +528,9 @@ class IsEqualVisitorTest : CstStatementScope() {
     val truthyVar3 = truthyVarDecl(type("boolean"), "different", eq(ref("x"), int(0))) // different name
     val truthyVar4 = truthyVarDecl(type("boolean"), "result", eq(ref("x"), int(1))) // different expression
 
-    assertTrue(truthyVar1.isEqualTo(truthyVar2))
-    assertFalse(truthyVar1.isEqualTo(truthyVar3))
-    assertFalse(truthyVar1.isEqualTo(truthyVar4))
+    assertTrue(truthyVar1.isSyntaxEqualTo(truthyVar2))
+    assertFalse(truthyVar1.isSyntaxEqualTo(truthyVar3))
+    assertFalse(truthyVar1.isSyntaxEqualTo(truthyVar4))
   }
 
   @Test
@@ -540,16 +540,16 @@ class IsEqualVisitorTest : CstStatementScope() {
     val exprStmt2 = stmt(fCall("println", listOf(string("hello"))))
     val exprStmt3 = stmt(fCall("println", listOf(string("world"))))
 
-    assertTrue(exprStmt1.isEqualTo(exprStmt2))
-    assertFalse(exprStmt1.isEqualTo(exprStmt3))
+    assertTrue(exprStmt1.isSyntaxEqualTo(exprStmt2))
+    assertFalse(exprStmt1.isSyntaxEqualTo(exprStmt3))
 
     // Test ReturnCstNode
     val returnStmt1 = returnStmt(int(42))
     val returnStmt2 = returnStmt(int(42))
     val returnStmt3 = returnStmt(int(43))
 
-    assertTrue(returnStmt1.isEqualTo(returnStmt2))
-    assertFalse(returnStmt1.isEqualTo(returnStmt3))
+    assertTrue(returnStmt1.isSyntaxEqualTo(returnStmt2))
+    assertFalse(returnStmt1.isSyntaxEqualTo(returnStmt3))
 
     // Test VariableDeclarationCstNode
     val varDecl1 = varDeclStmt(type("int"), "x", int(42))
@@ -558,10 +558,10 @@ class IsEqualVisitorTest : CstStatementScope() {
     val varDecl4 = varDeclStmt(type("int"), "x", int(43)) // different value
     val varDecl5 = varDeclStmt(type("String"), "x", int(42)) // different type
 
-    assertTrue(varDecl1.isEqualTo(varDecl2))
-    assertFalse(varDecl1.isEqualTo(varDecl3))
-    assertFalse(varDecl1.isEqualTo(varDecl4))
-    assertFalse(varDecl1.isEqualTo(varDecl5))
+    assertTrue(varDecl1.isSyntaxEqualTo(varDecl2))
+    assertFalse(varDecl1.isSyntaxEqualTo(varDecl3))
+    assertFalse(varDecl1.isSyntaxEqualTo(varDecl4))
+    assertFalse(varDecl1.isSyntaxEqualTo(varDecl5))
 
     // Test MultiVarDeclarationCstNode
     val multiVarDecl1 = multiVarDeclStmt(
@@ -588,8 +588,8 @@ class IsEqualVisitorTest : CstStatementScope() {
       fCall("getValues")
     )
 
-    assertTrue(multiVarDecl1.isEqualTo(multiVarDecl2))
-    assertFalse(multiVarDecl1.isEqualTo(multiVarDecl3))
+    assertTrue(multiVarDecl1.isSyntaxEqualTo(multiVarDecl2))
+    assertFalse(multiVarDecl1.isSyntaxEqualTo(multiVarDecl3))
 
     // Test IfStatementCstNode
     val ifStmt1 = ifStmt(eq(ref("x"), int(0))) {
@@ -607,8 +607,8 @@ class IsEqualVisitorTest : CstStatementScope() {
       falseBlock { stmt(fCall("println", listOf(string("not zero")))) }
     }
 
-    assertTrue(ifStmt1.isEqualTo(ifStmt2))
-    assertFalse(ifStmt1.isEqualTo(ifStmt3))
+    assertTrue(ifStmt1.isSyntaxEqualTo(ifStmt2))
+    assertFalse(ifStmt1.isSyntaxEqualTo(ifStmt3))
 
     // Test ForInCstNode
     val forInStmt1 = forInStmt(type("int"), "i", false, array(int(1), int(2), int(3))) {
@@ -623,8 +623,8 @@ class IsEqualVisitorTest : CstStatementScope() {
       stmt(fCall("println", listOf(ref("j"))))
     }
 
-    assertTrue(forInStmt1.isEqualTo(forInStmt2))
-    assertFalse(forInStmt1.isEqualTo(forInStmt3))
+    assertTrue(forInStmt1.isSyntaxEqualTo(forInStmt2))
+    assertFalse(forInStmt1.isSyntaxEqualTo(forInStmt3))
 
     // Test BlockCstNode
     val block1 = block {
@@ -642,8 +642,8 @@ class IsEqualVisitorTest : CstStatementScope() {
       stmt(fCall("println", listOf(string("different"))))
     }
 
-    assertTrue(block1.isEqualTo(block2))
-    assertFalse(block1.isEqualTo(block3))
+    assertTrue(block1.isSyntaxEqualTo(block2))
+    assertFalse(block1.isSyntaxEqualTo(block3))
 
     // Test BreakCstNode and ContinueCstNode
     val breakStmt1 = breakStmt()
@@ -651,17 +651,17 @@ class IsEqualVisitorTest : CstStatementScope() {
     val continueStmt1 = continueStmt()
     val continueStmt2 = continueStmt()
 
-    assertTrue(breakStmt1.isEqualTo(breakStmt2))
-    assertTrue(continueStmt1.isEqualTo(continueStmt2))
-    assertFalse(breakStmt1.isEqualTo(continueStmt1))
+    assertTrue(breakStmt1.isSyntaxEqualTo(breakStmt2))
+    assertTrue(continueStmt1.isSyntaxEqualTo(continueStmt2))
+    assertFalse(breakStmt1.isSyntaxEqualTo(continueStmt1))
 
     // Test ThrowCstNode
     val throwStmt1 = throwStmt(new(type("Exception"), listOf(string("error"))))
     val throwStmt2 = throwStmt(new(type("Exception"), listOf(string("error"))))
     val throwStmt3 = throwStmt(new(type("Exception"), listOf(string("different"))))
 
-    assertTrue(throwStmt1.isEqualTo(throwStmt2))
-    assertFalse(throwStmt1.isEqualTo(throwStmt3))
+    assertTrue(throwStmt1.isSyntaxEqualTo(throwStmt2))
+    assertFalse(throwStmt1.isSyntaxEqualTo(throwStmt3))
 
     // Test TryCatchCstNode
     val tryCatchStmt1 = tryCatchStmt {
@@ -679,7 +679,7 @@ class IsEqualVisitorTest : CstStatementScope() {
       catchBlock(listOf(type("Exception")), "e") { stmt(fCall("handleError")) }
     }
 
-    assertTrue(tryCatchStmt1.isEqualTo(tryCatchStmt2))
-    assertFalse(tryCatchStmt1.isEqualTo(tryCatchStmt3))
+    assertTrue(tryCatchStmt1.isSyntaxEqualTo(tryCatchStmt2))
+    assertFalse(tryCatchStmt1.isSyntaxEqualTo(tryCatchStmt3))
   }
 }

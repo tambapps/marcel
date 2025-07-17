@@ -13,7 +13,7 @@ class WildcardImportCstNode(
   AbstractImportCstNode(parent, tokenStart, tokenEnd) {
   override fun <T> accept(visitor: ImportCstNodeVisitor<T>) = visitor.visit(this)
 
-  override fun isEqualTo(other: CstNode): Boolean {
+  override fun isSyntaxEqualTo(other: CstNode): Boolean {
     if (other !is WildcardImportCstNode) return false
     return prefix == other.prefix
   }

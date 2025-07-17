@@ -13,15 +13,15 @@ class AnnotationCstNode(
 ) :
   AbstractCstNode(parent, tokenStart, tokenEnd), IdentifiableCstNode {
 
-  override fun isEqualTo(other: CstNode): Boolean {
+  override fun isSyntaxEqualTo(other: CstNode): Boolean {
     if (other !is AnnotationCstNode) return false
 
-    if (!typeNode.isEqualTo(other.typeNode)) return false
+    if (!typeNode.isSyntaxEqualTo(other.typeNode)) return false
     if (attributes.size != other.attributes.size) return false
     for (i in attributes.indices) {
       val (name1, value1) = attributes[i]
       val (name2, value2) = other.attributes[i]
-      if (name1 != name2 || !value1.isEqualTo(value2)) return false
+      if (name1 != name2 || !value1.isSyntaxEqualTo(value2)) return false
     }
     return true
   }

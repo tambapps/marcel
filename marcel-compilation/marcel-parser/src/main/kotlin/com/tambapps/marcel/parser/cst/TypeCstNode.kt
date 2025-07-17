@@ -34,7 +34,7 @@ class TypeCstNode constructor(
 
   fun toString(nullable: Boolean) = if (nullable) "${toString()}?" else toString()
 
-  override fun isEqualTo(other: CstNode): Boolean {
+  override fun isSyntaxEqualTo(other: CstNode): Boolean {
     if (other !is TypeCstNode) return false
 
     if (arrayDimensions != other.arrayDimensions) return false

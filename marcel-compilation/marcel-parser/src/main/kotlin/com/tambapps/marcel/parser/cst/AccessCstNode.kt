@@ -18,7 +18,7 @@ class AccessCstNode(
 ) :
   AbstractCstNode(parent, tokenStart, tokenEnd), IdentifiableCstNode {
 
-  override fun isEqualTo(other: CstNode): Boolean {
+  override fun isSyntaxEqualTo(other: CstNode): Boolean {
 
     if (other !is AccessCstNode) return false
 

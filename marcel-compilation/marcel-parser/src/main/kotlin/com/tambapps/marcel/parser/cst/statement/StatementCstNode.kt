@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.cst.statement
 
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.IdentifiableCstNode
-import com.tambapps.marcel.parser.cst.visitor.IsEqualVisitor
+import com.tambapps.marcel.parser.cst.visitor.IsSyntacticallyEqualVisitor
 import com.tambapps.marcel.parser.cst.visitor.AnyStatementCstNodeVisitor
 import com.tambapps.marcel.parser.cst.visitor.ForEachNodeVisitor
 import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
@@ -18,6 +18,6 @@ interface StatementCstNode: IdentifiableCstNode {
 
   fun any(predicate: (StatementCstNode) -> Boolean) = accept(AnyStatementCstNodeVisitor(predicate))
 
-  override fun isEqualTo(other: CstNode): Boolean = accept(IsEqualVisitor(other))
+  override fun isSyntaxEqualTo(other: CstNode): Boolean = accept(IsSyntacticallyEqualVisitor(other))
 
 }
