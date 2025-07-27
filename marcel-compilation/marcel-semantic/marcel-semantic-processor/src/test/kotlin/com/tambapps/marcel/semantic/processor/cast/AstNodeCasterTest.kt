@@ -13,8 +13,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-// TODO stop using assertEquals for AST nodes. Remove all equals and hashcode methods
-//   from AST nodes and use a isEqualVisitor and a custom assertIsEqual method like in CST nodes
 class AstNodeCasterTest: ExpressionComposer(caster = AstNodeCaster(TYPE_RESOLVER)) {
 
   companion object {
