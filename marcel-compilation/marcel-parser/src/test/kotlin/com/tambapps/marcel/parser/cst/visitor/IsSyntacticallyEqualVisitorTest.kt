@@ -292,9 +292,9 @@ class IsSyntacticallyEqualVisitorTest : CstStatementScope() {
 
   @Test
   fun testClassReferenceEquality() {
-    val classRef1 = classReference(type("String"))
-    val classRef2 = classReference(type("String"))
-    val classRef3 = classReference(type("Integer"))
+    val classRef1 = classRef(type("String"))
+    val classRef2 = classRef(type("String"))
+    val classRef3 = classRef(type("Integer"))
 
     assertTrue(classRef1.isSyntaxEqualTo(classRef2))
     assertFalse(classRef1.isSyntaxEqualTo(classRef3))

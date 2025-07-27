@@ -68,7 +68,6 @@ import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 
-// TODO test
 class IsSemanticallyEqualVisitor(
   private val node: AstNode
 ): ExpressionNodeVisitor<Boolean>, StatementNodeVisitor<Boolean> {
@@ -92,7 +91,12 @@ class IsSemanticallyEqualVisitor(
     it.owner eq node.owner && it.indexExpr eq node.indexExpr && it.expression eq node.expression
   }
 
-  private fun eq(node: BinaryOperatorNode) = eqTo<BinaryOperatorNode> { it.leftOperand eq node.leftOperand && it.rightOperand eq node.rightOperand }
+  private fun eq(node: BinaryOperatorNode) = eqTo<BinaryOperatorNode> {
+    it.javaClass == node.javaClass &&
+    it.leftOperand eq node.leftOperand
+        && it.rightOperand eq node.rightOperand
+
+  }
 
   override fun visit(node: LeftShiftNode) = eq(node)
 
@@ -173,7 +177,7 @@ class IsSemanticallyEqualVisitor(
   }
 
   override fun visit(node: InstanceOfNode) = eqTo<InstanceOfNode> {
-    it.type == node.type && it.expressionNode eq node.expressionNode
+    it.instanceType == node.instanceType && it.expressionNode eq node.expressionNode
   }
 
   override fun visit(node: BoolConstantNode) = eqTo<BoolConstantNode> { it.value == node.value }

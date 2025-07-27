@@ -159,7 +159,7 @@ open class CstExpressionScope(
   fun double(value: Double) = DoubleCstNode(value = value, token = tokenStart)
   fun ref(name: String) = ReferenceCstNode(value = name, token = tokenStart, parent = parent)
   fun directFieldRef(name: String) = DirectFieldReferenceCstNode(value = name, token = tokenStart, parent = parent)
-  fun classReference(type: TypeCstNode) = ClassReferenceCstNode(parent, type, tokenStart, tokenEnd)
+  fun classRef(type: TypeCstNode) = ClassReferenceCstNode(parent, type, tokenStart, tokenEnd)
   fun regex(value: String, flags: String = "") = RegexCstNode(
     value = value,
     flags = flags.map { RegexCstNode.FLAGS_MAP.getValue(it) },

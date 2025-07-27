@@ -62,7 +62,7 @@ class MarcelLambdaParserTest: CstExpressionScope() {
     assertEquals("assertThrows", fCall.value)
     assertNull(fCall.castType)
     assertEquals(2, fCall.positionalArgumentNodes.size)
-    assertIsEqual(classReference(type("ErrorResponseException")), fCall.positionalArgumentNodes.first())
+    assertIsEqual(classRef(type("ErrorResponseException")), fCall.positionalArgumentNodes.first())
     val lambdaArg = fCall.positionalArgumentNodes[1]
     assertTrue(lambdaArg is LambdaCstNode)
     lambdaArg as LambdaCstNode
